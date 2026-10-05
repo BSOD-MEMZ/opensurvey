@@ -35,3 +35,9 @@ yarn.lock
 .yarn
 lib
 .expo
+
+# 本地运行产物 / 工作区数据
+.workbuddy/
+server/logs/
+server/public/userUpload/
+server/public/exportfile/
