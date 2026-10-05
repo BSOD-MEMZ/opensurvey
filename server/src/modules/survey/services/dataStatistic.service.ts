@@ -9,6 +9,104 @@ import { DataItem } from 'src/interfaces/survey';
 import { ResponseSchema } from 'src/models/responseSchema.entity';
 import { getListHeadByDataList, transformAndMergeArrayFields } from '../utils';
 import { QUESTION_TYPE } from 'src/enums/question';
+
+/** 值为对象的题型（数据表 / 导出需要把 hash 还原成可读文案） */
+const OBJECT_VALUE_TYPES: string[] = [
+  QUESTION_TYPE.MATRIX_RADIO,
+  QUESTION_TYPE.MATRIX_SCALE,
+  QUESTION_TYPE.MATRIX_CHECKBOX,
+  QUESTION_TYPE.MATRIX_INPUT,
+  QUESTION_TYPE.MULTI_FILL,
+  QUESTION_TYPE.PROPORTION,
+];
+
+/** 量表列没有实体选项，直接用 scale_N 里的数字 */
+function columnText(columnMap: Record<string, any>, hash: any): string {
+  if (columnMap[hash]?.text) {
+    return columnMap[hash].text;
+  }
+  if (typeof hash === 'string' && hash.indexOf('scale_') === 0) {
+    return hash.replace('scale_', '');
+  }
+  return String(hash);
+}
+
+/**
+ * 把「值为对象」的题型还原成一行可读文案
+ * 例：矩阵单选 -> 整体体验：满意；功能完整性：满意
+ */
+function stringifyObjectAnswer(
+  itemConfig: DataItem,
+  picked: Record<string, any>,
+): string {
+  const columnMap = keyBy(itemConfig.options || [], 'hash');
+  const rowMap = keyBy(itemConfig.matrixRows || [], 'hash');
+  const blankMap = keyBy(itemConfig.fillBlanks || [], 'hash');
+
+  switch (itemConfig.type) {
+    case QUESTION_TYPE.MATRIX_RADIO:
+    case QUESTION_TYPE.MATRIX_SCALE:
+      return Object.keys(picked)
+        .map((rowHash) => {
+          const rowText = rowMap[rowHash]?.text || rowHash;
+          return `${rowText}：${columnText(columnMap, picked[rowHash])}`;
+        })
+        .join('；');
+
+    case QUESTION_TYPE.MATRIX_CHECKBOX:
+      return Object.keys(picked)
+        .map((rowHash) => {
+          const rowText = rowMap[rowHash]?.text || rowHash;
+          const pickedColumns = Array.isArray(picked[rowHash])
+            ? picked[rowHash]
+            : [];
+          const text = pickedColumns
+            .map((colHash) => columnText(columnMap, colHash))
+            .join('、');
+          return `${rowText}：${text || '未选择'}`;
+        })
+        .join('；');
+
+    case QUESTION_TYPE.MATRIX_INPUT:
+      return Object.keys(picked)
+        .map((rowHash) => {
+          const rowText = rowMap[rowHash]?.text || rowHash;
+          const rowValue = picked[rowHash];
+          if (!rowValue || typeof rowValue !== 'object') {
+            return `${rowText}：`;
+          }
+          const cells = Object.keys(rowValue)
+            .filter((colHash) => String(rowValue[colHash] ?? '').trim() !== '')
+            .map(
+              (colHash) =>
+                `${columnText(columnMap, colHash)}=${rowValue[colHash]}`,
+            );
+          return `${rowText}：${cells.join('，')}`;
+        })
+        .join('；');
+
+    case QUESTION_TYPE.MULTI_FILL:
+      return Object.keys(picked)
+        .map((blankHash) => {
+          const blankText = blankMap[blankHash]?.text || blankHash;
+          return `${blankText}：${picked[blankHash] ?? ''}`;
+        })
+        .join('；');
+
+    case QUESTION_TYPE.PROPORTION:
+      return Object.keys(picked)
+        .map((optionHash) => {
+          const optionText = columnMap[optionHash]?.text || optionHash;
+          const value = picked[optionHash];
+          return `${optionText}：${value === '' || value === undefined ? 0 : value}`;
+        })
+        .join('；');
+
+    default:
+      return JSON.stringify(picked);
+  }
+}
+
 @Injectable()
 export class DataStatisticService {
   private radioType = [QUESTION_TYPE.RADIO_STAR, QUESTION_TYPE.RADIO_NPS];
@@ -75,36 +173,17 @@ export class DataStatisticService {
           data[`${itemConfigKey}_custom`] =
             data[`${itemConfigKey}_${data[itemConfigKey]}`];
         }
-        // 矩阵题：{ 行hash: 列hash } 还原为「行文案：列文案；…」
+        // 值为对象的题型（矩阵 / 多项填空 / 比重）：还原为可读文案
         if (
-          (itemConfig.type === QUESTION_TYPE.MATRIX_RADIO ||
-            itemConfig.type === QUESTION_TYPE.MATRIX_SCALE) &&
+          OBJECT_VALUE_TYPES.includes(itemConfig.type) &&
           data[itemKey] &&
           typeof data[itemKey] === 'object' &&
           !Array.isArray(data[itemKey])
         ) {
-          const colTextMap: Record<string, any> = keyBy(
-            itemConfig.options || [],
-            'hash',
+          data[itemKey] = stringifyObjectAnswer(
+            itemConfig,
+            data[itemKey] as Record<string, any>,
           );
-          const rowTextMap: Record<string, any> = keyBy(
-            itemConfig.matrixRows || [],
-            'hash',
-          );
-          const picked = data[itemKey] as Record<string, string>;
-          data[itemKey] = Object.keys(picked)
-            .map((rowHash) => {
-              const rowText = rowTextMap[rowHash]?.text || rowHash;
-              const colHash = picked[rowHash];
-              // 量表列没有实体选项，直接用 1~N 的数字
-              const colText =
-                colTextMap[colHash]?.text ||
-                (typeof colHash === 'string' && colHash.indexOf('scale_') === 0
-                  ? colHash.replace('scale_', '')
-                  : colHash);
-              return `${rowText}：${colText}`;
-            })
-            .join('；');
           continue;
         }
         // 将选项id还原成选项文案

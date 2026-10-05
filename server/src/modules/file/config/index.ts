@@ -5,6 +5,14 @@ const SERVER_LOCAL_CONFIG = {
   NEED_AUTH: true,
 };
 
+// 答题端（匿名受访者）用的上传通道：不能要求登录态
+const SERVER_PUBLIC_CONFIG = {
+  LOCAL_STATIC_RENDER_TYPE: 'server',
+  IS_PRIVATE_READ: false,
+  FILE_KEY_PREFIX: 'userUpload/public',
+  NEED_AUTH: false,
+};
+
 const QINIU_CONFIG = {
   FILE_STORAGE_PROVIDER: 'qiniu',
   IS_PRIVATE_READ: false,
@@ -52,10 +60,12 @@ export const MINIO_CONFIG = {
 
 export const channels = {
   upload: 'SERVER_LOCAL_CONFIG',
+  uploadPublic: 'SERVER_PUBLIC_CONFIG',
 };
 
 export const uploadConfig = {
   SERVER_LOCAL_CONFIG,
+  SERVER_PUBLIC_CONFIG,
   QINIU_CONFIG,
   ALI_OSS_CONFIG,
   MINIO_CONFIG,

@@ -1,0 +1,42 @@
+@import '@materials/questions/common/css/field.scss';
+
+.multi-fill-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+
+  &.is-horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.3rem;
+
+    .multi-fill-item {
+      flex: 0 1 auto;
+    }
+  }
+
+  .multi-fill-item {
+    display: flex;
+    align-items: center;
+    gap: 0.16rem;
+  }
+
+  .multi-fill-label {
+    flex: 0 0 auto;
+    max-width: 3.2rem;
+    font-size: 0.28rem;
+    color: #444466;
+    line-height: 1.5;
+  }
+
+  .multi-fill-input {
+    @include field-shell();
+    flex: 1 1 2.6rem;
+    min-width: 2rem;
+  }
+
+  .multi-fill-empty {
+    font-size: 0.26rem;
+    color: #8a8aa8;
+  }
+}

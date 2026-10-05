@@ -1,0 +1,89 @@
+.image-choice-wrapper {
+  display: grid;
+  grid-template-columns: repeat(var(--image-choice-columns, 3), minmax(0, 1fr));
+  gap: 0.24rem;
+
+  .image-choice-item {
+    position: relative;
+    padding: 0.12rem;
+    background: #ffffff;
+    border: 2px solid #e6e9f2;
+    border-radius: 0.2rem;
+    cursor: pointer;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+
+    &:hover {
+      border-color: #cfd6e6;
+      box-shadow: 0 4px 16px rgba(68, 68, 102, 0.08);
+    }
+
+    &.is-picked {
+      border-color: var(--primary-color, #77eedd);
+      box-shadow: 0 0 0 3px rgba(119, 238, 221, 0.25);
+    }
+  }
+
+  .image-choice-media {
+    position: relative;
+    width: 100%;
+    padding-top: 72%;
+    overflow: hidden;
+    border-radius: 0.14rem;
+    background: #f4f6fb;
+
+    img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .image-choice-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.22rem;
+      color: #b9bccd;
+    }
+
+    // 选中标记：pjsk 的实心色块 + 深色对勾
+    .image-choice-mark {
+      position: absolute;
+      top: 0.12rem;
+      right: 0.12rem;
+      width: 0.4rem;
+      height: 0.4rem;
+      border-radius: 0.12rem;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #cfd6e6;
+      transition: background-color 0.16s ease, border-color 0.16s ease;
+    }
+  }
+
+  .image-choice-item.is-picked .image-choice-mark {
+    background-color: var(--primary-color, #77eedd);
+    border-color: var(--primary-color, #77eedd);
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3.4 8.4 6.4 11.4 12.6 4.9' fill='none' stroke='%23444466' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 0.3rem;
+  }
+
+  .image-choice-text {
+    margin-top: 0.12rem;
+    font-size: 0.26rem;
+    line-height: 1.5;
+    color: #444466;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  .image-choice-empty {
+    font-size: 0.26rem;
+    color: #8a8aa8;
+  }
+}

@@ -1,3 +1,5 @@
+// 矩阵类题型共享样式（矩阵单选 / 矩阵量表 / 矩阵多选 / 矩阵填空）
+// 强调色走 --primary-color，跟随每份问卷的主题色
 .matrix-wrapper {
   width: 100%;
   overflow: hidden;
@@ -21,7 +23,7 @@
       padding: 8px 4px;
       font-size: 14px;
       font-weight: normal;
-      color: #333;
+      color: #444466;
       text-align: center;
       word-break: break-word;
       line-height: 1.4;
@@ -35,27 +37,28 @@
       position: relative;
       padding: 10px 22px 10px 0;
       font-size: 14px;
-      color: #333;
+      color: #444466;
       line-height: 1.5;
       text-align: left;
       word-break: break-word;
-      border-top: 1px solid #f0f0f0;
+      border-top: 1px solid #eef1f8;
     }
 
     .matrix-cell {
       padding: 10px 4px;
       text-align: center;
       vertical-align: middle;
-      border-top: 1px solid #f0f0f0;
+      border-top: 1px solid #eef1f8;
       cursor: pointer;
 
-      &:hover .matrix-radio {
-        border-color: #2f6fed;
+      &:hover .matrix-radio,
+      &:hover .matrix-checkbox {
+        border-color: var(--primary-color, #77eedd);
       }
     }
 
     tr.is-answered .matrix-row-title {
-      color: #1f2329;
+      color: #2b3035;
     }
 
     .matrix-clear {
@@ -74,24 +77,41 @@
       cursor: pointer;
 
       &:hover {
-        color: #eb505c;
+        color: #ff5b6e;
       }
     }
   }
 
-  .matrix-radio {
+  .matrix-radio,
+  .matrix-checkbox {
     display: inline-block;
     width: 16px;
     height: 16px;
-    border: 1px solid #c9ccd1;
-    border-radius: 50%;
+    border: 1px solid #cfd6e6;
     background: #fff;
     box-sizing: border-box;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+
+  .matrix-radio {
+    border-radius: 50%;
+  }
+
+  .matrix-checkbox {
+    border-radius: 5px;
   }
 
   .matrix-cell.is-picked .matrix-radio {
-    border: 5px solid #2f6fed;
+    border: 5px solid var(--primary-color, #77eedd);
+  }
+
+  .matrix-cell.is-picked .matrix-checkbox {
+    border-color: var(--primary-color, #77eedd);
+    background-color: var(--primary-color, #77eedd);
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3.6 8.4 6.4 11.2 12.4 4.8' fill='none' stroke='%23444466' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 13px;
   }
 
   .matrix-scale-labels {
@@ -100,7 +120,7 @@
     margin-top: 8px;
     padding-right: 2px;
     font-size: 13px;
-    color: #7a7e85;
+    color: #8a8aa8;
 
     .scale-min,
     .scale-max {
@@ -111,12 +131,54 @@
       text-align: right;
     }
   }
+
+  .matrix-tip {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: #8a8aa8;
+  }
+}
+
+// 矩阵填空：单元格里的输入框
+.matrix-cell-input {
+  display: block;
+  width: 100%;
+  min-height: 34px;
+  padding: 0 8px;
+  font-size: 14px;
+  color: #444466;
+  background: #fff;
+  border: 1px solid #e6e9f2;
+  border-radius: 8px;
+  outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+
+  &::placeholder {
+    color: #b9bccd;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: #cfd6e6;
+  }
+
+  &:focus:not(:disabled) {
+    border-color: var(--primary-color, #77eedd);
+    box-shadow: 0 0 0 3px rgba(119, 238, 221, 0.28);
+  }
+
+  &:disabled {
+    color: #5d5d80;
+    background: #f4f6fb;
+    cursor: not-allowed;
+  }
 }
 
 .matrix-empty {
   padding: 12px;
   font-size: 13px;
-  color: #92949d;
-  background: #f7f8fa;
-  border-radius: 4px;
+  color: #8a8aa8;
+  background: #f4f6fb;
+  border-radius: 8px;
 }

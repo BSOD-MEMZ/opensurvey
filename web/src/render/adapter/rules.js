@@ -5,7 +5,7 @@ import {
   keys as _keys,
   set as _set
 } from 'lodash-es'
-import { INPUT, RATES, MATRIX_TYPES, QUESTION_TYPE } from '@/common/typeEnum.ts'
+import { INPUT, RATES, OBJECT_VALUE_TYPES, QUESTION_TYPE } from '@/common/typeEnum.ts'
 import { regexpMap } from '@/common/regexpMap.ts'
 
 const msgMap = {
@@ -207,6 +207,87 @@ const generateOthersKeyMap = (question) => {
   return othersKeyMap
 }
 
+// 各「值为对象」的题型的必填判定：通用 required 判定不出"空对象"，只能逐题判断
+const asObject = (value) => (value && typeof value === 'object' && !Array.isArray(value) ? value : {})
+
+const objectRequiredValidators = {
+  [QUESTION_TYPE.MATRIX_RADIO](question) {
+    return (value) => {
+      const rows = _get(question, 'matrixRows', []) || []
+      const answered = asObject(value)
+      return rows.filter((row) => !answered[row.hash]).length
+    }
+  },
+  [QUESTION_TYPE.MATRIX_SCALE](question) {
+    return (value) => {
+      const rows = _get(question, 'matrixRows', []) || []
+      const answered = asObject(value)
+      return rows.filter((row) => !answered[row.hash]).length
+    }
+  },
+  [QUESTION_TYPE.MATRIX_CHECKBOX](question) {
+    return (value) => {
+      const rows = _get(question, 'matrixRows', []) || []
+      const answered = asObject(value)
+      return rows.filter((row) => {
+        const picked = answered[row.hash]
+        return !Array.isArray(picked) || picked.length === 0
+      }).length
+    }
+  },
+  [QUESTION_TYPE.MATRIX_INPUT](question) {
+    return (value) => {
+      const rows = _get(question, 'matrixRows', []) || []
+      const answered = asObject(value)
+      return rows.filter((row) => {
+        const rowValue = answered[row.hash]
+        if (!rowValue || typeof rowValue !== 'object') return true
+        return !Object.keys(rowValue).some((key) => String(rowValue[key] ?? '').trim())
+      }).length
+    }
+  },
+  [QUESTION_TYPE.MULTI_FILL](question) {
+    return (value) => {
+      const blanks = _get(question, 'fillBlanks', []) || []
+      const answered = asObject(value)
+      return blanks.filter((blank) => !String(answered[blank.hash] ?? '').trim()).length
+    }
+  },
+  [QUESTION_TYPE.PROPORTION](question) {
+    return (value) => {
+      const options = _get(question, 'options', []) || []
+      const answered = asObject(value)
+      const filled = options.filter((option) => String(answered[option.hash] ?? '').trim() !== '')
+      return filled.length > 0 ? 0 : 1
+    }
+  }
+}
+
+const objectRequiredMessages = {
+  [QUESTION_TYPE.MATRIX_RADIO]: (missing) => `还有 ${missing} 行未选择，请填写完整`,
+  [QUESTION_TYPE.MATRIX_SCALE]: (missing) => `还有 ${missing} 行未选择，请填写完整`,
+  [QUESTION_TYPE.MATRIX_CHECKBOX]: (missing) => `还有 ${missing} 行未选择，请填写完整`,
+  [QUESTION_TYPE.MATRIX_INPUT]: (missing) => `还有 ${missing} 行未填写，请填写完整`,
+  [QUESTION_TYPE.MULTI_FILL]: (missing) => `还有 ${missing} 项未填写，请填写完整`,
+  [QUESTION_TYPE.PROPORTION]: () => '请为各项分配比重'
+}
+
+// 比重题：填了值就必须合计等于目标值
+const proportionSumValidator = (question) => ({
+  validator(rule, value, callback) {
+    const options = _get(question, 'options', []) || []
+    const total = Number(_get(question, 'total', 100)) || 100
+    const answered = asObject(value)
+    const touched = options.some((option) => String(answered[option.hash] ?? '').trim() !== '')
+    if (!touched) {
+      callback([])
+      return
+    }
+    const sum = options.reduce((acc, option) => acc + (Number(answered[option.hash]) || 0), 0)
+    callback(sum === total ? [] : [`各项之和需为 ${total}，当前为 ${sum}`])
+  }
+})
+
 // 生成所有题目的校验规则
 export default function (questionConfig) {
   const dataList = _get(questionConfig, 'dataConf.dataList')
@@ -224,8 +305,8 @@ export default function (questionConfig) {
       rangeConfig
     } = current
     const othersKeyMap = generateOthersKeyMap(current)
-    // 部分题目不校验
-    if (valid === '0' || /mobileHidden|section|hidden/.test(type)) {
+    // 说明题与计算题不参与校验
+    if (valid === '0' || /mobileHidden|section|hidden/.test(type) || type === QUESTION_TYPE.CALCULATION) {
       return pre
     }
 
@@ -244,22 +325,24 @@ export default function (questionConfig) {
       numberRangeMax
     )
 
-    // 矩阵题的值是对象，通用 required 规则判定不出"空对象"，
-    // 这里换成逐行校验：必填时要求每一行都选了。
-    if (MATRIX_TYPES.includes(type)) {
-      const matrixRules = validArr.filter((rule) => !rule.required)
-      if (isRequired) {
-        const matrixRows = _get(current, 'matrixRows', []) || []
-        matrixRules.unshift({
+    // 值为对象的题型（矩阵 / 多项填空 / 比重）：通用 required 判定不出"空对象"，
+    // 换成按题型逐个判断（矩阵逐行、填空逐空、比重看是否分配过）
+    if (OBJECT_VALUE_TYPES.includes(type)) {
+      const objectRules = validArr.filter((rule) => !rule.required)
+      const missingCounter = objectRequiredValidators[type]
+      if ((isRequired || valid === '*') && missingCounter) {
+        objectRules.unshift({
           validator(rule, value, callback) {
-            const answered = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
-            const missing = matrixRows.filter((row) => !answered[row.hash]).length
-            callback(missing > 0 ? [`还有 ${missing} 行未选择，请填写完整`] : [])
+            const missing = missingCounter(current)(value)
+            callback(missing > 0 ? [objectRequiredMessages[type](missing)] : [])
           }
         })
       }
+      if (type === QUESTION_TYPE.PROPORTION) {
+        objectRules.push(proportionSumValidator(current))
+      }
       validArr.length = 0
-      validArr.push(...matrixRules)
+      validArr.push(...objectRules)
     }
 
     validMap = { [field]: validArr }

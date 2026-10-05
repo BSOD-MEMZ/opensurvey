@@ -65,13 +65,43 @@ export interface DataItem {
   nps?: NPS;
   placeholderDesc: string;
   textRange?: TextRange;
+  numberRange?: TextRange;
   options?: Option[];
-  // 矩阵题的行（matrix-radio / matrix-scale）
+  // 矩阵题的行（matrix-radio / matrix-scale / matrix-checkbox / matrix-input）
   matrixRows?: Array<{ text: string; hash: string }>;
   // 矩阵量表的格数
   scaleMax?: number;
   scaleMinLabel?: string;
   scaleMaxLabel?: string;
+  // 矩阵填空单元格的提示文案
+  matrixPlaceholder?: string;
+  // 多项填空的填空项
+  fillBlanks?: Array<{ text: string; hash: string }>;
+  blankPlaceholder?: string;
+  // 日期 / 时间
+  dateRange?: boolean;
+  dateMin?: string;
+  dateMax?: string;
+  timeRange?: boolean;
+  timeStep?: number;
+  // 文件上传
+  uploadType?: string;
+  fileCount?: number;
+  fileMaxSize?: number;
+  fileAccept?: string;
+  // 图片题
+  columns?: number;
+  showOptionText?: boolean;
+  // 比重题
+  total?: number;
+  // 计算题
+  calcFields?: Array<{ field: string; label: string }>;
+  calcFormula?: string;
+  calcPrecision?: number;
+  calcUnit?: string;
+  calcVisible?: boolean;
+  // 段落说明的正文（富文本）
+  desc?: string;
   importKey?: string;
   importData?: string;
   cOption?: string;

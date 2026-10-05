@@ -30,33 +30,38 @@ export async function getSchemaBySurveyType(surveyType: string) {
 }
 
 export function getListHeadByDataList(dataList) {
-  const listHead = dataList.map((question) => {
-    let othersCode;
-    const radioType = [QUESTION_TYPE.RADIO_STAR, QUESTION_TYPE.RADIO_NPS];
-    if (radioType.includes(question.type)) {
-      const rangeConfigKeys = question.rangeConfig
-        ? Object.keys(question.rangeConfig)
-        : [];
-      if (rangeConfigKeys.length > 0) {
-        othersCode = [{ code: `${question.field}_custom`, option: '填写理由' }];
+  // 说明题（section）与隐藏题不产生答案，不该在数据表/导出里占一列
+  const listHead = dataList
+    .filter((question) => !/section|hidden/i.test(question.type || ''))
+    .map((question) => {
+      let othersCode;
+      const radioType = [QUESTION_TYPE.RADIO_STAR, QUESTION_TYPE.RADIO_NPS];
+      if (radioType.includes(question.type)) {
+        const rangeConfigKeys = question.rangeConfig
+          ? Object.keys(question.rangeConfig)
+          : [];
+        if (rangeConfigKeys.length > 0) {
+          othersCode = [
+            { code: `${question.field}_custom`, option: '填写理由' },
+          ];
+        }
+      } else {
+        othersCode = (question.options || [])
+          .filter((optionItem) => optionItem.othersKey)
+          .map((optionItem) => {
+            return {
+              code: optionItem.othersKey,
+              option: optionItem.text,
+            };
+          });
       }
-    } else {
-      othersCode = (question.options || [])
-        .filter((optionItem) => optionItem.othersKey)
-        .map((optionItem) => {
-          return {
-            code: optionItem.othersKey,
-            option: optionItem.text,
-          };
-        });
-    }
-    return {
-      field: question.field,
-      title: question.title,
-      type: question.type,
-      othersCode,
-    };
-  });
+      return {
+        field: question.field,
+        title: question.title,
+        type: question.type,
+        othersCode,
+      };
+    });
   listHead.push({
     field: 'diffTime',
     title: '答题耗时（秒）',

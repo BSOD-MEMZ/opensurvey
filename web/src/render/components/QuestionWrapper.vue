@@ -168,7 +168,10 @@ watch(
     const { field, type, innerType } = props.moduleConfig
     if (!newVal && oldVal) {
       // 如果被隐藏题目有选中值，则需要清空选中值
-      if (formValues.value[field].toString()) {
+      // 说明题等不产生答案的题型在 formValues 里没有键，这里必须容错，
+      // 否则「从显示切到隐藏」时会读 undefined.toString() 直接抛错
+      const currentValue = formValues.value[field]
+      if (currentValue !== undefined && currentValue !== null && String(currentValue)) {
         let value = ''
         // 题型是多选，或者子题型是多选（innerType是用于投票）
         if (type === QUESTION_TYPE.CHECKBOX || innerType === QUESTION_TYPE.CHECKBOX) {

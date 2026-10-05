@@ -1,0 +1,19 @@
+@import '@materials/questions/common/css/field.scss';
+
+.time-wrapper {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.16rem;
+
+  .time-input {
+    @include field-shell();
+    flex: 1 1 1.9rem;
+    min-width: 1.9rem;
+  }
+
+  .time-separator {
+    font-size: 0.26rem;
+    color: $field-ink-2;
+  }
+}

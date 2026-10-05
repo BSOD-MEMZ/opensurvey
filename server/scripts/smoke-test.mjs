@@ -198,13 +198,149 @@ function buildQuestions(suffix) {
       sliderMinLabel: '完全不会',
       sliderMaxLabel: '一定会',
     },
+    /* ---------- 第二批题型（对齐问卷星） ---------- */
+    {
+      ...base,
+      field: `q_date_${suffix}`,
+      type: 'date',
+      title: '请选择日期',
+      dateRange: false,
+      options: [],
+    },
+    {
+      ...base,
+      field: `q_time_${suffix}`,
+      type: 'time',
+      title: '请选择时间',
+      timeRange: false,
+      timeStep: 60,
+      options: [],
+    },
+    {
+      ...base,
+      field: `q_select_${suffix}`,
+      type: 'select',
+      title: '请选择所在城市',
+      options: makeOptions(['北京', '上海', '广州'], `se${suffix}`),
+    },
+    {
+      ...base,
+      isRequired: false,
+      field: `q_upload_${suffix}`,
+      type: 'upload',
+      title: '请上传一张截图',
+      uploadType: 'image',
+      fileCount: 1,
+      fileMaxSize: 5,
+      fileAccept: '',
+      options: [],
+    },
+    {
+      ...base,
+      field: `q_multifill_${suffix}`,
+      type: 'multi-fill',
+      title: '请填写联系信息',
+      fillBlanks: makeRows(['姓名', '联系电话'], `mf${suffix}`),
+      layout: 'vertical',
+      blankPlaceholder: '请填写',
+      options: [],
+    },
+    {
+      ...base,
+      field: `q_imageradio_${suffix}`,
+      type: 'image-radio',
+      title: '请选择你偏好的配色',
+      options: [
+        { text: '青绿', image: '/imgs/skin/17e06b7604a007e1d3e1453b9ddadc3c.webp', others: false, mustOthers: false, othersKey: '', placeholderDesc: '', hash: `ir${suffix}1` },
+        { text: '暖阳', image: '/imgs/skin/145gBCRtNP1558514861211.webp', others: false, mustOthers: false, othersKey: '', placeholderDesc: '', hash: `ir${suffix}2` },
+      ],
+      columns: 2,
+      showOptionText: true,
+    },
+    {
+      ...base,
+      isRequired: false,
+      field: `q_imagecheckbox_${suffix}`,
+      type: 'image-checkbox',
+      title: '以下图片你感兴趣的有（可多选）',
+      options: [
+        { text: '风景', image: '/imgs/skin/3ABKqvDaVn1558514860472.webp', others: false, mustOthers: false, othersKey: '', placeholderDesc: '', hash: `ic${suffix}1` },
+        { text: '美食', image: '/imgs/skin/4aWi5JxG471558514268698.webp', others: false, mustOthers: false, othersKey: '', placeholderDesc: '', hash: `ic${suffix}2` },
+      ],
+      columns: 2,
+      showOptionText: true,
+    },
+    {
+      ...base,
+      field: `q_proportion_${suffix}`,
+      type: 'proportion',
+      title: '请为下列因素分配比重（合计 100%）',
+      options: makeOptions(['价格', '质量', '服务'], `pr${suffix}`),
+      total: 100,
+    },
+    {
+      ...base,
+      field: `q_matrixcheckbox_${suffix}`,
+      type: 'matrix-checkbox',
+      title: '以下功能分别具备哪些特点？',
+      options: makeOptions(['易用', '高效', '稳定'], `mcb${suffix}`),
+      matrixRows: makeRows(['功能A', '功能B'], `mcbw${suffix}`),
+      minNum: '',
+    },
+    {
+      ...base,
+      isRequired: false,
+      field: `q_matrixinput_${suffix}`,
+      type: 'matrix-input',
+      title: '请按行列填写使用时长',
+      options: makeOptions(['工作日', '周末'], `min${suffix}`),
+      matrixRows: makeRows(['上午', '下午'], `minw${suffix}`),
+      matrixPlaceholder: '小时',
+    },
+    {
+      ...base,
+      isRequired: false,
+      field: `q_section_${suffix}`,
+      type: 'section',
+      title: '说明',
+      desc: '<p>以下问题用于了解你的使用习惯。</p>',
+      options: [],
+    },
+    {
+      ...base,
+      isRequired: false,
+      field: `q_calc_${suffix}`,
+      type: 'calculation',
+      title: '推荐意愿得分（自动计算）',
+      calcFields: [],
+      calcFormula: 'Q1 * 2',
+      calcPrecision: 0,
+      calcUnit: '分',
+      calcVisible: true,
+      options: [],
+    },
   ];
+
+  // 计算题引用滑块题，保证参与计算的是真实存在的字段
+  questions.forEach((item) => {
+    delete item.__calcRefType;
+  });
 
   // 题目 field 必须形如 dataN —— 项目自身就是用 data{num} 命名的，
   // 服务端的数据表/导出转换只处理以 data 开头的字段。
   questions.forEach((question, index) => {
     question.field = `data${index + 1}`;
   });
+
+  // 计算题引用的字段要等归一化之后才是最终 field
+  const sliderQuestion = questions.find((item) => item.type === 'slider');
+  const calcQuestionFinal = questions.find((item) => item.type === 'calculation');
+  if (calcQuestionFinal) {
+    delete calcQuestionFinal.__calcRefType;
+    if (sliderQuestion) {
+      calcQuestionFinal.calcFields = [{ field: sliderQuestion.field, label: '推荐可能性' }];
+    }
+  }
 
   return questions;
 }
@@ -373,6 +509,51 @@ async function main() {
           formValues[key] = (q.options || []).map((o) => o.hash).reverse();
         } else if (q.type === 'slider') {
           formValues[key] = 80;
+        } else if (q.type === 'date') {
+          formValues[key] = '2026-10-01';
+        } else if (q.type === 'time') {
+          formValues[key] = '09:30';
+        } else if (q.type === 'select') {
+          formValues[key] = q.options?.[1]?.hash ?? q.options?.[0]?.hash ?? '';
+        } else if (q.type === 'upload') {
+          formValues[key] = '/imgs/favicon.ico';
+        } else if (q.type === 'multi-fill') {
+          const filled = {};
+          for (const blank of q.fillBlanks || []) filled[blank.hash] = `填-${blank.text}`;
+          formValues[key] = filled;
+        } else if (q.type === 'image-radio') {
+          formValues[key] = q.options?.[0]?.hash ?? '';
+        } else if (q.type === 'image-checkbox') {
+          formValues[key] = q.options?.[0]?.hash ? [q.options[0].hash] : [];
+        } else if (q.type === 'proportion') {
+          // 各项之和必须等于 total(100)，必填的校验会检查这一点
+          const options = q.options || [];
+          const each = options.length ? Math.floor(100 / options.length) : 0;
+          const allocated = {};
+          options.forEach((option, index) => {
+            allocated[option.hash] = index === options.length - 1 ? 100 - each * (options.length - 1) : each;
+          });
+          formValues[key] = allocated;
+        } else if (q.type === 'matrix-checkbox') {
+          const picked = {};
+          for (const row of q.matrixRows || []) {
+            picked[row.hash] = [q.options?.[0]?.hash, q.options?.[1]?.hash].filter(Boolean);
+          }
+          formValues[key] = picked;
+        } else if (q.type === 'matrix-input') {
+          const filled = {};
+          for (const row of q.matrixRows || []) {
+            const cells = {};
+            for (const col of q.options || []) cells[col.hash] = '2';
+            filled[row.hash] = cells;
+          }
+          formValues[key] = filled;
+        } else if (q.type === 'section') {
+          // 说明题不产生答案
+          continue;
+        } else if (q.type === 'calculation') {
+          // 计算题由前端算好后当普通答案提交；这里手工按公式算一遍
+          formValues[key] = 160;
         } else formValues[key] = q.options?.[0]?.hash ?? 'x';
       }
       const body = {
@@ -433,6 +614,60 @@ async function main() {
       const sliderField = fieldOfType('slider');
       if (sliderField && sliderField in body) ok('滑块题数据', String(body[sliderField]).slice(0, 40));
       else bad('滑块题数据', '数据表里没有 slider 字段');
+
+      /* 新增题型：值为对象的必须还原成可读文案，标量的原样保留 */
+      const objectChecks = [
+        ['multi-fill', '多项填空'],
+        ['proportion', '比重题'],
+        ['matrix-checkbox', '矩阵多选'],
+        ['matrix-input', '矩阵填空'],
+      ];
+      for (const [type, label] of objectChecks) {
+        const field = fieldOfType(type);
+        if (!field || !(field in body)) {
+          bad(`${label}数据文案`, `数据表里没有 ${type} 字段`);
+          continue;
+        }
+        const val = body[field];
+        const readable = typeof val === 'string' && val.includes('：') && !val.includes('[object');
+        if (readable) ok(`${label}数据已还原为可读文案`, String(val).slice(0, 70) + '…');
+        else bad(`${label}数据文案`, `值不理想：${JSON.stringify(val).slice(0, 140)}`);
+      }
+
+      const scalarChecks = [
+        ['date', '日期', '2026-10-01'],
+        ['time', '时间', '09:30'],
+        ['upload', '文件上传', null],
+        ['calculation', '计算题', null],
+      ];
+      for (const [type, label, expected] of scalarChecks) {
+        const field = fieldOfType(type);
+        if (!field || !(field in body)) {
+          bad(`${label}数据`, `数据表里没有 ${type} 字段`);
+          continue;
+        }
+        const val = String(body[field]);
+        if (expected && val !== expected) bad(`${label}数据`, `期望 ${expected}，实际 ${val}`);
+        else ok(`${label}数据`, val.slice(0, 50));
+      }
+
+      const selectField = fieldOfType('select');
+      if (selectField && selectField in body) {
+        const val = String(body[selectField]);
+        // 下拉题提交 hash，数据表应还原成选项文案
+        if (val && !/^[a-z0-9]{4,}$/i.test(val)) ok('下拉选择数据已还原为文案', val);
+        else bad('下拉选择数据', `疑似没还原：${val}`);
+      } else {
+        bad('下拉选择数据', '数据表里没有 select 字段');
+      }
+
+      const imageField = fieldOfType('image-radio');
+      if (imageField && imageField in body) ok('图片单选数据已还原为文案', String(body[imageField]).slice(0, 40));
+      else bad('图片单选数据', '数据表里没有 image-radio 字段');
+
+      // 说明题不应出现在数据表里
+      if (fieldOfType('section')) bad('段落说明不应产生答案', '但数据表里出现了 section 字段');
+      else ok('段落说明不产生答案', '数据表里没有 section 字段');
     } else {
       bad('回收数据表接口', r.text.slice(0, 300));
     }

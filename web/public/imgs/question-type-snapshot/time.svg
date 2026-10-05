@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 88" width="100%" role="img" aria-label="时间示意">
+  <rect x="0" y="0" width="132" height="88" rx="0" fill="#ffffff"/>
+  <text x="7" y="15" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="7" fill="#ff5599">*</text>
+  <text x="13" y="15" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="9" font-weight="700" fill="#444466">1.&nbsp;时间</text>
+  <rect x="97.2" y="5" width="26.8" height="13" rx="6.5" fill="#e4fcf8"/>
+  <text x="110.60000000000001" y="14.6" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="8" font-weight="600"
+        fill="#2fa596" text-anchor="middle">时间</text>
+
+    <rect x="14" y="28" width="62" height="17" rx="5" fill="#ffffff" stroke="#e6e9f2" stroke-width="1.2"/>
+    <rect x="22" y="34.5" width="24" height="4.5" rx="2.2" fill="#e3e7f0"/>
+    <circle cx="107" cy="35" r="9" fill="#e4fcf8"/>
+    <circle cx="107" cy="35" r="6" fill="none" stroke="#2fa596" stroke-width="1.4"/>
+    <path d="M107 31.5V35l2.4 1.6" fill="none" stroke="#2fa596" stroke-width="1.4" stroke-linecap="round"/>
+    <text x="14" y="60" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="7" fill="#5d5d80">HH:mm</text>
+</svg>

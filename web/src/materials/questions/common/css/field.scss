@@ -1,0 +1,57 @@
+// 新增「表单控件类」题型的公共外观（日期 / 时间 / 下拉 / 上传 / 多项填空 / 矩阵填空共用）
+// 直接按 pjsk 的形状语言写，这样编辑器与答题端不需要再各写一套覆盖
+$field-border: #e6e9f2;
+$field-ink: #444466;
+$field-ink-2: #5d5d80;
+$field-placeholder: #b9bccd;
+$field-surface: #ffffff;
+$field-pale: #f4f6fb;
+
+@mixin field-shell($radius: 0.16rem) {
+  display: block;
+  width: 100%;
+  min-height: 0.68rem;
+  padding: 0 0.2rem;
+  font-size: 0.28rem;
+  line-height: 0.66rem;
+  color: $field-ink;
+  background-color: $field-surface;
+  border: 1px solid $field-border;
+  border-radius: $radius;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  font-family: inherit;
+
+  &::placeholder {
+    color: $field-placeholder;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: #cfd6e6;
+  }
+
+  &:focus:not(:disabled) {
+    border-color: var(--primary-color, #77eedd);
+    box-shadow: 0 0 0 3px rgba(119, 238, 221, 0.28);
+  }
+
+  &:disabled {
+    color: $field-ink-2;
+    background-color: $field-pale;
+    cursor: not-allowed;
+  }
+}
+
+// 原生日期/时间控件在部分浏览器里会撑高，统一压缩内部间距
+input[type='date'],
+input[type='time'] {
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.55;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

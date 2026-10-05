@@ -1,0 +1,106 @@
+.upload-wrapper {
+  .upload-input {
+    display: none;
+  }
+
+  .upload-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.16rem;
+  }
+
+  .upload-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .upload-thumb {
+    display: block;
+    width: 1.6rem;
+    height: 1.6rem;
+    object-fit: cover;
+    border-radius: 0.16rem;
+    border: 1px solid #e6e9f2;
+  }
+
+  .upload-file {
+    display: inline-flex;
+    align-items: center;
+    max-width: 4.6rem;
+    padding: 0 0.2rem;
+    min-height: 0.68rem;
+    font-size: 0.26rem;
+    color: #444466;
+    background: #ffffff;
+    border: 1px solid #e6e9f2;
+    border-radius: 0.16rem;
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .upload-remove {
+    position: absolute;
+    top: -0.12rem;
+    right: -0.12rem;
+    width: 0.36rem;
+    height: 0.36rem;
+    line-height: 0.32rem;
+    font-size: 0.26rem;
+    color: #ffffff;
+    background: #ff5b6e;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .upload-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.6rem;
+    height: 1.6rem;
+    padding: 0 0.2rem;
+    font-size: 0.26rem;
+    color: #5d5d80;
+    background: #f4f6fb;
+    border: 1px dashed #cfd6e6;
+    border-radius: 0.16rem;
+    cursor: pointer;
+    transition: border-color 0.16s ease, color 0.16s ease, background-color 0.16s ease;
+
+    &:hover {
+      color: #1f8a7d;
+      border-color: var(--primary-color, #77eedd);
+      background: #f1fdfc;
+    }
+
+    &.is-loading {
+      cursor: progress;
+      color: #8a8aa8;
+    }
+  }
+
+  &.is-file .upload-trigger {
+    height: 0.68rem;
+    min-width: 1.4rem;
+  }
+
+  .upload-tip {
+    margin: 0.16rem 0 0;
+    font-size: 0.24rem;
+    color: #8a8aa8;
+    line-height: 1.5;
+  }
+
+  .upload-error {
+    margin: 0.08rem 0 0;
+    font-size: 0.24rem;
+    color: #ff5b6e;
+    line-height: 1.5;
+  }
+}

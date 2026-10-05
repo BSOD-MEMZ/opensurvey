@@ -173,22 +173,153 @@ const bodies = {
     <text x="118" y="33" font-family="${FONT}" font-size="7.5" fill="${C.tealDeep}" text-anchor="end">100</text>
     ${bar(58, 62, 36, 13, 6.5, C.tealPale)}
     <text x="76" y="71.6" font-family="${FONT}" font-size="8" font-weight="700" fill="${C.tealDeep}" text-anchor="middle">62</text>`,
+
+  // ---------- 新增题型 ----------
+  date: () => `
+    ${field(14, 28, 62, 17)}
+    ${bar(22, 34.5, 30, 4.5, 2.2, C.barSoft)}
+    <path d="M104 31.5h4M104 38h4M110 31.5h4M110 38h4" stroke="${C.bar}" stroke-width="1.6" stroke-linecap="round"/>
+    <rect x="96" y="26.5" width="22" height="17" rx="5" fill="${C.tealPale}"/>
+    <path d="M100 33.5h14M100 38h9" stroke="${C.tealDeep}" stroke-width="1.4" stroke-linecap="round"/>
+    <text x="14" y="60" font-family="${FONT}" font-size="7" fill="${C.ink2}">yyyy-MM-dd</text>`,
+
+  time: () => `
+    ${field(14, 28, 62, 17)}
+    ${bar(22, 34.5, 24, 4.5, 2.2, C.barSoft)}
+    <circle cx="107" cy="35" r="9" fill="${C.tealPale}"/>
+    <circle cx="107" cy="35" r="6" fill="none" stroke="${C.tealDeep}" stroke-width="1.4"/>
+    <path d="M107 31.5V35l2.4 1.6" fill="none" stroke="${C.tealDeep}" stroke-width="1.4" stroke-linecap="round"/>
+    <text x="14" y="60" font-family="${FONT}" font-size="7" fill="${C.ink2}">HH:mm</text>`,
+
+  select: () => `
+    ${field(14, 27, 104, 17)}
+    ${bar(22, 33.5, 45, 4.5, 2.2, C.barSoft)}
+    <path d="M104 33 l3.4 3.4 3.4-3.4" fill="none" stroke="${C.ink2}" stroke-width="1.5" stroke-linecap="round"/>
+    ${field(14, 49, 104, 27, 6)}
+    ${bar(20, 53.5, 92, 6.5, 3.2, C.tealPale)}
+    ${bar(20, 64, 92, 6, 3, C.barSoft)}`,
+
+  upload: () => `
+    <rect x="14" y="26" width="104" height="48" rx="7" fill="${C.white}" stroke="${C.bar}"
+          stroke-width="1.3" stroke-dasharray="4 3"/>
+    <path d="M66 42v14" stroke="${C.tealDeep}" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M59.5 48.5 66 42l6.5 6.5" fill="none" stroke="${C.tealDeep}" stroke-width="2.4"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="66" y="68" font-family="${FONT}" font-size="7.5" fill="${C.ink2}" text-anchor="middle">点击上传</text>`,
+
+  'multi-fill': () => {
+    let s = '';
+    for (let i = 0; i < 3; i++) {
+      const y = 27 + i * 18;
+      s += `${bar(14, y + 5, 26, 6, 3, C.barSoft)}
+            ${field(46, y, 72, 16)}`;
+    }
+    return s;
+  },
+
+  'image-radio': () => `
+    ${field(14, 27, 50, 33, 6)}${field(68, 27, 50, 33, 6)}
+    ${bar(20, 32, 38, 23, 4, C.barSoft)}${bar(74, 32, 38, 23, 4, C.barSoft)}
+    <circle cx="56" cy="33" r="4" fill="${C.teal}" stroke="${C.tealMid}" stroke-width="1"/>
+    <circle cx="110" cy="33" r="4" fill="${C.white}" stroke="${C.bar}" stroke-width="1"/>
+    ${bar(26, 64, 26, 5, 2.5, C.barSoft)}${bar(80, 64, 26, 5, 2.5, C.barSoft)}`,
+
+  'image-checkbox': () => `
+    ${field(14, 27, 50, 33, 6)}${field(68, 27, 50, 33, 6)}
+    ${bar(20, 32, 38, 23, 4, C.barSoft)}${bar(74, 32, 38, 23, 4, C.barSoft)}
+    <rect x="52" y="29" width="8" height="8" rx="2.5" fill="${C.teal}" stroke="${C.tealMid}" stroke-width="1"/>
+    <path d="M54 33 55.4 34.4 58 31.4" fill="none" stroke="${C.ink}" stroke-width="1.3"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="106" y="29" width="8" height="8" rx="2.5" fill="${C.white}" stroke="${C.bar}" stroke-width="1"/>
+    ${bar(26, 64, 26, 5, 2.5, C.barSoft)}${bar(80, 64, 26, 5, 2.5, C.barSoft)}`,
+
+  proportion: () => {
+    let s = '';
+    const values = [40, 35, 25];
+    for (let i = 0; i < 3; i++) {
+      const y = 28 + i * 18;
+      s += `${bar(14, y + 4, 26, 6, 3, C.barSoft)}
+            <rect x="44" y="${y + 5.5}" width="46" height="4.5" rx="2.2" fill="${C.barSoft}"/>
+            <rect x="44" y="${y + 5.5}" width="${(46 * values[i]) / 100}" height="4.5" rx="2.2" fill="${C.teal}"/>
+            ${field(96, y, 22, 15)}`;
+    }
+    return s + `${bar(14, 82, 42, 12, 6, C.tealPale)}
+      <text x="20" y="91" font-family="${FONT}" font-size="7.5" font-weight="700" fill="${C.tealDeep}">合计 100%</text>`;
+  },
+
+  'matrix-checkbox': () => {
+    let s = `<line x1="54" y1="26" x2="54" y2="80" stroke="${C.line}" stroke-width="1"/>
+             <line x1="77" y1="26" x2="77" y2="80" stroke="${C.line}" stroke-width="1"/>
+             <line x1="100" y1="26" x2="100" y2="80" stroke="${C.line}" stroke-width="1"/>`;
+    for (let r = 0; r < 3; r++) {
+      const y = 36 + r * 17;
+      s += bar(14, y - 3, 32, 6, 3, C.barSoft);
+      for (let c = 0; c < 3; c++) {
+        const on = (r === 0 && c === 0) || (r === 1 && c === 2);
+        const cx = 65.5 + c * 23;
+        s += `<rect x="${cx - 5}" y="${y - 5}" width="10" height="10" rx="3"
+                fill="${on ? C.teal : C.white}" stroke="${on ? C.tealMid : C.bar}" stroke-width="1.1"/>`;
+        if (on) {
+          s += `<path d="M${cx - 2.4} ${y} l1.8 1.8 3.4-3.6" fill="none" stroke="${C.ink}"
+                  stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>`;
+        }
+      }
+    }
+    return s;
+  },
+
+  'matrix-input': () => {
+    let s = '';
+    for (let r = 0; r < 2; r++) {
+      const y = 30 + r * 22;
+      s += bar(14, y + 6, 32, 6, 3, C.barSoft);
+      for (let c = 0; c < 2; c++) {
+        s += field(54 + c * 46, y, 40, 18);
+      }
+    }
+    return s;
+  },
+
+  calculation: () => `
+    ${bar(14, 28, 46, 22, 8, C.tealPale)}
+    <text x="37" y="43" font-family="${FONT}" font-size="11" font-weight="700" fill="${C.tealDeep}"
+          text-anchor="middle">86.5</text>
+    <text x="66" y="43" font-family="${FONT}" font-size="8" fill="${C.ink2}">分</text>
+    <text x="14" y="64" font-family="${FONT}" font-size="7.5" fill="${C.ink2}">公式：Q1 + Q2 × 0.5</text>`,
+
+  section: () => `
+    ${bar(14, 28, 96, 7, 3.5, C.ink2)}
+    ${bar(14, 42, 104, 5, 2.5, C.barSoft)}
+    ${bar(14, 53, 88, 5, 2.5, C.barSoft)}
+    ${bar(14, 64, 62, 5, 2.5, C.barSoft)}`,
 };
 
 const TYPES = [
   ['text', '单行输入框', '单行'],
   ['textarea', '多行输入框', '多行'],
+  ['date', '日期', '日期'],
+  ['time', '时间', '时间'],
+  ['upload', '文件上传', '上传'],
+  ['multi-fill', '多项填空', '多空'],
   ['radio', '单项选择', '单选'],
   ['checkbox', '多项选择', '多选'],
   ['binary-choice', '判断题', '判断'],
   ['radio-star', '评分', '评分'],
   ['radio-nps', 'NPS 评分', 'NPS'],
   ['vote', '投票', '投票'],
-  ['cascader', '多级联动', '联动'],
+  ['select', '下拉选择', '下拉'],
+  ['image-radio', '图片单选', '图选'],
+  ['image-checkbox', '图片多选', '图选'],
   ['matrix-radio', '矩阵单选', '矩阵单选', { titleSize: 8.5, chipSize: 7.2 }],
   ['matrix-scale', '矩阵量表', '矩阵量表', { titleSize: 8.5, chipSize: 7.2 }],
+  ['matrix-checkbox', '矩阵多选', '矩阵多选', { titleSize: 8.5, chipSize: 7.2 }],
+  ['matrix-input', '矩阵填空', '矩阵填空', { titleSize: 8.5, chipSize: 7.2 }],
+  ['proportion', '比重题', '比重'],
   ['sort', '排序', '排序'],
   ['slider', '滑块量表', '滑块'],
+  ['cascader', '多级联动', '联动'],
+  ['calculation', '计算题', '计算'],
+  ['section', '段落说明', '说明'],
 ];
 
 fs.mkdirSync(OUT, { recursive: true });

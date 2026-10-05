@@ -58,10 +58,11 @@ export const getQuestionByType = (type, fields) => {
       option.hash = hash
     }
   }
-  // 矩阵题的行同样需要唯一 hash
-  if ('matrixRows' in questionSchema) {
+  // 需要唯一 hash 的行/空类型字段（矩阵行、多项填空的填空项）
+  for (const key of ['matrixRows', 'fillBlanks']) {
+    if (!Array.isArray(questionSchema[key])) continue
     const hashList = []
-    for (const row of questionSchema.matrixRows) {
+    for (const row of questionSchema[key]) {
       const hash = generateHash(hashList)
       hashList.push(hash)
       row.hash = hash

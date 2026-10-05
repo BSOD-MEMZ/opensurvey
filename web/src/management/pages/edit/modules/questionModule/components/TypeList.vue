@@ -21,13 +21,12 @@
             :id="'qtopic' + element.type"
             @click="onQuestionType({ type: element.type })"
           >
-            <i
-              class="iconfont"
-              :class="['icon-' + element.icon]"
+            <QuestionTypeIcon
+              :type="element.type"
               @mouseenter="showPreview(element, 'qtopic' + element.type)"
               @mouseleave="isShowPreviewImage = false"
               @mousedown="isShowPreviewImage = false"
-            ></i>
+            />
             <p class="text">{{ element.title }}</p>
           </div>
         </template>
@@ -52,12 +51,15 @@ import { storeToRefs } from 'pinia'
 import { useEditStore } from '@/management/stores/edit'
 import { ref } from 'vue'
 
+import QuestionTypeIcon from './QuestionTypeIcon.vue'
+
 const editStore = useEditStore()
 const { newQuestionIndex, schema } = storeToRefs(editStore)
 const { addQuestion, setCurrentEditOne, getSorter, createNewQuestion } = editStore
 
 
-const activeNames = ref([0, 1, 2])
+// 默认展开全部题型分组，避免新增分组后藏在折叠里
+const activeNames = ref(questionMenuConfig.map((_, index) => index))
 const previewImg = ref('')
 const isShowPreviewImage = ref(false)
 const previewTop = ref(0)

@@ -1,0 +1,33 @@
+.section-wrapper {
+  .section-desc {
+    font-size: 0.28rem;
+    line-height: 1.75;
+    color: #5d5d80;
+    word-break: break-word;
+
+    p {
+      margin: 0 0 0.16rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    img {
+      max-width: 100%;
+      border-radius: 0.16rem;
+    }
+
+    a {
+      color: #1f8a7d;
+    }
+  }
+
+  .section-empty {
+    padding: 0.24rem;
+    font-size: 0.26rem;
+    color: #8a8aa8;
+    background: #f4f6fb;
+    border-radius: 0.16rem;
+  }
+}
