@@ -29,8 +29,10 @@ body.mgmt-theme {
   --sk-pink-line: #ff77ac;
 
   --sk-surface: #ffffff;
-  --sk-bg: #f4f6fb;
-  --sk-bg-soft: #fafbfe;
+  /* 半透明白：页面/面板基底，让底下的 pjsk 渐变背景能透上来。
+     表格、表单这类信息密集区仍走 --sk-surface 实底，保证可读性。 */
+  --sk-bg: rgba(255, 255, 255, 0.5);
+  --sk-bg-soft: rgba(255, 255, 255, 0.7);
   --sk-line: #e6e9f2;
 
   --sk-danger: #ff5b6e;
@@ -102,7 +104,8 @@ body.mgmt-theme {
 
   /* ---------- 页面基底 ---------- */
   font-family: var(--el-font-family);
-  background-color: var(--sk-bg);
+  /* 透明：露出 pjsk 渐变背景；需要实底的面板用 --sk-surface / --sk-bg */
+  background-color: transparent;
   color: var(--sk-ink);
 
   .el-menu,

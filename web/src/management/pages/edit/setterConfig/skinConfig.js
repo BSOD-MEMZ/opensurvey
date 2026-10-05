@@ -71,5 +71,19 @@ export default [
     name: '品牌logo',
     key: 'bottomConf',
     formConfigList: logoConfig
+  },
+  {
+    name: '自定义 CSS',
+    key: 'skinConf.customCssConf',
+    formConfigList: [
+      {
+        label: 'CSS 代码',
+        type: 'CodeSetter',
+        key: 'code',
+        rows: 12,
+        hint: '直接作用于答题页，选择器 / 伪类 / 变量 / 动画都能用。为避免向第三方泄露受访者的 IP，@import 与外部 url() 会在渲染时被自动移除（本地相对路径与 data: 不受影响）。',
+        placeholder: '/* 例：让题目卡片更圆润 */\n.question-wrapper {\n  border-radius: 24px;\n}'
+      }
+    ]
   }
 ]

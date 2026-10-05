@@ -1,4 +1,5 @@
 <template>
+  <SekaiBackground />
   <router-view></router-view>
 </template>
 
@@ -8,6 +9,7 @@ import { useUserStore } from '@/management/stores/user'
 import { useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage, type Action } from 'element-plus'
 import { checkIsTokenValid } from '@/management/api/auth'
+import SekaiBackground from '@/common/SekaiBackground/index.vue'
 
 const userStore = useUserStore()
 const router = useRouter()

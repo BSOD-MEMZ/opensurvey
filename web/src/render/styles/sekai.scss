@@ -27,20 +27,20 @@
     "Hiragino Sans GB", sans-serif;
   color: var(--sk-ink);
 
-  /* ---------- 页面底色：浅灰底 + 白色卡片 ---------- */
-  background: #f4f6fb;
+  /* ---------- 页面底色：交给 pjsk 渐变背景，这里保持透明 ---------- */
+  background: transparent;
 
   h1, h2, h3, h4, h5, h6, p, label, span {
     color: var(--sk-ink);
   }
 
-  /* 整页走浅灰，题目做成白卡（pjsk 的卡片式布局） */
+  /* 整页透明，露出 pjsk 背景；题目做成白卡浮在上面（pjsk 的卡片式布局） */
   #app {
-    background-color: #f4f6fb;
+    background-color: transparent;
   }
 
   .content {
-    background: #f4f6fb !important;
+    background: transparent !important;
     padding: 0.2rem 0.24rem 0 !important;
   }
 
