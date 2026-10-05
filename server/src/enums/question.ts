@@ -38,4 +38,12 @@ export enum QUESTION_TYPE {
    * 多级联动
    */
   CASCADER = 'cascader',
+  /**
+   * 矩阵单选
+   */
+  MATRIX_RADIO = 'matrix-radio',
+  /**
+   * 矩阵量表
+   */
+  MATRIX_SCALE = 'matrix-scale',
 }

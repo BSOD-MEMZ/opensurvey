@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 88" width="100%" role="img" aria-label="滑块量表示意">
+  <rect width="132" height="88" fill="#ffffff"/>
+  <rect x="10" y="18" width="52" height="18" rx="4" fill="#eef3fe"/>
+  <text x="36" y="31" fill="#2f6fed" font-family="system-ui, sans-serif" font-size="10" text-anchor="middle">72</text>
+  <rect x="10" y="48" width="112" height="6" rx="3" fill="#e4e6eb"/>
+  <rect x="10" y="48" width="76" height="6" rx="3" fill="#2f6fed"/>
+  <circle cx="86" cy="51" r="8" fill="#ffffff" stroke="#2f6fed" stroke-width="2.5"/>
+  <g fill="#9aa0a8" font-family="system-ui, sans-serif" font-size="8">
+    <text x="10" y="74">非常不满意</text>
+    <text x="122" y="74" text-anchor="end">非常满意</text>
+  </g>
+</svg>

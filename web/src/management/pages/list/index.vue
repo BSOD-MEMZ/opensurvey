@@ -115,12 +115,6 @@
           </div>
           <span>文本导入</span>
         </div>
-        <div class="create-method-item" @click="opemAIGenerate">
-          <div class="icon">
-            <i class="iconfont icon-AIshengcheng"></i>
-          </div>
-          <span>AI生成</span>
-        </div>
         <div class="create-method-item" @click="openExcelImport">
           <div class="icon">
             <i class="iconfont icon-Exceldaoru"></i>
@@ -138,21 +132,6 @@
         </el-button>
       </div>
       <TextImport @change="onTextImportChange"></TextImport>
-    </div>
-    <div class="fiexed-ai-generate-wrapper" v-if="showAIGenerate">
-      <div class="ai-generate-header">
-        
-        <div class="nav-left">
-         <img src="/imgs/s-logo.webp" class="logo" />
-          <el-button link  @click="showAIGenerate = false">
-            <i class="iconfont icon-fanhui"></i>
-            返回
-          </el-button>
-        </div>
-      <h2 class="nav-title">AI智能生成问卷</h2>
-      <el-button type="primary"  class="publish-btn"  @click="onShowCreateForm">确定创建</el-button>
-      </div>
-      <AIGenerate @change="onAIGenerteChange"></AIGenerate>
     </div>
     <el-dialog
       v-model="showCreateForm"
@@ -185,7 +164,6 @@ import SpaceModify from './components/SpaceModify.vue'
 import GroupModify from './components/GroupModify.vue'
 import TextImport from './components/TextImport.vue'
 import ExcelImport from './components/ExcelImport.vue'
-import AIGenerate from './components/AIGenerate.vue'
 
 import TopNav from '@/management/components/TopNav.vue'
 import CreateForm from '@/management/components/CreateForm.vue';
@@ -245,7 +223,6 @@ const questionList = ref<Array<any>>([])
 const createMethod = ref('')
 const isRecycleBin = computed(() => menuType.value === MenuType.RecycleBin);
 
-const showAIGenerate = ref(false)
 
 const fetchSpaceList = async (params?: any) => {
   spaceLoading.value = true
@@ -407,12 +384,6 @@ const openTextImport = () => {
   createMethod.value = 'textImport'
 }
 
-const opemAIGenerate = () => { 
-  showCreateMethod.value = false;
-  showAIGenerate.value = true;
-  createMethod.value = 'AIGenerate'
-}
-
 const onShowCreateForm = () => {
   if (questionList.value.length <= 0) {
     ElMessage({
@@ -441,32 +412,6 @@ const onConfirmCreate = async (formValue: { title: string; remark?: string; surv
         if (res?.code === 200 && res?.data?.id) {
           callback(true)
           const id = res.data.id
-          router.push({
-            name: 'QuestionEditIndex',
-            params: {
-              id
-            }
-          })
-          showCreateForm.value = false
-        } else {
-          ElMessage.error(res?.errmsg || '创建失败')
-          callback(false)
-        }
-        break;
-      }
-      case 'AIGenerate':{
-        const payload: any = {
-          ...formValue,
-          createMethod: createMethod.value,
-          questionList: questionList.value,
-        }
-        if (workSpaceId.value) {
-          payload.workspaceId = workSpaceId.value
-        }
-        const res: any = await createSurvey(payload)
-        if (res?.code === 200 && res?.data?.id) {
-          const id = res.data.id
-          callback(true)
           router.push({
             name: 'QuestionEditIndex',
             params: {
@@ -512,10 +457,6 @@ const onExcelUploadSuccess = (newQuestionList: Array<any>) => {
 
 const onShowCreateFormExcelImport = () => {
   showCreateForm.value = true
-}
-
-const onAIGenerteChange = (newQuestionList: Array<any>) => {
-  questionList.value = newQuestionList
 }
 
 </script>
@@ -644,47 +585,6 @@ const onAIGenerteChange = (newQuestionList: Array<any>) => {
     }
     .title {
       font-size: 16px;
-    }
-  }
-}
-.fiexed-ai-generate-wrapper {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  background-color: #fff;
-  z-index: 999;
-  overflow-x: auto;
-  overflow-y: hidden;
-
-  .ai-generate-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    height: 56px;
-    min-width: 1280px;
-    border-bottom: 1px solid #eee;
-    flex-grow: 0;
-    flex-shrink: 0;
- 
-    .nav-left {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-
-      .logo {
-        height: 32px;
-      }
-    }
-
-    .nav-title {
-      font-size: 18px;
-      color: #333;
     }
   }
 }

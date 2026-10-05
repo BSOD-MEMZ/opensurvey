@@ -1,0 +1,122 @@
+.matrix-wrapper {
+  width: 100%;
+  overflow: hidden;
+
+  .matrix-scroll {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    .matrix-corner {
+      width: 40%;
+      min-width: 120px;
+    }
+
+    .matrix-col-head {
+      padding: 8px 4px;
+      font-size: 14px;
+      font-weight: normal;
+      color: #333;
+      text-align: center;
+      word-break: break-word;
+      line-height: 1.4;
+
+      &.is-scale {
+        font-size: 15px;
+      }
+    }
+
+    .matrix-row-title {
+      position: relative;
+      padding: 10px 22px 10px 0;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.5;
+      text-align: left;
+      word-break: break-word;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .matrix-cell {
+      padding: 10px 4px;
+      text-align: center;
+      vertical-align: middle;
+      border-top: 1px solid #f0f0f0;
+      cursor: pointer;
+
+      &:hover .matrix-radio {
+        border-color: #2f6fed;
+      }
+    }
+
+    tr.is-answered .matrix-row-title {
+      color: #1f2329;
+    }
+
+    .matrix-clear {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      line-height: 1;
+      font-size: 14px;
+      color: #b6b8bd;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+
+      &:hover {
+        color: #eb505c;
+      }
+    }
+  }
+
+  .matrix-radio {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #c9ccd1;
+    border-radius: 50%;
+    background: #fff;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+  }
+
+  .matrix-cell.is-picked .matrix-radio {
+    border: 5px solid #2f6fed;
+  }
+
+  .matrix-scale-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding-right: 2px;
+    font-size: 13px;
+    color: #7a7e85;
+
+    .scale-min,
+    .scale-max {
+      max-width: 46%;
+    }
+
+    .scale-max {
+      text-align: right;
+    }
+  }
+}
+
+.matrix-empty {
+  padding: 12px;
+  font-size: 13px;
+  color: #92949d;
+  background: #f7f8fa;
+  border-radius: 4px;
+}

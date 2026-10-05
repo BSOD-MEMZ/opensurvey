@@ -5,7 +5,7 @@ import {
   keys as _keys,
   set as _set
 } from 'lodash-es'
-import { INPUT, RATES, QUESTION_TYPE } from '@/common/typeEnum.ts'
+import { INPUT, RATES, MATRIX_TYPES, QUESTION_TYPE } from '@/common/typeEnum.ts'
 import { regexpMap } from '@/common/regexpMap.ts'
 
 const msgMap = {
@@ -243,6 +243,24 @@ export default function (questionConfig) {
       numberRangeMin,
       numberRangeMax
     )
+
+    // 矩阵题的值是对象，通用 required 规则判定不出"空对象"，
+    // 这里换成逐行校验：必填时要求每一行都选了。
+    if (MATRIX_TYPES.includes(type)) {
+      const matrixRules = validArr.filter((rule) => !rule.required)
+      if (isRequired) {
+        const matrixRows = _get(current, 'matrixRows', []) || []
+        matrixRules.unshift({
+          validator(rule, value, callback) {
+            const answered = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+            const missing = matrixRows.filter((row) => !answered[row.hash]).length
+            callback(missing > 0 ? [`还有 ${missing} 行未选择，请填写完整`] : [])
+          }
+        })
+      }
+      validArr.length = 0
+      validArr.push(...matrixRules)
+    }
 
     validMap = { [field]: validArr }
 

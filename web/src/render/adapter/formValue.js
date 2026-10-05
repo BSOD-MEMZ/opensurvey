@@ -1,5 +1,5 @@
 // 定义提交的数据结构：{ field1: '', field2: [], field1_hash1: '', }
-import { QUESTION_TYPE } from '@/common/typeEnum.ts'
+import { QUESTION_TYPE, MATRIX_TYPES } from '@/common/typeEnum.ts'
 export default function ({ dataConf }) {
   const dataList = dataConf.dataList
   const formValues = {}
@@ -16,6 +16,16 @@ export default function ({ dataConf }) {
     //     value = firstOption?.hash || ''
     //   }
     // }
+
+    // 矩阵题的值是 { 行hash: 列hash } 的映射
+    if (MATRIX_TYPES.includes(type)) {
+      value = {}
+    }
+
+    // 排序题默认按题目里的原始顺序给出，用户拖动后再覆盖
+    if (type === QUESTION_TYPE.SORT) {
+      value = (Array.isArray(options) ? options : []).map((option) => option.hash)
+    }
 
     // 题型是多选，或者子题型是多选（innerType是用于投票）
     if (type === QUESTION_TYPE.CHECKBOX || innerType === QUESTION_TYPE.CHECKBOX) {

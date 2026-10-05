@@ -58,6 +58,15 @@ export const getQuestionByType = (type, fields) => {
       option.hash = hash
     }
   }
+  // 矩阵题的行同样需要唯一 hash
+  if ('matrixRows' in questionSchema) {
+    const hashList = []
+    for (const row of questionSchema.matrixRows) {
+      const hash = generateHash(hashList)
+      hashList.push(hash)
+      row.hash = hash
+    }
+  }
 
   return questionSchema
 }

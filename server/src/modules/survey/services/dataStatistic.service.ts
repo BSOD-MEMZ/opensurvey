@@ -75,6 +75,38 @@ export class DataStatisticService {
           data[`${itemConfigKey}_custom`] =
             data[`${itemConfigKey}_${data[itemConfigKey]}`];
         }
+        // 矩阵题：{ 行hash: 列hash } 还原为「行文案：列文案；…」
+        if (
+          (itemConfig.type === QUESTION_TYPE.MATRIX_RADIO ||
+            itemConfig.type === QUESTION_TYPE.MATRIX_SCALE) &&
+          data[itemKey] &&
+          typeof data[itemKey] === 'object' &&
+          !Array.isArray(data[itemKey])
+        ) {
+          const colTextMap: Record<string, any> = keyBy(
+            itemConfig.options || [],
+            'hash',
+          );
+          const rowTextMap: Record<string, any> = keyBy(
+            itemConfig.matrixRows || [],
+            'hash',
+          );
+          const picked = data[itemKey] as Record<string, string>;
+          data[itemKey] = Object.keys(picked)
+            .map((rowHash) => {
+              const rowText = rowTextMap[rowHash]?.text || rowHash;
+              const colHash = picked[rowHash];
+              // 量表列没有实体选项，直接用 1~N 的数字
+              const colText =
+                colTextMap[colHash]?.text ||
+                (typeof colHash === 'string' && colHash.indexOf('scale_') === 0
+                  ? colHash.replace('scale_', '')
+                  : colHash);
+              return `${rowText}：${colText}`;
+            })
+            .join('；');
+          continue;
+        }
         // 将选项id还原成选项文案
         if (
           Array.isArray(itemConfig.options) &&

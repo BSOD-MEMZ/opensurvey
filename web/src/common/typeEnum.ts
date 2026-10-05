@@ -9,6 +9,10 @@ export enum QUESTION_TYPE {
   RADIO_NPS = 'radio-nps',
   VOTE = 'vote',
   CASCADER = 'cascader',
+  MATRIX_RADIO = 'matrix-radio',
+  MATRIX_SCALE = 'matrix-scale',
+  SORT = 'sort',
+  SLIDER = 'slider',
 }
 
 // 题目类型标签映射对象
@@ -22,6 +26,10 @@ export const typeTagLabels: Record<QUESTION_TYPE, string> = {
   [QUESTION_TYPE.RADIO_NPS]: 'NPS评分',
   [QUESTION_TYPE.VOTE]: '投票',
   [QUESTION_TYPE.CASCADER]: '多级联动',
+  [QUESTION_TYPE.MATRIX_RADIO]: '矩阵单选',
+  [QUESTION_TYPE.MATRIX_SCALE]: '矩阵量表',
+  [QUESTION_TYPE.SORT]: '排序',
+  [QUESTION_TYPE.SLIDER]: '滑块量表',
 }
 
 // 输入类题型
@@ -43,3 +51,12 @@ export const RATES = [QUESTION_TYPE.RADIO_STAR, QUESTION_TYPE.RADIO_NPS]
 
 // 高级题型分类
 export const ADVANCED = [QUESTION_TYPE.CASCADER]
+
+// 矩阵题型分类（行 × 列二维作答）
+export const MATRIX_TYPES = [QUESTION_TYPE.MATRIX_RADIO, QUESTION_TYPE.MATRIX_SCALE]
+
+// 排序题型分类
+export const SORTS = [QUESTION_TYPE.SORT]
+
+// 滑块题型分类
+export const SLIDERS = [QUESTION_TYPE.SLIDER]

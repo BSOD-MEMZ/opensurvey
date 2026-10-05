@@ -66,6 +66,12 @@ export interface DataItem {
   placeholderDesc: string;
   textRange?: TextRange;
   options?: Option[];
+  // 矩阵题的行（matrix-radio / matrix-scale）
+  matrixRows?: Array<{ text: string; hash: string }>;
+  // 矩阵量表的格数
+  scaleMax?: number;
+  scaleMinLabel?: string;
+  scaleMaxLabel?: string;
   importKey?: string;
   importData?: string;
   cOption?: string;

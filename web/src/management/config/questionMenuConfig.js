@@ -61,6 +61,34 @@ export const menuItems = {
     snapshot: '/imgs/question-type-snapshot/cascader.webp',
     icon: 'cascader-select',
     title: '多级联动'
+  },
+  'matrix-radio': {
+    type: 'matrix-radio',
+    path: 'MatrixRadioModule',
+    snapshot: '/imgs/question-type-snapshot/matrix-radio.svg',
+    icon: 'tixing-juzhendanxuan',
+    title: '矩阵单选'
+  },
+  'matrix-scale': {
+    type: 'matrix-scale',
+    path: 'MatrixScaleModule',
+    snapshot: '/imgs/question-type-snapshot/matrix-scale.svg',
+    icon: 'tixing-juzhenliangbiao',
+    title: '矩阵量表'
+  },
+  sort: {
+    type: 'sort',
+    path: 'SortModule',
+    snapshot: '/imgs/question-type-snapshot/sort.svg',
+    icon: 'tixing-paixu',
+    title: '排序'
+  },
+  slider: {
+    type: 'slider',
+    path: 'SliderModule',
+    snapshot: '/imgs/question-type-snapshot/slider.svg',
+    icon: 'tixing-huakuai',
+    title: '滑块量表'
   }
 }
 
@@ -71,10 +99,15 @@ const menuGroup = [
   },
   {
     title: '选择类题型',
-    questionList: ['radio', 'checkbox', 'binary-choice', 'radio-star', 'radio-nps', 'vote']
-  }, {
+    questionList: ['radio', 'checkbox', 'binary-choice', 'radio-star', 'radio-nps', 'vote', 'sort']
+  },
+  {
+    title: '矩阵类题型',
+    questionList: ['matrix-radio', 'matrix-scale']
+  },
+  {
     title: '高级题型',
-    questionList: ['cascader']
+    questionList: ['cascader', 'slider']
   }
 ]
 

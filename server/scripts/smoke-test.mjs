@@ -119,9 +119,13 @@ function makeOptions(texts, suffix) {
   }));
 }
 
+function makeRows(texts, suffix) {
+  return texts.map((text, i) => ({ text, hash: `${suffix}${i + 1}` }));
+}
+
 function buildQuestions(suffix) {
   const base = { isRequired: true, showIndex: true, showType: true, showSpliter: true };
-  return [
+  const questions = [
     {
       ...base,
       field: `q_radio_${suffix}`,
@@ -156,7 +160,53 @@ function buildQuestions(suffix) {
       title: '还有什么想告诉我们的？',
       options: [],
     },
+    {
+      ...base,
+      field: `q_matrix_radio_${suffix}`,
+      type: 'matrix-radio',
+      title: '请对以下方面做出评价',
+      options: makeOptions(['非常满意', '满意', '一般', '不满意'], `mr${suffix}`),
+      matrixRows: makeRows(['整体体验', '功能完整性', '操作便捷性'], `mrw${suffix}`),
+    },
+    {
+      ...base,
+      field: `q_matrix_scale_${suffix}`,
+      type: 'matrix-scale',
+      title: '请按 1-5 分为以下方面打分',
+      matrixRows: makeRows(['产品功能', '页面设计'], `msw${suffix}`),
+      scaleMax: 5,
+      scaleMinLabel: '很不满意',
+      scaleMaxLabel: '很满意',
+    },
+    {
+      ...base,
+      isRequired: false,
+      field: `q_sort_${suffix}`,
+      type: 'sort',
+      title: '请按重要性从高到低排序',
+      options: makeOptions(['价格', '质量', '服务'], `so${suffix}`),
+    },
+    {
+      ...base,
+      isRequired: false,
+      field: `q_slider_${suffix}`,
+      type: 'slider',
+      title: '你有多大可能推荐给朋友？',
+      sliderMin: 0,
+      sliderMax: 100,
+      sliderStep: 1,
+      sliderMinLabel: '完全不会',
+      sliderMaxLabel: '一定会',
+    },
   ];
+
+  // 题目 field 必须形如 dataN —— 项目自身就是用 data{num} 命名的，
+  // 服务端的数据表/导出转换只处理以 data 开头的字段。
+  questions.forEach((question, index) => {
+    question.field = `data${index + 1}`;
+  });
+
+  return questions;
 }
 
 async function main() {
@@ -261,7 +311,7 @@ async function main() {
         body: { surveyId, sessionId, configData: conf },
         token,
       });
-      if (r.json?.code === 200) ok('保存问卷题目', `${questions.length} 道题（单选/多选/单行/多行）`);
+      if (r.json?.code === 200) ok("保存问卷题目", `${questions.length} 道题（含矩阵/排序/滑块）`);
       else bad('保存问卷题目', r.text.slice(0, 400));
     } catch (e) { bad('保存问卷题目', e.message); }
   } else {
@@ -293,15 +343,32 @@ async function main() {
       const formValues = {};
       for (const q of schema.dataConf.dataList) {
         const key = q.field ?? q.id;
-        if (q.type === 'radio') formValues[key] = q.options?.[0]?.text ?? q.options?.[0]?.value ?? '学生';
-        else if (q.type === 'checkbox') formValues[key] = [q.options?.[0]?.text ?? q.options?.[0]?.value ?? '手机'];
+        // 注意：选项类题目提交的是选项 hash，不是文案（服务端会校验 hash 是否存在）
+        if (q.type === 'radio') formValues[key] = q.options?.[0]?.hash ?? '';
+        else if (q.type === 'checkbox') formValues[key] = q.options?.[0]?.hash ? [q.options[0].hash] : [];
         else if (q.type === 'text') formValues[key] = '冒烟测试';
         else if (q.type === 'textarea') formValues[key] = '这是一条自动化提交的文本回答。';
-        else formValues[key] = q.options?.[0]?.text ?? 'x';
+        // 矩阵题：{ 行hash: 列hash }，必填要求每行都有值
+        else if (q.type === 'matrix-radio') {
+          const picked = {};
+          for (const row of q.matrixRows || []) picked[row.hash] = q.options?.[1]?.hash ?? q.options?.[0]?.hash;
+          formValues[key] = picked;
+        } else if (q.type === 'matrix-scale') {
+          const picked = {};
+          for (const row of q.matrixRows || []) picked[row.hash] = 'scale_3';
+          formValues[key] = picked;
+        } else if (q.type === 'sort') {
+          formValues[key] = (q.options || []).map((o) => o.hash).reverse();
+        } else if (q.type === 'slider') {
+          formValues[key] = 80;
+        } else formValues[key] = q.options?.[0]?.hash ?? 'x';
       }
       const body = {
         surveyPath,
-        data: JSON.stringify(formValues),
+        // 直接传对象。传 JSON 字符串的话服务端不会二次解析（JSON.parse(JSON.stringify(str)) 仍然是字符串），
+        // 数据表/导出会拿到字符串而无法还原选项文案。
+        // 真实前端在 DATA_ENCRYPT_TYPE=rsa 时传的是加密数组，服务端解密后同样是对象。
+        data: formValues,
         diffTime: 1000,
         clientTime: Date.now(),
         password: null,
@@ -323,11 +390,40 @@ async function main() {
     else bad('分题统计接口', r.text.slice(0, 300));
   } catch (e) { bad('分题统计接口', e.message); }
 
-  /* 12. 回收数据表 */
+  /* 12. 回收数据表 + 校验矩阵题已还原成可读文案 */
   try {
-    const r = await api('GET', `/api/survey/dataStatistic/dataTable?surveyId=${surveyId}`, { token });
-    if (r.json?.code === 200) ok('回收数据表接口', `total=${pick(r.json, ['total', 'count']) ?? 'n/a'}`);
-    else bad('回收数据表接口', r.text.slice(0, 300));
+    const r = await api('GET', `/api/survey/dataStatistic/dataTable?surveyId=${surveyId}&isMasked=false`, { token });
+    if (r.json?.code === 200) {
+      ok('回收数据表接口', `total=${pick(r.json, ['total', 'count']) ?? 'n/a'}`);
+      const body = r.json.data?.listBody?.[0] || r.json.data?.list?.[0] || {};
+      const head = r.json.data?.listHead || [];
+      const fieldOfType = (t) => head.find((item) => item.type === t)?.field;
+      if (process.env.DEBUG_DUMP === '1') {
+        log('  [debug] typeof body = ' + typeof body + ' / isArray=' + Array.isArray(body));
+        log('  [debug] body 前 160 字符 = ' + JSON.stringify(body).slice(0, 160));
+        log('  [debug] head fields = ' + head.map((h) => h.field + ':' + h.type).join(' | '));
+      }
+
+      const matrixField = fieldOfType('matrix-radio');
+      if (matrixField && matrixField in body) {
+        const val = body[matrixField];
+        const readable = typeof val === 'string' && val.includes('：') && !val.includes('[object');
+        if (readable) ok('矩阵题数据已还原为可读文案', String(val).slice(0, 70) + '…');
+        else bad('矩阵题数据文案', `值不理想：${JSON.stringify(val).slice(0, 140)}`);
+      } else {
+        bad('矩阵题数据文案', `数据表里没有 matrix-radio 字段（head=${JSON.stringify(head.map((h) => h.type))}）`);
+      }
+
+      const sortField = fieldOfType('sort');
+      if (sortField && sortField in body) ok('排序题数据', String(body[sortField]).slice(0, 70));
+      else bad('排序题数据', '数据表里没有 sort 字段');
+
+      const sliderField = fieldOfType('slider');
+      if (sliderField && sliderField in body) ok('滑块题数据', String(body[sliderField]).slice(0, 40));
+      else bad('滑块题数据', '数据表里没有 slider 字段');
+    } else {
+      bad('回收数据表接口', r.text.slice(0, 300));
+    }
   } catch (e) { bad('回收数据表接口', e.message); }
 
   return finish();
