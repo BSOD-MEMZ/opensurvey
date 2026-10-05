@@ -12,9 +12,9 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
   async generateToken({ _id, username }: { _id: string; username: string }) {
-    const secret = this.configService.get<string>('XIAOJU_SURVEY_JWT_SECRET');
+    const secret = this.configService.get<string>('OPENSURVEY_JWT_SECRET');
     const expiresIn: StringValue = this.configService.get<StringValue>(
-      'XIAOJU_SURVEY_JWT_EXPIRES_IN',
+      'OPENSURVEY_JWT_EXPIRES_IN',
     );
     const signOptions: SignOptions = {
       expiresIn,
@@ -27,7 +27,7 @@ export class AuthService {
     try {
       decoded = verify(
         token,
-        this.configService.get<string>('XIAOJU_SURVEY_JWT_SECRET'),
+        this.configService.get<string>('OPENSURVEY_JWT_SECRET'),
       );
     } catch (err) {
       throw new Error('用户凭证错误');

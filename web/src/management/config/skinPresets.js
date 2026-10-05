@@ -1,7 +1,7 @@
 export default {
   'default-1': {
-    'skinConf.backgroundConf.color': '#b8dbff',
-    'skinConf.themeConf.color': '#faa600'
+    'skinConf.backgroundConf.color': '#d9f2f7',
+    'skinConf.themeConf.color': '#3fd0bd'
   },
   // SEKAI（pjsk）风格主题预设
   'sekai-teal': {

@@ -1,7 +1,12 @@
-<!-- 请严格遵循贡献规范：https://xiaojusurvey.didi.cn/docs/next/share/%E8%B4%A1%E7%8C%AE%E6%B5%81%E7%A8%8B -->
+<!-- 请先阅读贡献说明：见仓库 README 的「参与贡献」一节 -->
 
 ### 改动内容
-<!-- 不同功能拆分成多个PR。简洁记录改动内容，用1、2、3...分序号描述改动点 -->
+<!-- 一个 PR 只做一件事。用 1、2、3… 分序号描述改动点 -->
 
-### Issue
-<!-- 确保大的改动创建一个Issue描述详情：https://github.com/didi/xiaoju-survey/issues/new?assignees=&labels=&projects=&template=pr_report.md&title=[类型]: xxx -->
+### 相关 Issue
+<!-- 较大的改动请先开 Issue 讨论，避免白做工 -->
+
+### 自检
+- [ ] `cd server && npx tsc --noEmit` 无错误
+- [ ] `cd web && npm run build-only` 通过
+- [ ] `cd server && node scripts/smoke-test.mjs` 全绿（需先起 `npm run local`）

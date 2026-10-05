@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 88" width="100%" role="img" aria-label="评分示意">
+  <rect x="0" y="0" width="132" height="88" rx="0" fill="#ffffff"/>
+  <text x="7" y="15" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="7" fill="#ff5599">*</text>
+  <text x="13" y="15" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="9" font-weight="700" fill="#444466">1.&nbsp;评分</text>
+  <rect x="97.2" y="5" width="26.8" height="13" rx="6.5" fill="#e4fcf8"/>
+  <text x="110.60000000000001" y="14.6" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="8" font-weight="600"
+        fill="#2fa596" text-anchor="middle">评分</text>
+<path d="M25.00 39.50L27.12 45.09L33.08 45.37L28.42 49.11L30.00 54.88L25.00 51.60L20.00 54.88L21.58 49.11L16.92 45.37L22.88 45.09Z" fill="#77eedd" stroke="#5fd8c6" stroke-width="1.1"/><path d="M45.50 39.50L47.62 45.09L53.58 45.37L48.92 49.11L50.50 54.88L45.50 51.60L40.50 54.88L42.08 49.11L37.42 45.37L43.38 45.09Z" fill="#77eedd" stroke="#5fd8c6" stroke-width="1.1"/><path d="M66.00 39.50L68.12 45.09L74.08 45.37L69.42 49.11L71.00 54.88L66.00 51.60L61.00 54.88L62.58 49.11L57.92 45.37L63.88 45.09Z" fill="#77eedd" stroke="#5fd8c6" stroke-width="1.1"/><path d="M86.50 39.50L88.62 45.09L94.58 45.37L89.92 49.11L91.50 54.88L86.50 51.60L81.50 54.88L83.08 49.11L78.42 45.37L84.38 45.09Z" fill="#77eedd" stroke="#5fd8c6" stroke-width="1.1"/><path d="M107.00 39.50L109.12 45.09L115.08 45.37L110.42 49.11L112.00 54.88L107.00 51.60L102.00 54.88L103.58 49.11L98.92 45.37L104.88 45.09Z" fill="#ffffff" stroke="#cfd4e2" stroke-width="1.1"/>
+</svg>

@@ -135,7 +135,7 @@ const handleIntroClose = () => {
       .intro {
         font-size: 12px;
         // &:hover{
-          color: #FAA600;
+          color: #3FD0BD;
         // }
       }
       .name{

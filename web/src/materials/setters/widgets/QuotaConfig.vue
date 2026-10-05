@@ -166,7 +166,7 @@ watch(
   align-items: center;
 }
 .quota-config {
-  color: #ffa600;
+  color: #3fd0bd;
   cursor: pointer;
   font-size: 14px;
 }

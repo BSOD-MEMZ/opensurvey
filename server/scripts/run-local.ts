@@ -12,7 +12,7 @@ async function startServerAndRunScript() {
   const tsnode = spawn(
     'cross-env',
     [
-      `XIAOJU_SURVEY_MONGO_URL=${mongoUri}`,
+      `OPENSURVEY_MONGO_URL=${mongoUri}`,
       'NODE_ENV=development',
       'SERVER_ENV=local',
       'npm',

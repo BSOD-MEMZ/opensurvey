@@ -1,21 +1,21 @@
 export const menuItems = {
   text: {
     type: 'text',
-    snapshot: '/imgs/question-type-snapshot/iL84te6xxU1657702189333.webp',
+    snapshot: '/imgs/question-type-snapshot/text.svg',
     path: 'InputModule',
     icon: 'tixing-danhangshuru',
     title: '单行输入框'
   },
   textarea: {
     type: 'textarea',
-    snapshot: '/imgs/question-type-snapshot/11iAo3ca0u1657702225416.webp',
+    snapshot: '/imgs/question-type-snapshot/textarea.svg',
     path: 'TextareaModule',
     icon: 'tixing-duohangshuru',
     title: '多行输入框'
   },
   radio: {
     type: 'radio',
-    snapshot: '/imgs/question-type-snapshot/TgeRDfURJZ1657702220602.webp',
+    snapshot: '/imgs/question-type-snapshot/radio.svg',
     icon: 'tixing-danxuan',
     path: 'RadioModule',
     title: '单项选择'
@@ -23,20 +23,20 @@ export const menuItems = {
   checkbox: {
     type: 'checkbox',
     path: 'CheckboxModule',
-    snapshot: '/imgs/question-type-snapshot/Md2YmzBBpV1657702223744.webp',
+    snapshot: '/imgs/question-type-snapshot/checkbox.svg',
     icon: 'tixing-duoxuan',
     title: '多项选择'
   },
   'binary-choice': {
     type: 'binary-choice',
-    snapshot: '/imgs/question-type-snapshot/blW8U1ckzd1657702223023.webp',
+    snapshot: '/imgs/question-type-snapshot/binary-choice.svg',
     path: 'BinaryChoiceModule',
     icon: 'tixing-panduanti',
     title: '判断题'
   },
   'radio-star': {
     type: 'radio-star',
-    snapshot: '/imgs/question-type-snapshot/7CU6tn4XqT1657702221208.webp',
+    snapshot: '/imgs/question-type-snapshot/radio-star.svg',
     path: 'StarModule',
     icon: 'tixing-pingfen',
     title: '评分'
@@ -44,21 +44,21 @@ export const menuItems = {
   'radio-nps': {
     type: 'radio-nps',
     path: 'NpsModule',
-    snapshot: '/imgs/question-type-snapshot/radio-nps.webp',
+    snapshot: '/imgs/question-type-snapshot/radio-nps.svg',
     icon: 'NPSpingfen',
     title: 'nps评分'
   },
   vote: {
     type: 'vote',
     path: 'VoteModule',
-    snapshot: '/imgs/question-type-snapshot/nGTscsZlwn1657702222857.webp',
+    snapshot: '/imgs/question-type-snapshot/vote.svg',
     icon: 'tixing-toupiao',
     title: '投票'
   },
   cascader: {
     type: 'cascader',
     path: 'CascaderModule',
-    snapshot: '/imgs/question-type-snapshot/cascader.webp',
+    snapshot: '/imgs/question-type-snapshot/cascader.svg',
     icon: 'cascader-select',
     title: '多级联动'
   },

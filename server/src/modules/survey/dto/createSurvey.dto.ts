@@ -38,7 +38,9 @@ export class CreateSurveyDto {
       createMethod: Joi.string()
         .allow(null)
         .valid('copy', 'textImport', 'ExcelImport')
-        .default('basic'),
+        // 注意：默认值必须落在 valid 列表内，否则客户端不传 createMethod 时
+        // Joi 会先套用默认值再校验，直接判成"参数错误"
+        .default(null),
       createFrom: Joi.string().when('createMethod', {
         is: 'copy',
         then: Joi.required(),

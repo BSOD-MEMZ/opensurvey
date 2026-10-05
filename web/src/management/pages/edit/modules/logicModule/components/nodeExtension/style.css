@@ -7,8 +7,8 @@
   ry: 3;
 }
 .custom-anchor:hover {
-  fill: #ff7f0e;
-  stroke: #ff7f0e;
+  fill: #3fd0bd;
+  stroke: #3fd0bd;
 }
 .node-red-palette {
   width: 150px;

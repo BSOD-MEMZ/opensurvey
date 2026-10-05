@@ -5,5 +5,5 @@ echo 'nginx start'
 nginx -g 'daemon on;'
 
 # 启动后端服务
-cd /xiaoju-survey/server
+cd /opensurvey/server
 npm run start:prod

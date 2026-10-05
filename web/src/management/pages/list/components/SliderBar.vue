@@ -197,10 +197,10 @@ const handleMenu = (id: string) => {
 .iconfont {
   font-size: 16px;
   margin-right: 10px;
-  color: #faa600 !important;
+  color: #3fd0bd !important;
 }
 .check-item {
-  background: #fef6e6 100% !important;
+  background: #eafcf9 100% !important;
 }
 .recycle-bin-item {
   height: 56px!important;

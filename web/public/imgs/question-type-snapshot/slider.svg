@@ -1,12 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 88" width="100%" role="img" aria-label="滑块量表示意">
-  <rect width="132" height="88" fill="#ffffff"/>
-  <rect x="10" y="18" width="52" height="18" rx="4" fill="#eef3fe"/>
-  <text x="36" y="31" fill="#2f6fed" font-family="system-ui, sans-serif" font-size="10" text-anchor="middle">72</text>
-  <rect x="10" y="48" width="112" height="6" rx="3" fill="#e4e6eb"/>
-  <rect x="10" y="48" width="76" height="6" rx="3" fill="#2f6fed"/>
-  <circle cx="86" cy="51" r="8" fill="#ffffff" stroke="#2f6fed" stroke-width="2.5"/>
-  <g fill="#9aa0a8" font-family="system-ui, sans-serif" font-size="8">
-    <text x="10" y="74">非常不满意</text>
-    <text x="122" y="74" text-anchor="end">非常满意</text>
-  </g>
+  <rect x="0" y="0" width="132" height="88" rx="0" fill="#ffffff"/>
+  <text x="7" y="15" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="7" fill="#ff5599">*</text>
+  <text x="13" y="15" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="9" font-weight="700" fill="#444466">1.&nbsp;滑块量表</text>
+  <rect x="97.2" y="5" width="26.8" height="13" rx="6.5" fill="#e4fcf8"/>
+  <text x="110.60000000000001" y="14.6" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="8" font-weight="600"
+        fill="#2fa596" text-anchor="middle">滑块</text>
+
+    <rect x="14" y="46" width="104" height="5" rx="2.5" fill="#e3e7f0"/>
+    <rect x="14" y="46" width="62" height="5" rx="2.5" fill="#77eedd"/>
+    <circle cx="76" cy="48.5" r="8" fill="#ffffff" stroke="#5fd8c6" stroke-width="2"/>
+    <text x="14" y="33" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="7.5" fill="#5d5d80">0</text>
+    <text x="118" y="33" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="7.5" fill="#2fa596" text-anchor="end">100</text>
+    <rect x="58" y="62" width="36" height="13" rx="6.5" fill="#e4fcf8"/>
+    <text x="76" y="71.6" font-family="system-ui, 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="8" font-weight="700" fill="#2fa596" text-anchor="middle">62</text>
 </svg>

@@ -72,7 +72,7 @@ export default {
   },
   computed: {
     getColor() {
-      return '#FAA600'
+      return '#3FD0BD'
     }
   }
 }

@@ -1,0 +1,45 @@
+OpenSurvey
+Copyright 2026 OpenSurvey contributors
+
+------------------------------------------------------------------------
+第三方组件声明 / Third-Party Notices
+------------------------------------------------------------------------
+
+本产品包含来自下列开源项目的代码，按 Apache License 2.0 授权使用：
+
+  xiaoju-survey
+  Copyright (C) 2023 Beijing Didi Infinity Technology and Development Co.,Ltd.
+  Licensed under the Apache License, Version 2.0
+  https://github.com/didi/xiaoju-survey
+
+该项目的完整许可证文本见本仓库根目录 LICENSE 文件。
+LICENSE 文本中保留的原始版权声明为许可证要求，不可移除。
+
+------------------------------------------------------------------------
+修改说明 / Statement of Changes
+------------------------------------------------------------------------
+
+依据 Apache License 2.0 第 4(b) 条，此处声明对上游代码所做的修改：
+
+1. 移除 AI 生成问卷相关的全部功能
+   - 删除服务端 ai-generate 控制器与服务，及对应前端入口、列表标记、图标与
+     环境变量配置
+
+2. 全面替换品牌呈现
+   - 重新设计并替换 Logo、favicon、登录背景、用户头像与全部插画配色
+   - 产品名称、页面标题、包名、Docker 镜像与容器名、环境变量前缀
+     （XIAOJUSURVEY_* -> OPENSURVEY_*）均改为 OpenSurvey
+   - 移除所有上游品牌文案与外链
+
+3. 新增题型
+   - 矩阵单选、矩阵量表、排序、滑块量表（共 4 种）
+   - 同步扩展服务端题型枚举、统计与导出链路
+
+4. 前端主题改造
+   - 答题端与管理端统一为自定义的视觉主题（主题文件在
+     web/src/render/styles/sekai.scss 与 web/src/management/styles/sekai.scss）
+   - 图标字体由远程 CDN 改为本地自托管，以支持完全离线部署
+
+5. 清理
+   - 移除上游遗留的悬空题型引用与孤儿资源
+   - 修正答卷数据中 JSON 字符串被原样入库导致数据表/导出异常的问题

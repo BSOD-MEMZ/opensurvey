@@ -88,7 +88,7 @@ describe('QiniuHandler', () => {
       const handler = new QiniuHandler({
         accessKey: 'mockAccessKey',
         secretKey: 'mockSecretKey',
-        bucket: 'xiaojusurvey',
+        bucket: 'opensurvey',
         endPoint: 'mockEndPoint',
         useSSL: true,
         isPrivateRead: true,

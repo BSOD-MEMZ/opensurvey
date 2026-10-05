@@ -358,7 +358,7 @@ const handleshowCreateFormExcelImport = () => {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background-color: #FAA600;
+  background-color: #3FD0BD;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -370,7 +370,7 @@ const handleshowCreateFormExcelImport = () => {
   height: 14px;
   border-radius: 50%;
   font-size: 14px;
-  color: #FEF6E6;
+  color: #EAFCF9;
   background-color: transparent;
   text-align: center;
   line-height: 14px;
@@ -533,7 +533,7 @@ const handleshowCreateFormExcelImport = () => {
   height: 50px;
   border-radius: 50%;
   font-size: 50px;
-  color: #FEF6E6;
+  color: #EAFCF9;
   background-color: transparent;
   text-align: center;
   line-height: 50px;

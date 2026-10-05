@@ -67,7 +67,7 @@ describe('Authentication', () => {
 
     jest
       .spyOn(configService, 'get')
-      .mockReturnValue('XIAOJU_SURVEY_JWT_SECRET');
+      .mockReturnValue('OPENSURVEY_JWT_SECRET');
 
     await expect(guard.canActivate(context as any)).rejects.toThrow(
       AuthenticationException,
@@ -89,7 +89,7 @@ describe('Authentication', () => {
     const fakeUser = { username: 'testUser' } as User;
     jest
       .spyOn(configService, 'get')
-      .mockReturnValue('XIAOJU_SURVEY_JWT_SECRET');
+      .mockReturnValue('OPENSURVEY_JWT_SECRET');
     jest.spyOn(authService, 'verifyToken').mockResolvedValue(fakeUser);
 
     const result = await guard.canActivate(context as any);

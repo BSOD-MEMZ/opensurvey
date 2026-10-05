@@ -1,202 +1,279 @@
-<div align=center>
-  <p>
-    <img src="https://img-hxy021.didistatic.com/static/starimg/img/j8lBA6yy201698840712358.jpg"  width="300" align='center' />
-  </p>
-  <div>
-    <a href="https://github.com/didi/xiaoju-survey/graphs/contributors">
-      <img src="https://img.shields.io/badge/node-%3E=18-green" alt="commit">
-    </a>
-    <a href="https://app.codecov.io/github/didi/xiaoju-survey">
-      <img src="https://img.shields.io/codecov/c/github/didi/xiaoju-survey" alt="codecov">
-    </a>
-    <a href="https://github.com/didi/xiaoju-survey/issues">
-      <img src="https://img.shields.io/github/issues/didi/xiaoju-survey" alt="issues">
-    </a>
-    <a href="https://github.com/didi/xiaoju-survey/graphs/contributors">
-      <img src="https://img.shields.io/github/last-commit/didi/xiaoju-survey?color=red" alt="commit">
-    </a>
-    <a href="https://github.com/didi/xiaoju-survey/pulls">
-      <img src="https://img.shields.io/badge/PRs-welcome-%23ffa600" alt="pr">
-    </a>
-    <a href="https://xiaojusurvey.didi.cn">
-      <img src="https://img.shields.io/badge/help-%E5%AE%98%E7%BD%91-blue" alt="docs">
-    </a>
-    <a href="https://github.com/didi/xiaoju-survey/blob/main/README_EN.md">
-      <img src="https://img.shields.io/badge/help-README_EN-50c62a" alt="docs">
-    </a>
-  </div>
+<div align="center">
+
+# OpenSurvey
+
+**开源在线问卷与调查平台**
+
+自托管 · 零广告 · 零追踪 · 数据留在自己机器上
+
 </div>
 
-<br />
+---
 
-&ensp;&ensp;**XIAOJUSURVEY**是一套轻量、安全的调研系统，提供面向个人和企业的一站式产品级解决方案，用于构建各类问卷、考试、测评和复杂表单，快速满足各类线上调研场景。
+## 这是什么
 
-&ensp;&ensp;内部系统已沉淀 40+种题型，累积精选模板 100+，适用于市场调研、客户满意度调研、在线考试、投票、报道、测评等众多场景。数据能力上，经过上亿量级打磨，沉淀了分题统计、交叉分析、多渠道分析等在线报表能力，快速满足专业化分析。
+OpenSurvey 是一套可以完整私有部署的在线问卷系统：从**出题 → 投放 → 收答卷 → 看统计 → 导数据**，
+整条链路都在你自己的服务器上跑完，不依赖任何第三方服务。
 
-# 功能特性
+面向的场景很朴素：学校做问卷、社团收报名、小团队做满意度调研 —— 这些事不该把数据交给别人的服务器，
+也不该被广告和追踪脚本围着。
 
-**🌈 易用**
+**已经做到的**：
 
-- 多类型数据采集，轻松创建调研表单：文本输入、数据选择、评分、投票、文件上传等。
+- 单进程部署 —— 生产模式下**一个 Node 进程同时托管前端页面与 API**，连 nginx 都不是必需的
+- **完全离线可用** —— 图标字体已本地自托管，不再依赖任何 CDN
+- 数据可携带 —— MongoDB 数据目录拷走即迁移
 
-- 智能逻辑编排，设计多规则动态表单：显示逻辑、跳转逻辑、选项引用、题目引用等。
+---
 
-- 精细权限管理，支持高效团队协同：空间管理、多角色权限管理等。
+## 界面
 
-- 数据在线分析和导出，洞察调研结果：数据导出、回收数据管理、分题统计、交叉分析等。
+| 答题端（受访者看到的） | 问卷编辑器 |
+| --- | --- |
+| ![答题端](docs/screenshots/render-answer.png) | ![编辑器](docs/screenshots/mgmt-04-editor.png) |
 
-- AI 生成问卷，支持一键接入LLM：对话式生成问卷，实时预览更快速。
+| 数据统计 | 登录页 |
+| --- | --- |
+| ![数据统计](docs/screenshots/mgmt-05-analysis.png) | ![登录页](docs/screenshots/mgmt-01-login.png) |
 
-**🎨 好看**
+---
 
-- 主题自由定制，适配您的品牌：自定义颜色、背景、图片、Logo、结果页规则等。
+## 功能
 
-- 无缝嵌入各终端，满足不同场景需求：多端嵌入式小问卷 SDK。
+### 题型（13 种）
 
-**🚀 安全、可扩展**
+| 分类 | 题型 |
+| --- | --- |
+| 输入 | 单行输入框、多行输入框 |
+| 选择 | 单项选择、多项选择、判断题、评分、NPS 评分、投票 |
+| 矩阵 | 矩阵单选、矩阵量表 |
+| 高级 | 多级联动（省市区等层级选择）、排序、滑块量表 |
 
-- 安全能力可扩展，提供安全相关建设的经验指导：传输加密、敏感词库、发布审查等。
+每一题都可以单独设置：必填、选项随机、显示题号 / 题型标签 / 分隔线、配额显示、
+文本长度校验、数字范围校验、选项互斥与「其他」补充项、题目备注说明。
 
-- 自定义 Hook 配置，轻松集成多方系统与各类工具：数据推送集成、消息推送集成等。
+### 问卷编辑
 
-<img src="https://github.com/didi/xiaoju-survey/assets/16012672/dd427471-368d-49d9-bc44-13c34d84e3be"  width="700" />
+- **可视化编辑器** —— 拖拽添加题型，左侧题库、中间画布、右侧属性面板
+- **逻辑编排** —— 显示逻辑（满足条件才出现）与跳转逻辑（按选项跳到指定题），画布式配置
+- **皮肤设置** —— 主题色、背景（纯色 / 图片）、内容区透明度、自定义 Logo
+- **模板** —— 4 套内置模板：普通问卷、NPS 调研、报名登记、投票
+- **创建方式** —— 空白创建、文本批量导入、Excel 导入
+- **实时预览** —— 手机 / PC 双端预览
 
-1、 **全部功能**请查看 [功能介绍](https://xiaojusurvey.didi.cn/docs/next/document/%E4%BA%A7%E5%93%81%E6%89%8B%E5%86%8C/%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/%E5%9F%BA%E7%A1%80%E6%B5%81%E7%A8%8B)。
+### 投放与回收
 
-2、**企业**和**个人**均可快速构建特定领域的调研类解决方案。
+- 发布链接、渠道管理（多渠道路径分别统计回收量）
+- 二维码生成、iframe 嵌入代码一键复制
+- 白名单限制、访问密码保护
 
-# 技术
+### 数据与导出
 
-**1、Web 端：Vue3 + ElementPlus**
+- **回收数据表** —— 支持显示原值 / 脱敏两种视图
+- **分题统计** —— 按题聚合的图表统计
+- **导出 XLSX** —— 走异步下载任务，大数据量不阻塞页面
+- **下载中心** —— 导出任务统一管理
 
-跨端SDK：ReactNaitve
+### 协作与账号
 
-**2、Server 端：NestJS + MongoDB**
+- 团队空间、分组管理、协同编辑（可邀请协作者）
+- 回收站（软删除可恢复）、操作历史
+- 注册 / 登录 / 图形验证码 / JWT 鉴权
 
-**3、能力增强**
+### 安全
 
-智能化问卷：AI 一句话生成问卷
+- 请求签名校验 + RSA 加密传输
+- 答卷内容 AES 加密存储
+- 白名单与访问密码双通道投放控制
 
-# 项目优势
+---
 
-**一、具备全面的综合性和专业性**
+## 技术栈
 
-- [制定了问卷标准化协议规范](https://xiaojusurvey.didi.cn/docs/next/agreement/%E3%80%8A%E9%97%AE%E5%8D%B7Meta%E5%8D%8F%E8%AE%AE%E3%80%8B)
+| 层 | 选型 |
+| --- | --- |
+| 前端 | Vue 3 + Vite（MPA 双入口：`management` 管理端 / `render` 答题端）+ Element Plus + ECharts + LogicFlow |
+| 后端 | NestJS + TypeORM |
+| 数据库 | MongoDB |
+| 部署 | Node.js ≥ 18（Docker 镜像基于 `node:18-slim`），无需 nginx |
 
-  领域标准保障概念互通，是全系统的基础和核心。基于实际业务经验，沉淀了两大类：
+前端刻意做成**双入口 MPA**：答题端与管理端各自打包，答题端不加载管理端的重型依赖，
+在手机上的首屏速度会明显好于单页应用。
 
-  - 业务描述：问卷协议、题型协议
-  - 物料描述：题型物料协议，包含题型和设置器
+---
 
-- [制定了问卷 UI/UX 规范](https://xiaojusurvey.didi.cn/docs/next/design/%E3%80%8A%E8%AE%BE%E8%AE%A1%E8%A7%84%E8%8C%83%E3%80%8B)
+## 快速开始
 
-  设计语言是系统灵活性、一致性的基石，保障系统支撑的实际业务运转拥有极高的用户体验。包含两部分：
+### 方式一：本地跑起来（推荐先用这个验证）
 
-  - 设计规范：灵活、降噪、统一
-  - 交互规范：遵循用户行为特征，遵循产品定位，遵循成熟的用户习惯
+需要 Node.js ≥ 18。**不需要预先安装 MongoDB** —— 开发模式下会自动拉起一个内存版实例。
 
-- [所见即所得，搭建渲染一致性高](https://xiaojusurvey.didi.cn/docs/next/document/%E8%AE%BE%E8%AE%A1%E5%8E%9F%E7%90%86/%E9%A2%98%E5%9E%8B%E5%9C%BA%E6%99%AF%E5%8C%96%E8%AE%BE%E8%AE%A1)
-
-  实际业务使用上包含问卷生成和投放使用，即对于系统的搭建端和渲染端。我们将题型场景化设计，以满足一份问卷从加工生产到投放应用的高度一致。
-
-- [题型物料化设计，自由定制扩展](https://xiaojusurvey.didi.cn/docs/next/document/%E8%AE%BE%E8%AE%A1%E5%8E%9F%E7%90%86/%E9%A2%98%E5%9E%8B%E7%89%A9%E6%96%99%E5%8C%96%E8%AE%BE%E8%AE%A1/%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1)
-
-  题型是问卷最核心的组成部分，而题型可配置化能力决定了上层业务可扩展的场景以及系统自身可复用的场景。
-  题型架构设计上，主打每一类题型拥有通用基础能力，每一种题型拥有原子化特性能力，并保障高度定制化。
-
-- [合规建设沉淀积累，安全能力拓展性高](https://xiaojusurvey.didi.cn/docs/next/document/%E5%AE%89%E5%85%A8%E8%AE%BE%E8%AE%A1/%E6%A6%82%E8%BF%B0)
-
-  数据加密传输、敏感信息精细化检测、投票防刷等能力，保障问卷发布、数据回收链路安全性。
-
-**二、轻量化设计，快速接入、灵活扩展**
-
-- [产品级开源方案，快速产出一套调研流程](https://xiaojusurvey.didi.cn/docs/next/document/%E4%BA%A7%E5%93%81%E6%89%8B%E5%86%8C/%E6%A6%82%E8%BF%B0)
-
-  围绕问卷生命周期提供了完整的产品化能力，包含用户管理: 登录、注册、问卷权限，问卷管理: 创、编、投、收、数据分析，可快速构建特定领域的调研类解决方案。
-
-- [问卷设计开箱即用，降低领域复杂度](https://xiaojusurvey.didi.cn/docs/next/document/%E8%AE%BE%E8%AE%A1%E5%8E%9F%E7%90%86/%E9%97%AE%E5%8D%B7%E6%90%AD%E5%BB%BA%E9%A2%86%E5%9F%9F%E5%8C%96%E8%AE%BE%E8%AE%A1)
-
-  问卷组成具有高灵活性，此业务特征带来问卷编辑能力的高复杂性设计。我们将问卷编辑划分为五大子领域，进行产品能力聚类，同时指导系统模块化设计和开发。基于模块编排和管理，能够开箱即用。
-
-- [二次开发成本低，轻松定制专属调研系统](https://xiaojusurvey.didi.cn/docs/next/document/%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C/%E5%B7%A5%E7%A8%8B%E9%85%8D%E7%BD%AE%E5%8C%96)
-
-  全系统设计原则基于协议标准化、功能模块化、管理配置化，并提供了一些列完整的文档和开发及扩展手册。
-
-- [部署成本低，快速上线](https://xiaojusurvey.didi.cn/docs/next/document/%E5%B7%A5%E7%A8%8B%E9%83%A8%E7%BD%B2/Docker%E9%83%A8%E7%BD%B2)
-
-  前后端分离，提供 Docker 化方案，提供了完善的部署指导手册。
-
-
-# 本地开发
-
-请查看 [本地安装手册](https://xiaojusurvey.didi.cn/docs/next/document/%E6%A6%82%E8%BF%B0/%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B) 来启动项目。
-
-```
-// 服务启动
+```bash
+# 1. 服务端（会自动启动内存 MongoDB，并打印连接串）
 cd server
 npm install
 npm run local
 
-// 页面启动
+# 2. 前端（另开一个终端）
 cd web
 npm install
-npm run serve
-
-// B端 http://localhost:8080/management
-
-// C端 http://localhost:8080/render/:surveyPath
+npm run dev
 ```
 
-# 快速部署
+打开 <http://127.0.0.1:8080/management>，注册一个账号即可开始。
 
-### 服务部署
+> 内存版 MongoDB 的数据**在进程退出后会丢失**，适合开发与演示。
+> 要保留数据，设好 `OPENSURVEY_MONGO_URL` 指向真实 MongoDB 再启动即可。
 
-请查看 [部署指导](https://xiaojusurvey.didi.cn/docs/next/document/%E5%B7%A5%E7%A8%8B%E9%83%A8%E7%BD%B2/Docker%E9%83%A8%E7%BD%B2) 。
+### 方式二：生产模式（单进程）
 
-#### Docker 镜像版本选择
+```bash
+# 服务端构建
+cd server
+npm install
+npm run build
 
-我们提供两个 Docker 镜像版本供您选择：
+# 前端构建（产出 management.html + render.html）
+cd ../web
+npm install
+npm run build-only
 
-- **slim 版本** (`xiaojusurvey/xiaoju-survey:latest-slim`): 
-  - 基于 `node:18-slim`，镜像体积更小
-  - 适合生产环境部署
-  - 包含运行所需的最小依赖
+# 单进程启动：同时托管页面与 API
+cd ../server
+NODE_ENV=production OPENSURVEY_MONGO_URL="mongodb://127.0.0.1:27017" PORT=3000 node dist/main
+```
 
-- **完整版本** (`xiaojusurvey/xiaoju-survey:latest-full`):
-  - 基于 `node:18`，包含完整的开发工具
-  - 适合开发环境或需要调试的场景
-  - 包含 `curl`、`vim`、`git` 等工具
+启动后 `/management`、`/render/*`、`/api/*` 都由这**一个进程**提供，无需再挂反向代理。
 
-在 `docker-compose.yaml` 中修改镜像标签即可切换版本。
+### 方式三：Docker
 
-<br />
+```bash
+docker build -t opensurvey:latest .
+docker run -d --name opensurvey \
+  -p 8080:8080 \
+  -e OPENSURVEY_MONGO_URL="mongodb://<user>:<pass>@<host>:27017" \
+  -e OPENSURVEY_JWT_SECRET="换成你自己的随机串" \
+  -e OPENSURVEY_RESPONSE_AES_ENCRYPT_SECRET_KEY="换成你自己的随机串" \
+  opensurvey:latest
+```
 
-## Star
+### 方式四：Docker Compose（连数据库一起）
 
-开源不易，如果该项目对你有帮助，请 star 一下 ❤️❤️❤️，你的支持是我们最大的动力。
+仓库内 `docker-compose.yaml` 会**就地构建**镜像并拉起一个 MongoDB：
 
-[![Star History Chart](https://api.star-history.com/svg?repos=didi/xiaoju-survey&type=Date)](https://star-history.com/#didi/xiaoju-survey&Date)
+```bash
+export MONGO_INITDB_ROOT_USERNAME=root
+export MONGO_INITDB_ROOT_PASSWORD=换成强密码
+export OPENSURVEY_JWT_SECRET=$(openssl rand -hex 32)
+export OPENSURVEY_RESPONSE_AES_ENCRYPT_SECRET_KEY=$(openssl rand -hex 32)
 
-## 交流群
+docker compose up -d --build
+```
 
-官方群会发布项目最新消息、建设计划和社区活动，欢迎你的加入。
+---
 
-<img src="https://img-hxy021.didistatic.com/static/starimg/img/KXKvc7sjHz1700061188156.png"  width="200" />
+## 环境变量
 
-_任何问题和合作可以联系小助手。_
+服务端按 `NODE_ENV` 读取 `server/.env` / `.env.development` / `.env.production`。
 
-## 案例
+| 变量 | 说明 | 默认 |
+| --- | --- | --- |
+| `OPENSURVEY_MONGO_URL` | MongoDB 连接串 | 空（必填） |
+| `OPENSURVEY_MONGO_DB_NAME` | 数据库名 | `opensurvey` |
+| `OPENSURVEY_MONGO_AUTH_SOURCE` | Mongo 认证库（用官方镜像的 root 账号时为 `admin`） | 空 |
+| `OPENSURVEY_JWT_SECRET` | JWT 签名密钥 | **部署前务必改掉** |
+| `OPENSURVEY_JWT_EXPIRES_IN` | 登录态有效期 | `8h` |
+| `OPENSURVEY_RESPONSE_AES_ENCRYPT_SECRET_KEY` | 答卷 AES 加密密钥 | **部署前务必改掉** |
+| `OPENSURVEY_HTTP_DATA_ENCRYPT_TYPE` | 传输加密方式 | `rsa` |
+| `OPENSURVEY_LOGGER_FILENAME` | 日志文件路径 | `./logs/app.log` |
+| `PORT` | 服务端口 | `3000` |
+| `OPENSURVEY_REDIS_*` | 可选，Redis 连接信息 | 空 |
 
-如果你使用了该项目，请记录反馈：[我在使用](https://github.com/didi/xiaoju-survey/issues/64)，你的支持是我们最大的动力。
+---
 
-## Future Tasks
+## 目录结构
 
-[欢迎了解项目发展和共建](https://github.com/didi/xiaoju-survey/issues/85)，你的支持是我们最大的动力。
+```
+OpenSurvey/
+├── server/                     # NestJS 服务端
+│   ├── src/
+│   │   ├── modules/            # auth / survey / surveyResponse / channel / workspace / file ...
+│   │   ├── models/             # TypeORM 实体
+│   │   ├── guards/             # 鉴权与权限守卫
+│   │   └── securityPlugin/     # 请求签名与加解密
+│   ├── scripts/
+│   │   ├── run-local.ts        # 本地启动（含内存 MongoDB）
+│   │   └── smoke-test.mjs      # 端到端冒烟测试
+│   └── .env*                   # 环境变量
+├── web/                        # Vue3 + Vite 前端（MPA）
+│   ├── public/                 # 静态资源（品牌资源、字体、题型缩略图）
+│   └── src/
+│       ├── management/         # 管理端
+│       ├── render/             # 答题端
+│       └── materials/          # 题型物料（编辑器与答题端共用）
+├── docs/                       # 文档、品牌源文件、截图
+├── nginx/nginx.conf            # 如需前置 nginx 可直接用
+├── Dockerfile / Dockerfile.full
+└── docker-compose.yaml
+```
 
-## 贡献
+---
 
-如果你想成为贡献者或者扩展技术栈，请查看：[贡献者指南](https://xiaojusurvey.didi.cn/docs/next/share/%E5%A6%82%E4%BD%95%E5%8F%82%E4%B8%8E%E8%B4%A1%E7%8C%AE)，你的加入使我们最大的荣幸。
+## 自检
 
-## CHANGELOG
+仓库带了一个端到端冒烟测试，覆盖 **验证码 → 注册 → 登录 → 建问卷 → 存题 → 发布 → 答题 → 统计 → 导出** 全链路，
+并断言了矩阵 / 排序 / 滑块题的取值与还原结果。
 
-关注项目重大变更：[MAJOR CHANGELOG](https://github.com/didi/xiaoju-survey/issues/48)。
+```bash
+# 先起服务端（npm run local），它会打印内存 MongoDB 的连接串
+cd server
+MONGO_URL="<上面打印的连接串>" node scripts/smoke-test.mjs
+```
+
+预期输出 `15/15 项通过`。
+
+其它自检：
+
+```bash
+cd server && npx tsc --noEmit        # 类型检查
+cd web && npm run build-only          # 前端生产构建
+```
+
+---
+
+## 已知限制
+
+这部分如实写出来，免得踩坑：
+
+- **分题统计暂不支持矩阵 / 排序 / 滑块三类题型** —— 这三类题的数据在「回收数据表」和导出的 XLSX 里
+  都是可读文案，只是分题统计页不出图
+- **没有考试评分 / 判分**能力（无标准答案、无自动得分）
+- **没有交叉分析**（多题交叉制表）
+- **没有抽奖 / 红包**一类营销玩法
+- 导出格式目前只有 XLSX，没有 CSV / SPSS / PDF
+- 尚未实现的题型：日期、时间、下拉选择、文件上传、图片单选 / 多选、计算题、比重分配题
+- 内置模板 4 套，不是「模板库」级别的数量
+
+---
+
+## 参与贡献
+
+1. 较大的改动请先开 Issue 说明，避免白做工
+2. 提交前请跑一遍上面「自检」一节的三个命令
+3. PR 请一个 PR 只做一件事，描述里写清改了什么
+
+---
+
+## 开源协议
+
+[Apache License 2.0](LICENSE)
+
+---
+
+## 致谢
+
+本项目的服务端与前端底座来自开源项目 **[xiaoju-survey](https://github.com/didi/xiaoju-survey)**（Apache-2.0）。
+感谢该项目作者与贡献者的开源工作 —— 没有这个底座，就不会有 OpenSurvey。
+
+在此之上，本项目重新设计了品牌视觉与交互主题、移除了 AI 生成相关功能、扩展了矩阵 / 排序 / 滑块等题型，
+并修正了若干数据链路问题。详细的修改说明见 [NOTICE](NOTICE)。

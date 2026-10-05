@@ -47,10 +47,10 @@
     "fillSubmitAnswer": false
   },
   "skinConf": {
-    "skinColor": "#4a4c5b",
+    "skinColor": "#444466",
     "inputBgColor": "#ffffff",
     "backgroundConf": {
-      "color": "#b8dbff",
+      "color": "#d9f2f7",
       "type": "color",
       "image": ""
     },

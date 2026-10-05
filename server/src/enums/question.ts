@@ -46,4 +46,12 @@ export enum QUESTION_TYPE {
    * 矩阵量表
    */
   MATRIX_SCALE = 'matrix-scale',
+  /**
+   * 排序
+   */
+  SORT = 'sort',
+  /**
+   * 滑块量表
+   */
+  SLIDER = 'slider',
 }

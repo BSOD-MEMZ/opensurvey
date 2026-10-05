@@ -519,34 +519,44 @@ const onShowCreateFormExcelImport = () => {
 }
 .create-method-list {
   display: grid;
-  grid-template-columns: 210px 210px;
-  grid-template-rows: 60px 60px;
-  grid-gap: 20px;
+  // 原来写死 2x2 是给 4 个入口（含 AI）准备的，去掉 AI 后剩 3 个，
+  // 改成自适应列数，避免右下角空一块、也避免以后再增减入口时又要改栅格
+  grid-template-columns: repeat(auto-fit, minmax(116px, 1fr));
+  grid-auto-rows: 60px;
+  grid-gap: 16px;
   width: 100%;
-  padding: 10px 20px 30px 20px;
+  padding: 10px 16px 26px 16px;
   .create-method-item {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    padding-left: 20px;
-    background-color: #f6f7f9;
-    border-radius: 4px;
+    padding-left: 14px;
+    background-color: #f4f6fb;
+    border: 1px solid #e6e9f2;
+    border-radius: 12px;
     cursor: pointer;
+    transition: border-color 0.16s ease, background-color 0.16s ease;
+    &:hover {
+      background-color: #f1fdfc;
+      border-color: #a9ebdf;
+    }
     .icon {
       width: 30px;
       height: 30px;
       line-height: 30px;
       text-align: center;
       background-color: #fff;
-      margin-right: 15px;
-      box-shadow: 1px 1px 5px 0 $primary-color;
+      margin-right: 10px;
+      border-radius: 8px;
+      box-shadow: 1px 1px 5px 0 rgba(119, 238, 221, 0.85);
       .iconfont {
         color: $primary-color;
       }
     }
     span {
-      font-weight: 500;
+      font-weight: 600;
+      white-space: nowrap;
     }
   }
 }

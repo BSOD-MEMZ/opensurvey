@@ -253,7 +253,7 @@ describe('DataStatisticController', () => {
               image: '',
             },
             themeConf: {
-              color: '#ffa600',
+              color: '#77eedd',
             },
             contentConf: {
               opacity: 100,

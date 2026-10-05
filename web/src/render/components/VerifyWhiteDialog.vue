@@ -132,7 +132,7 @@ watch(
     justify-content: center;
   }
   .submit-btn {
-    background: #faa600;
+    background: #3fd0bd;
     border-radius: 2px;
     width: 255px;
     height: 32px;

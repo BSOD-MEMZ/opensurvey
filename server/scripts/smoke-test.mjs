@@ -1,5 +1,5 @@
 /**
- * OpenSurvey / XIAOJUSURVEY 端到端冒烟测试
+ * OpenSurvey / OPENSURVEY 端到端冒烟测试
  *
  * 覆盖：验证码 → 注册 → 登录 → 建问卷 → 建编辑会话 → 存题目 → 发布
  *       → 拉取答题端 schema → 匿名提交答卷 → 查询统计
@@ -16,7 +16,7 @@ import { createHash } from 'node:crypto';
 
 const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:3000';
 const MONGO_URL = process.env.MONGO_URL || 'mongodb://127.0.0.1:39133/';
-const MONGO_DB = process.env.MONGO_DB || 'xiaojuSurvey';
+const MONGO_DB = process.env.MONGO_DB || 'opensurvey';
 const DUMP = process.env.DUMP_SCHEMA === '1';
 
 /**
@@ -217,8 +217,9 @@ async function main() {
   log('='.repeat(66));
 
   const suffix = Math.random().toString(36).slice(2, 8);
-  const username = `smoke_${suffix}`;
-  const password = 'Test1234!';
+  // 允许固定账号，便于用浏览器登录同一账号做人工/截图验收
+  const username = process.env.SMOKE_USER || 'smoke_' + suffix;
+  const password = process.env.SMOKE_PASS || 'Test1234!';
 
   /* 1. 验证码 */
   let cap;
@@ -236,6 +237,7 @@ async function main() {
       body: { username, password, captchaId: cap.id, captcha: cap.text },
     });
     if (r.json?.code === 200) ok('注册新用户', `username=${username}`);
+    else if (/已存在|exist/i.test(r.text)) ok('注册新用户', `username=${username} 已存在，跳过（复用固定账号）`);
     else bad('注册新用户', r.text.slice(0, 200));
   } catch (e) { bad('注册新用户', e.message); }
 
@@ -252,7 +254,16 @@ async function main() {
   } catch (e) { bad('登录', e.message); }
   if (!token) return finish();
 
-  /* 4. 创建问卷 */
+  /* 4. 建一个分组，问卷挂在分组下（否则管理端列表页看不到 —— 列表按 groupId 过滤） */
+  let groupId = null;
+  try {
+    const r = await api('POST', '/api/surveyGroup', { body: { name: `演示分组 ${suffix}` }, token });
+    groupId = r.json?.data?.id ?? null;
+    if (groupId) ok('创建分组', `groupId=${groupId}`);
+    else bad('创建分组', r.text.slice(0, 300));
+  } catch (e) { bad('创建分组', e.message); }
+
+  /* 5. 创建问卷 */
   let surveyId;
   try {
     const r = await api('POST', '/api/survey/createSurvey', {
@@ -262,8 +273,9 @@ async function main() {
         surveyType: 'normal',
         createMethod: null,
         createFrom: null,
-        workspaceId: null,
-        groupId: null,
+        // 不要显式传 workspaceId: null —— 列表接口对个人空间的判定是
+        // `workspaceId` 字段必须「不存在」，写成 null 会让问卷在管理端列表里查不到
+        groupId,
         questionList: buildQuestions(suffix),
       },
       token,
@@ -274,7 +286,7 @@ async function main() {
   } catch (e) { bad('创建问卷', e.message); }
   if (!surveyId) return finish();
 
-  /* 5. 编辑会话（必须建在问卷之后） */
+  /* 6. 编辑会话（必须建在问卷之后） */
   let sessionId;
   try {
     const r = await api('POST', '/api/session/create', { body: { surveyId }, token });
@@ -283,7 +295,7 @@ async function main() {
     else bad('创建编辑会话', r.text.slice(0, 300));
   } catch (e) { bad('创建编辑会话', e.message); }
 
-  /* 6. 读取默认 schema（决定后续字段形状） */
+  /* 7. 读取默认 schema（决定后续字段形状） */
   let conf = null;
   let surveyPath = null;
   try {
@@ -301,7 +313,7 @@ async function main() {
     log('----- end -----\n');
   }
 
-  /* 7. 保存题目 */
+  /* 8. 保存题目 */
   if (sessionId && conf) {
     try {
       const questions = buildQuestions(suffix);
@@ -318,14 +330,14 @@ async function main() {
     bad('保存问卷题目', '前置步骤缺失（会话或配置未取到）');
   }
 
-  /* 8. 发布 */
+  /* 9. 发布 */
   try {
     const r = await api('POST', '/api/survey/publishSurvey', { body: { surveyId }, token });
     if (r.json?.code === 200) ok('发布问卷', `surveyPath=${surveyPath}`);
     else bad('发布问卷', r.text.slice(0, 400));
   } catch (e) { bad('发布问卷', e.message); }
 
-  /* 9. 答题端 schema */
+  /* 10. 答题端 schema */
   let schema = null;
   if (surveyPath) {
     try {
@@ -337,7 +349,7 @@ async function main() {
     } catch (e) { bad('拉取答题端 schema', e.message); }
   }
 
-  /* 10. 匿名提交答卷 */
+  /* 11. 匿名提交答卷 */
   if (surveyPath && schema?.dataConf?.dataList) {
     try {
       const formValues = {};
@@ -383,14 +395,14 @@ async function main() {
     bad('匿名提交答卷', '未取得 surveyPath 或 schema');
   }
 
-  /* 11. 统计 */
+  /* 12. 统计 */
   try {
     const r = await api('GET', `/api/survey/dataStatistic/aggregationStatis?surveyId=${surveyId}`, { token });
     if (r.json?.code === 200) ok('分题统计接口', `返回字段：${Object.keys(r.json.data || {}).join(',')}`);
     else bad('分题统计接口', r.text.slice(0, 300));
   } catch (e) { bad('分题统计接口', e.message); }
 
-  /* 12. 回收数据表 + 校验矩阵题已还原成可读文案 */
+  /* 13. 回收数据表 + 校验矩阵题已还原成可读文案 */
   try {
     const r = await api('GET', `/api/survey/dataStatistic/dataTable?surveyId=${surveyId}&isMasked=false`, { token });
     if (r.json?.code === 200) {

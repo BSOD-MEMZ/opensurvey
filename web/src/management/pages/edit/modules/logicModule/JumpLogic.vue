@@ -412,8 +412,8 @@ watch(
   }
 
   .custom-anchor:hover {
-    fill: #ff7f0e;
-    stroke: #ff7f0e;
+    fill: #3fd0bd;
+    stroke: #3fd0bd;
   }
 
   .lf-node-not-allow .custom-anchor:hover {

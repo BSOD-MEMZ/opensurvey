@@ -139,9 +139,9 @@ const handlePublish = async () => {
   transition: .1s;
   font-weight: 500;
   vertical-align: middle;
-  background-color: #ffa600;
-  border: #ffa600;
-  border-color: #ffa600;
+  background-color: #3fd0bd;
+  border: #3fd0bd;
+  border-color: #3fd0bd;
   border-radius: 5px;
   width: 100px;
   font-size: 14px;

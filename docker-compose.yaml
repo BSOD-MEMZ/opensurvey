@@ -1,8 +1,9 @@
 version: "3.6"
+
 services:
   mongo:
     image: mongo:4
-    container_name: xiaoju-survey-mongo
+    container_name: opensurvey-mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME} # 默认使用系统的环境变量
@@ -10,36 +11,37 @@ services:
     ports:
       - "27017:27017" # 数据库端口
     volumes:
-      - mongo-volume:/data/db # xiaoju-survey-data/db/data:/data/db
+      - mongo-volume:/data/db
     networks:
-      - xiaoju-survey
+      - opensurvey
 
-  xiaoju-survey:
-    # 选择镜像版本：
-    # slim版本 (推荐生产环境): xiaojusurvey/xiaoju-survey:1.3.4-slim
-    # 完整版本 (推荐开发环境): xiaojusurvey/xiaoju-survey:1.3.4
-    image: "xiaojusurvey/xiaoju-survey:1.3.4-slim" # 最新版本：https://hub.docker.com/r/xiaojusurvey/xiaoju-survey/tags
-    container_name: xiaoju-survey
+  opensurvey:
+    # 从本仓库就地构建（不再依赖任何外部预构建镜像）
+    # 需要带完整构建工具链时把 dockerfile 换成 Dockerfile.full
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: opensurvey:latest
+    container_name: opensurvey
     restart: always
     ports:
-      - "8080:8080" # API端口
+      - "8080:8080" # 前端页面与 API 端口
     environment:
-      XIAOJU_SURVEY_MONGO_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@xiaoju-survey-mongo:27017 # docker-compose 会根据容器名称自动处理
-      XIAOJU_SURVEY_MONGO_AUTH_SOURCE: ${XIAOJU_SURVEY_MONGO_AUTH_SOURCE} # 如使用mongo官方镜像，并且设置了MONGO_INITDB_ROOT_USERNAME和MONGO_INITDB_ROOT_PASSWORD，默认值是admin
-      AImodel_API_URL: ${AImodel_API_URL}
-      AImodel_API_KEY: ${AImodel_API_KEY}
-      AImodel_MODEL: ${AImodel_MODEL}
-    links:
-      - mongo:mongo
+      OPENSURVEY_MONGO_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@opensurvey-mongo:27017
+      OPENSURVEY_MONGO_AUTH_SOURCE: ${OPENSURVEY_MONGO_AUTH_SOURCE} # 用 mongo 官方镜像并设置了 ROOT 账号时，默认值是 admin
+      OPENSURVEY_MONGO_DB_NAME: ${OPENSURVEY_MONGO_DB_NAME:-opensurvey}
+      OPENSURVEY_JWT_SECRET: ${OPENSURVEY_JWT_SECRET:?请先设置 OPENSURVEY_JWT_SECRET}
+      OPENSURVEY_RESPONSE_AES_ENCRYPT_SECRET_KEY: ${OPENSURVEY_RESPONSE_AES_ENCRYPT_SECRET_KEY:?请先设置 OPENSURVEY_RESPONSE_AES_ENCRYPT_SECRET_KEY}
+      PORT: 8080
     depends_on:
       - mongo
     networks:
-      - xiaoju-survey
+      - opensurvey
 
 volumes:
   mongo-volume:
 
 networks:
-  xiaoju-survey:
-    name: xiaoju-survey
+  opensurvey:
+    name: opensurvey
     driver: bridge

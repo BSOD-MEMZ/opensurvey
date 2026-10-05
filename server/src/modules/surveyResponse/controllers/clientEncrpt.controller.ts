@@ -17,7 +17,7 @@ export class ClientEncryptController {
   @HttpCode(200)
   async getEncryptInfo() {
     const encryptType = this.configService.get<string>(
-      'XIAOJU_SURVEY_HTTP_DATA_ENCRYPT_TYPE',
+      'OPENSURVEY_HTTP_DATA_ENCRYPT_TYPE',
     );
     let data = {};
     if (encryptType === 'rsa') {

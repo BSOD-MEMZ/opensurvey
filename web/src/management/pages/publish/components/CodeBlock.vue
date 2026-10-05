@@ -1,12 +1,12 @@
 <template>
     <div>
       <div class="header">
-        <h3>方式一： API调用</h3>
+        <h3>方式一： iframe 嵌入</h3>
         <el-button plain @click="copyCode(code, 'api')" >{{ buttonLabel  }}</el-button>
       </div>
       <pre><code>{{ code }}</code></pre>
       <div class="header">
-        <h3>方式二： 组件调用</h3>
+        <h3>方式二： 链接投放</h3>
         <el-button plain  @click="copyCode(code1, 'component')" >{{ buttonLabel1 }}</el-button>
       </div>
       <pre><code>{{ code1 }}</code></pre>
@@ -27,45 +27,22 @@
   }>();
   const { surveyPath } = toRefs(props);
   
-    const code = `import { Survey } from 'xiaojusurvey-sdk-rn'
-  
-  // sdk初始化
-  Survey.init({
-    host: '', // 请填写你的域名
-    port: '', // 请填写你的端口
-    appId: '2bAppid'
-    channelId: '' // 请填写你的渠道id
-  });
-  
-  // api调用方式
-  Survey.show({
-    id: '${surveyPath.value || 'xxx'}', // 问卷投放id
-    type: 'card',
-    onSuccess: () => {},
-    onError: (error) => { console.log(error.message) }
-  });
-  
-  Survey.close();
-  `
-  const buttonLabel1 =ref('复制代码')
-  const code1 = `import { Survey, SurveyCard } from 'xiaojusurvey-sdk-rn'
+  const origin = window.location.origin
+  const path = surveyPath.value || 'xxxxxx'
 
-// sdk初始化
-Survey.init({
-  host: '', // 请填写你的域名
-  port: '', // 请填写你的端口
-  appId: '2bAppid'
-  channelId: '' // 请填写你的渠道id
-});
+  const code = `<!-- 方式一：iframe 嵌入，把问卷直接放进你自己的页面 -->
+<iframe
+  src="${origin}/render/${path}"
+  style="width: 100%; height: 720px; border: 0;"
+  allow="clipboard-write"
+></iframe>`
 
-// card组件接入方式
-<SurveyCard
-  id='${surveyPath.value || 'xxx'}' // 问卷投放id
-  type='card'
-  onSuccess={() => {}}
-  onError={(error) => { console.log(error.message) }}
-/>
-`
+  const buttonLabel1 = ref('复制代码')
+  const code1 = `<!-- 方式二：链接投放，可带自定义查询参数做渠道区分 -->
+${origin}/render/${path}?ch=wechat
+${origin}/render/${path}?ch=poster&from=campus
+
+<!-- 参数会原样保留在答卷上，便于按渠道统计回收量 -->`
   const copyCode = (content: string, type: string) => {
 
     const data = copy(content)

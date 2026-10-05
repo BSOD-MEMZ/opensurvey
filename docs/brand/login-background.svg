@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1442" height="900" viewBox="0 0 1442 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#f2fbfa"/>
+      <stop offset="1" stop-color="#e4f6f4"/>
+    </linearGradient>
+    <radialGradient id="blobA" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#8ff5e6" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#8ff5e6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blobB" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffb1ce" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#ffb1ce" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blobC" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#cfd8ff" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#cfd8ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1442" height="900" fill="url(#bg)"/>
+
+  <!-- 柔和色斑 -->
+  <ellipse cx="1240" cy="150" rx="420" ry="360" fill="url(#blobA)"/>
+  <ellipse cx="180" cy="760" rx="460" ry="380" fill="url(#blobB)"/>
+  <ellipse cx="760" cy="60" rx="380" ry="300" fill="url(#blobC)"/>
+
+  <!-- 几何装饰 -->
+  <g fill="none" stroke="#7fe3d3" stroke-opacity="0.55" stroke-width="3">
+    <circle cx="1180" cy="640" r="120"/>
+    <circle cx="1180" cy="640" r="76" stroke-opacity="0.3"/>
+    <circle cx="300" cy="200" r="58" stroke-opacity="0.4"/>
+  </g>
+  <path d="M118 300 L172 396 L64 396 Z" fill="none" stroke="#ff9dc2" stroke-opacity="0.45" stroke-width="3" stroke-linejoin="round"/>
+  <rect x="1298" y="452" width="96" height="96" rx="26" fill="none" stroke="#9fb0ff" stroke-opacity="0.45" stroke-width="3" transform="rotate(-14 1346 500)"/>
+
+  <!-- 底部弧形与虚线，呼应问卷进度 -->
+  <path d="M-40 690 C 320 620, 700 760, 1482 664" fill="none" stroke="#7fe3d3" stroke-opacity="0.6" stroke-width="3" stroke-dasharray="12 12"/>
+
+  <!-- 文档卡 -->
+  <g transform="translate(596,706) rotate(-4)">
+    <rect x="0" y="0" width="250" height="164" rx="26" fill="#ffffff" stroke="#e2ecef" stroke-width="2"/>
+    <rect x="26" y="30" width="152" height="16" rx="8" fill="#8ff5e6"/>
+    <rect x="26" y="62" width="112" height="14" rx="7" fill="#dfe6ee"/>
+    <rect x="26" y="94" width="196" height="14" rx="7" fill="#dfe6ee"/>
+    <rect x="26" y="124" width="88" height="14" rx="7" fill="#dfe6ee"/>
+    <path d="M196 108 L208 122 L236 88" fill="none" stroke="#3fbfae" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- 提交按钮剪影 -->
+  <g transform="translate(884,748) rotate(3)">
+    <rect x="0" y="0" width="188" height="72" rx="36" fill="#8ff5e6" opacity="0.9"/>
+    <rect x="40" y="30" width="108" height="12" rx="6" fill="#ffffff"/>
+  </g>
+</svg>

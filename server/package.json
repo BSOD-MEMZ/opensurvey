@@ -1,7 +1,7 @@
 {
-  "name": "xiaoju-survey-server",
+  "name": "opensurvey-server",
   "version": "1.3.4",
-  "description": "XIAOJUSURVEY的server端",
+  "description": "OpenSurvey 服务端（NestJS + TypeORM + MongoDB）",
   "author": "",
   "scripts": {
     "build": "nest build",

@@ -83,7 +83,7 @@ const handleLogout = () => {
 
   span {
     cursor: pointer;
-    color: #faa600;
+    color: #3fd0bd;
   }
 }
 </style>

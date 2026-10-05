@@ -288,8 +288,8 @@ const refreshCaptcha = async () => {
     }
 
     .register-button {
-      border-color: #faa600;
-      color: #faa600;
+      border-color: #3fd0bd;
+      color: #3fd0bd;
     }
   }
 

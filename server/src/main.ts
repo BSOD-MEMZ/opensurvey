@@ -7,8 +7,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('XIAOJU SURVEY')
-    .setDescription('')
+    .setTitle('OpenSurvey')
+    .setDescription('OpenSurvey 开放问卷平台 API')
     .setVersion('1.0')
     .addTag('auth')
     .addTag('survey')

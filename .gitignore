@@ -41,3 +41,8 @@ lib
 server/logs/
 server/public/userUpload/
 server/public/exportfile/
+
+# Python 缓存与品牌资源渲染中间产物
+__pycache__/
+*.pyc
+docs/brand/out/

@@ -168,9 +168,9 @@ const handleDelete = (id: any) => {
     bottom: 0px;
     width: 20px;
     height: 20px;
-    background: #fef6e6;
+    background: #eafcf9;
     border-radius: 2px;
-    color: #faa600;
+    color: #3fd0bd;
     font-size: 12px;
     display: flex;
     justify-content: center;

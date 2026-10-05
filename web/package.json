@@ -1,7 +1,7 @@
 {
-  "name": "xiaoju-survey-web",
+  "name": "opensurvey-web",
   "version": "1.3.1",
-  "description": "XIAOJUSURVEY的web端，包含B端和C端应用",
+  "description": "OpenSurvey 前端（Vue3 + Vite，含管理端与答题端）",
   "type": "module",
   "scripts": {
     "serve": "npm run dev",

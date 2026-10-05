@@ -72,10 +72,11 @@ onBeforeUnmount(() => {
 @import url('../materials/questions/common/css/icon.scss');
 @import url('./styles/reset.scss');
 @import url('./styles/common.scss');
+@import url('./styles/sekai.scss');
 
 html {
   font-size: 50px;
-  color: rgb(74, 76, 91);
+  color: #444466;
 }
 
 html,

@@ -168,7 +168,7 @@ const submit = () => {
   }
 
   .create-btn {
-    background-color: rgb(255, 166, 0);
+    background-color: rgb(63, 208, 189);
     margin-right: 10px;
   }
 }

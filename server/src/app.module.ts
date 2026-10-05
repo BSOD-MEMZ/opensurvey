@@ -57,14 +57,14 @@ import { AppManagerModule } from './modules/appManager/appManager.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
-        const rawUrl = configService.get<string>('XIAOJU_SURVEY_MONGO_URL');
+        const rawUrl = configService.get<string>('OPENSURVEY_MONGO_URL');
         const url = rawUrl ? rawUrl.replace(/^"+|"+$/g, '') : '';
         const authSource =
           (await configService.get<string>(
-            'XIAOJU_SURVEY_MONGO_AUTH_SOURCE',
+            'OPENSURVEY_MONGO_AUTH_SOURCE',
           )) || '';
         const database =
-          (await configService.get<string>('XIAOJU_SURVEY_MONGO_DB_NAME')) ||
+          (await configService.get<string>('OPENSURVEY_MONGO_DB_NAME')) ||
           '';
         const ret: Record<string, any> = {
           type: 'mongodb',
@@ -144,13 +144,13 @@ export class AppModule {
     this.pluginManager.registerPlugin(
       new ResponseSecurityPlugin(
         this.configService.get<string>(
-          'XIAOJU_SURVEY_RESPONSE_AES_ENCRYPT_SECRET_KEY',
+          'OPENSURVEY_RESPONSE_AES_ENCRYPT_SECRET_KEY',
         ),
       ),
       new SurveyUtilPlugin(),
     );
     Logger.init({
-      filename: this.configService.get<string>('XIAOJU_SURVEY_LOGGER_FILENAME'),
+      filename: this.configService.get<string>('OPENSURVEY_LOGGER_FILENAME'),
     });
   }
 }

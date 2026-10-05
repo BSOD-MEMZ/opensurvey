@@ -57,7 +57,7 @@ describe('MinIOHandler', () => {
       const handler = new MinIOHandler({
         accessKey: 'mockAccessKey',
         secretKey: 'mockSecretKey',
-        bucket: 'xiaojusurvey',
+        bucket: 'opensurvey',
         region: 'mockRegion',
         endPoint: 'mockEndPoint',
         useSSL: true,
