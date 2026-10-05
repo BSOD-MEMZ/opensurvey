@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEKAI 风格组件规格 · 抽取自 sekai-stories.pages.dev</title>
+<style>
+/* ============================================================
+   1. 设计令牌（从源站 CSS 逐条抽取，未做主观调整）
+   ============================================================ */
+:root {
+  --sk-text:      #444466;                    /* 主文字色，深蓝紫灰 */
+  --sk-teal:      #77eedd;                    /* 主强调色（青绿） */
+  --sk-teal-dark: #77eddd;                    /* active 态文字色 */
+  --sk-teal-pale: #e3fcf8;                    /* active 态背景 */
+  --sk-pink:      #ff5599;                    /* 次强调色 */
+  --sk-pink-hook: #ff77ac;                    /* checkbox 勾选线色 */
+  --sk-red:       #ff2b2b;
+  --sk-orange:    #ffbb00;
+  --sk-white:     #ffffff;
+  --sk-shadow:    0 0 8px 0 rgba(68, 68, 102, .5);   /* 按钮/输入框统一投影 */
+  --sk-shadow-sm: 0 0 4px 0 rgba(68, 68, 102, .5);   /* checkbox 用更紧的投影 */
+  --sk-radius-pill: 30px;
+  --sk-radius-box:  10px;
+  --sk-font: "Noto Sans SC", system-ui, -apple-system, "Microsoft YaHei", sans-serif;
+  --sk-font-display: "Noto Sans SC", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 32px 40px 80px;
+  background: #f4f6fb;
+  font-family: var(--sk-font);
+  color: var(--sk-text);
+  -webkit-font-smoothing: antialiased;
+}
+h1 { font-size: 26px; font-weight: 900; margin: 0 0 6px; }
+h2 { font-size: 19px; font-weight: 900; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 2px solid #e2e6f0; }
+h3 { font-size: 15px; font-weight: 700; margin: 22px 0 10px; color: #6b6b8a; }
+p  { font-size: 14px; color: #6b6b8a; line-height: 1.7; margin: 6px 0; }
+.note { font-size: 13px; color: #8a8aa8; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+.panel { background: #fff; border-radius: 14px; padding: 22px 26px; box-shadow: 0 1px 3px rgba(68,68,102,.08); }
+code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: #eef1f8; padding: 1px 5px; border-radius: 4px; color: #4a4a72; }
+
+/* ============================================================
+   2. Pushbutton —— 源站 button.btn-* 原样复刻
+   ============================================================ */
+button {
+  border: none;
+  margin: 10px 0;
+  cursor: pointer;
+  user-select: none;
+  font-family: inherit;
+}
+button:disabled { opacity: .5; cursor: not-allowed; }
+
+button.btn-regular {
+  padding: 8px 50px;
+  font-size: 20px;
+  border-radius: var(--sk-radius-pill);
+  box-shadow: var(--sk-shadow);
+  min-width: 200px;
+  min-height: 60px;
+}
+button.btn-circle {
+  font-size: 20px;
+  border-radius: var(--sk-radius-pill);
+  box-shadow: var(--sk-shadow);
+  min-width: 60px;
+  min-height: 60px;
+}
+button.btn-blue   { background-color: var(--sk-teal);   color: var(--sk-text); }
+button.btn-pink   { background-color: var(--sk-pink);   color: #fff; }
+button.btn-white  { background-color: var(--sk-white);  color: var(--sk-text); }
+button.btn-red    { background-color: var(--sk-red);    color: #fff; }
+button.btn-orange { background-color: var(--sk-orange); color: var(--sk-text); }
+
+/* 源站的按下反馈是"换色"，没有位移/缩放。这里用 .is-active 静态复现 */
+button.btn-blue.is-active,
+button.btn-pink.is-active { background-color: var(--sk-teal-pale); color: var(--sk-teal-dark); }
+button.btn-white.is-active { background-color: #a1f4ec; color: #fff; }
+button.btn-red.is-active   { background-color: #000; color: #fff; }
+
+/* ============================================================
+   3. Checkbox —— 40×40 白色方块，勾选用内联 SVG，无位移
+   ============================================================ */
+input[type=checkbox] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 40px; height: 40px;
+  min-width: 40px; min-height: 40px;
+  vertical-align: middle;
+  background: none;
+  border: 0; outline: 0;
+  flex-grow: 0;
+  background-color: var(--sk-white);
+  cursor: pointer;
+  border-radius: var(--sk-radius-box);
+  box-shadow: var(--sk-shadow-sm);
+}
+input[type=checkbox]::before {
+  content: "";
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background-color: transparent;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 0 1px var(--sk-white);
+}
+input[type=checkbox]:checked::before {
+  box-shadow: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='24' viewBox='0 0 30 24' fill='none'%3E%3Cline x1='2.82843' y1='9.17157' x2='14.8284' y2='21.1716' stroke='%23FF77AC' stroke-width='8'/%3E%3Cline x1='9.17157' y1='21.1716' x2='27.1716' y2='3.17157' stroke='%23FF77AC' stroke-width='8'/%3E%3C/svg%3E");
+  background-size: 70%;
+}
+.checkbox { display: flex; align-items: center; flex-direction: row; padding: 10px 0; }
+.checkbox__label { font-size: 20px; margin-left: 20px; color: var(--sk-text); }
+
+/* ============================================================
+   4. RadioButton —— 外层 35 圆形白底 + 阴影，内层 25 青绿实心点
+   ============================================================ */
+.custom-radio-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 35px; min-height: 35px;
+  background-color: var(--sk-white);
+  border-radius: 50%;
+  box-shadow: var(--sk-shadow);
+  margin-right: 20px;
+}
+.custom-radio-button .checkmark {
+  width: 25px; height: 25px;
+  border-radius: 50%;
+  background-color: var(--sk-teal);
+  display: none;
+}
+.custom-radio-button input[type=radio]:checked + .checkmark { display: inline-block; }
+.custom-radio-button input[type=radio] { display: none; }
+.radio__label { font-size: 20px; color: var(--sk-text); }
+
+/* ============================================================
+   5. 文本输入 —— 白底药丸输入框，右侧铅笔图标提示"可编辑"
+   ============================================================ */
+input[type=text], input[type=number] {
+  font-family: inherit;
+  border: none;
+  border-radius: var(--sk-radius-box);
+  background: #fff;
+  box-shadow: var(--sk-shadow);
+  font-size: 20px;
+  padding: 10px 50px 10px 10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='black' viewBox='0 0 16 16'%3E%3Cpath d='M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 95% 50%;
+  color: var(--sk-text);
+  width: 100%;
+  margin: 10px 0;
+}
+textarea {
+  font-family: inherit;
+  border: none;
+  border-radius: var(--sk-radius-box);
+  background: #fff;
+  box-shadow: var(--sk-shadow);
+  font-size: 20px;
+  padding: 8px 50px 8px 10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='black' viewBox='0 0 16 16'%3E%3Cpath d='M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 95% 20px;
+  line-height: 30px;
+  color: var(--sk-text);
+  width: 100%;
+  resize: vertical;
+  margin: 10px 0;
+}
+
+/* ============================================================
+   6. 卡片选择器 —— 白边正方形卡片，选中用粉色双描边 + 闪烁
+   ============================================================ */
+.picker-item {
+  width: 120px;
+  height: 120px;
+  border-radius: var(--sk-radius-box);
+  border: 2px solid var(--sk-white);
+  background: linear-gradient(160deg, #dff2ff, #c9e6ff);
+  margin: 10px;
+  cursor: pointer;
+}
+.picker-item-selected {
+  border-color: var(--sk-pink);
+  outline: 5px solid var(--sk-pink);
+}
+
+/* ============================================================
+   7. 色板（仅为展示令牌本身）
+   ============================================================ */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; }
+.swatch { border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(68,68,102,.1); }
+.swatch .chip { height: 54px; }
+.swatch .meta { padding: 8px 10px 10px; font-size: 12px; line-height: 1.6; }
+.swatch .meta b { display: block; font-size: 13px; font-weight: 700; }
+.swatch .meta span { color: #8a8aa8; font-family: ui-monospace, Consolas, monospace; }
+</style>
+</head>
+<body>
+
+<h1>SEKAI 风格组件规格</h1>
+<p>逐条抽取自 <code>https://sekai-stories.pages.dev/assets/index-PoQpRr9D.css</code>（21&nbsp;KB），数值未做主观调整。<br>
+字体改用 <code>Noto Sans SC</code> 替代源站的 <code>FOT-RodinNTLGPro</code>（理由见文档第四节）。</p>
+
+<h2>设计令牌</h2>
+<div class="swatches">
+  <div class="swatch"><div class="chip" style="background:#444466"></div><div class="meta"><b>主文字 / 描边</b><span>#444466</span></div></div>
+  <div class="swatch"><div class="chip" style="background:#77eedd"></div><div class="meta"><b>主强调（青绿）</b><span>#77eedd</span></div></div>
+  <div class="swatch"><div class="chip" style="background:#e3fcf8"></div><div class="meta"><b>按压背景</b><span>#e3fcf8</span></div></div>
+  <div class="swatch"><div class="chip" style="background:#ff5599"></div><div class="meta"><b>次强调（粉）</b><span>#ff5599</span></div></div>
+  <div class="swatch"><div class="chip" style="background:#ff77ac"></div><div class="meta"><b>勾选线色</b><span>#ff77ac</span></div></div>
+  <div class="swatch"><div class="chip" style="background:#ff2b2b"></div><div class="meta"><b>危险</b><span>#ff2b2b</span></div></div>
+  <div class="swatch"><div class="chip" style="background:#ffbb00"></div><div class="meta"><b>警示</b><span>#ffbb00</span></div></div>
+  <div class="swatch"><div class="chip" style="background:#ffffff;border-bottom:1px solid #eee"></div><div class="meta"><b>表面</b><span>#ffffff</span></div></div>
+</div>
+
+<h2>Pushbutton</h2>
+<div class="panel">
+  <h3>常规按钮 <code>button.btn-regular</code>（min-width 200 / min-height 60 / 圆角 30 / 字号 20）</h3>
+  <div class="row">
+    <button class="btn-regular btn-blue">主操作</button>
+    <button class="btn-regular btn-pink">次操作</button>
+    <button class="btn-regular btn-white">取消</button>
+    <button class="btn-regular btn-red">危险</button>
+    <button class="btn-regular btn-orange">警示</button>
+    <button class="btn-regular btn-blue" disabled>禁用</button>
+  </div>
+
+  <h3>按下态（源站用 <code>:active</code> 换色，无位移无缩放）</h3>
+  <div class="row">
+    <button class="btn-regular btn-blue is-active">按下中的主操作</button>
+    <button class="btn-regular btn-pink is-active">按下中的次操作</button>
+    <button class="btn-regular btn-white is-active">按下中的取消</button>
+  </div>
+
+  <h3>圆形按钮 <code>button.btn-circle</code>（60×60）</h3>
+  <div class="row">
+    <button class="btn-circle btn-white">←</button>
+    <button class="btn-circle btn-white">→</button>
+    <button class="btn-circle btn-pink">♪</button>
+    <button class="btn-circle btn-blue is-active">OK</button>
+  </div>
+</div>
+
+<h2>Checkbox</h2>
+<div class="panel">
+  <p class="note">40×40 白色圆角方块 + 4px 扩散阴影；勾选时靠内联 SVG 换 <code>background-image</code>，<strong>没有任何位移动画</strong>。</p>
+  <div class="checkbox">
+    <input type="checkbox" id="cb1">
+    <label class="checkbox__label" for="cb1">未选中</label>
+  </div>
+  <div class="checkbox">
+    <input type="checkbox" id="cb2" checked>
+    <label class="checkbox__label" for="cb2">已选中</label>
+  </div>
+</div>
+
+<h2>RadioButton</h2>
+<div class="panel">
+  <p class="note">原生 <code>input[type=radio]</code> 直接 <code>display:none</code>；外层 35 圆形白底带阴影，内层 25 青绿实心点由 <code>:checked</code> 控制显隐。</p>
+  <div class="row" style="gap:34px">
+    <div class="checkbox">
+      <div class="custom-radio-button">
+        <input type="radio" name="r1" id="r1">
+        <span class="checkmark"></span>
+      </div>
+      <label class="radio__label" for="r1">选项 A</label>
+    </div>
+    <div class="checkbox">
+      <div class="custom-radio-button">
+        <input type="radio" name="r1" id="r2" checked>
+        <span class="checkmark"></span>
+      </div>
+      <label class="radio__label" for="r2">选项 B（选中）</label>
+    </div>
+  </div>
+</div>
+
+<h2>文本输入</h2>
+<div class="panel" style="max-width:520px">
+  <input type="text" placeholder="单行输入">
+  <textarea rows="3" placeholder="多行输入"></textarea>
+</div>
+
+<h2>卡片选择器</h2>
+<div class="panel">
+  <p class="note">源站用于图片/模型选择：白边正方形，选中态是粉色 2px 边框 + 5px outline，并带 1s 循环闪烁（青绿↔粉）。</p>
+  <div class="row">
+    <div class="picker-item"></div>
+    <div class="picker-item picker-item-selected"></div>
+    <div class="picker-item"></div>
+  </div>
+</div>
+
+</body>
+</html>
