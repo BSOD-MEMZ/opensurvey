@@ -35,6 +35,7 @@ watch(skinConf, (skinConfig) => {
 @import url('./styles/icon.scss');
 @import url('../materials/questions/common/css/icon.scss');
 @import url('./styles/reset.scss');
+@import './styles/sekai.scss';
 
 html {
   background: #f7f7f7;

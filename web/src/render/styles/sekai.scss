@@ -1,0 +1,614 @@
+/**
+ * SEKAI（pjsk）风格主题 —— 仅作用于答题端
+ *
+ * 所有规则都挂在 .sk-theme 下（该类加在 render/index.html 的 <body> 上），
+ * 因此管理端编辑器完全不受影响，可随时摘掉这个类回滚。
+ *
+ * 抽取来源：sekai-stories.pages.dev/assets/index-PoQpRr9D.css
+ * 尺寸换算：本答题端是 rem 布局，1rem = 50px（见 render/index.html 的 resetRemUnit）
+ * 字体：按需求使用系统默认字体，不引入任何外部字体
+ */
+
+.sk-theme {
+  /* ---------- 设计令牌 ---------- */
+  --sk-ink: #444466;              /* 主文字 / 阴影基色 */
+  --sk-primary: var(--primary-color, #77eedd);   /* 跟随问卷主题色，缺省 pjsk 青绿 */
+  --sk-press-bg: #e3fcf8;         /* 按下态背景 */
+  --sk-pink: #ff5599;
+  --sk-check: #ff77ac;            /* 勾选线色（pjsk 标志性粉） */
+  --sk-danger: #ff2b2b;
+  --sk-surface: #ffffff;
+  --sk-shadow: 0 0 0.16rem 0 rgba(68, 68, 102, 0.5);
+  --sk-shadow-sm: 0 0 0.08rem 0 rgba(68, 68, 102, 0.5);
+  --sk-radius-pill: 0.6rem;
+  --sk-radius-box: 0.2rem;
+
+  font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC",
+    "Hiragino Sans GB", sans-serif;
+  color: var(--sk-ink);
+
+  /* ---------- 页面底色：浅灰底 + 白色卡片 ---------- */
+  background: #f4f6fb;
+
+  h1, h2, h3, h4, h5, h6, p, label, span {
+    color: var(--sk-ink);
+  }
+
+  /* 整页走浅灰，题目做成白卡（pjsk 的卡片式布局） */
+  #app {
+    background-color: #f4f6fb;
+  }
+
+  .content {
+    background: #f4f6fb !important;
+    padding: 0.2rem 0.24rem 0 !important;
+  }
+
+  /* ============================================================
+     顶部进度条 —— pjsk 的细胶囊
+     ============================================================ */
+  .progress-outer {
+    .progress-inner-wrapper-mobile {
+      height: 0.12rem !important;
+      background-color: #eef1f6 !important;
+    }
+    .progress-inner-mobile {
+      background-color: var(--sk-primary) !important;
+      border-radius: var(--sk-radius-pill);
+    }
+    .progress-inner-wrapper-pc {
+      background: var(--sk-surface);
+      border-radius: var(--sk-radius-box);
+      box-shadow: var(--sk-shadow-sm);
+    }
+    .progress-inner-bar {
+      background: #eef1f6 !important;
+      border-radius: var(--sk-radius-pill) !important;
+    }
+    .progress-inner-pc {
+      background-color: var(--sk-primary) !important;
+      border-radius: var(--sk-radius-pill) !important;
+    }
+    .percent-pc {
+      color: var(--sk-ink) !important;
+      font-weight: 700;
+    }
+  }
+
+  /* ============================================================
+     题干区 —— 每道题一张白色圆角卡
+     ============================================================ */
+  .question-wrapper {
+    background: var(--sk-surface);
+    border-radius: 0.32rem;
+    box-shadow: var(--sk-shadow-sm);
+    /* 覆盖 .gap 的 0.2rem 0 0.8rem */
+    padding: 0.36rem 0 !important;
+    margin: 0 0 0.28rem;
+
+    /* 干掉原来的粗分割线，改用卡片间距区分 */
+    &.spliter,
+    &.spliter::after {
+      border-bottom: none !important;
+      background: none !important;
+    }
+
+    .module-title {
+      font-weight: 800;
+      color: var(--sk-ink);
+    }
+
+    /* 序号 */
+    .index {
+      color: var(--sk-ink);
+      font-weight: 800;
+    }
+
+    .module-title-required {
+      color: var(--sk-danger);
+    }
+
+    .module-err-tip,
+    .tip-text {
+      color: var(--sk-danger) !important;
+    }
+
+    /* 题目描述 */
+    .desc,
+    .question-desc,
+    .remark {
+      color: #8a8aa8 !important;
+    }
+
+    /* 段落说明 / 分页说明 */
+    &.question-type-section {
+      .module-title {
+        font-size: 0.36rem;
+      }
+    }
+
+    /* 答题耗时之类的提示 */
+    .sort-tip {
+      color: #8a8aa8 !important;
+      padding-left: 0.4rem;
+    }
+  }
+
+  /* 问卷标题 / 简介，同样做成白卡 */
+  .main-title-warp {
+    .titlePanel {
+      background: var(--sk-surface);
+      border-radius: 0.32rem;
+      box-shadow: var(--sk-shadow-sm);
+      /* 原样式是 width:100% + padding，加 margin 会溢出，这里改成自适应宽度 */
+      width: auto !important;
+      margin: 0 0 0.28rem;
+    }
+  }
+
+  /* 题型标签（单选 / 多选 …）—— pjsk 的灰色胶囊 */
+  .m-tag {
+    border: none !important;
+    border-radius: var(--sk-radius-pill) !important;
+    background: #f4f6fb !important;
+    color: #6b6b8a !important;
+    font-size: 0.2rem !important;
+    font-weight: 700;
+    height: 0.36rem !important;
+    line-height: 0.36rem !important;
+    padding: 0 0.24rem !important;
+  }
+
+  /* 问卷主标题 */
+  .mainTitle,
+  .mainTitle p,
+  .mainTitle h1,
+  .mainTitle h2,
+  .mainTitle h3 {
+    color: var(--sk-ink) !important;
+  }
+
+  /* ============================================================
+     单选 / 多选 —— pjsk 的方块与圆点
+     原实现：选中时把 <input> 整块填成主色（并且依赖图标字体画勾，
+     但 <input> 不支持伪元素，那个勾其实从未渲染出来）。
+     这里改成 pjsk 的做法：白底 + 粉勾 / 青绿圆点，全部走 background-image，
+     顺带摆脱对 alicdn 远程图标字体的依赖。
+     ============================================================ */
+  .choice-wrapper .choice-box .choice-item {
+    padding: 0.2rem 0 !important;
+    border-radius: var(--sk-radius-box);
+
+    .item-title {
+      color: var(--sk-ink) !important;
+      font-size: 0.34rem !important;
+      line-height: 0.5rem;
+
+      .item-title-text {
+        padding: 0 !important;
+      }
+    }
+
+    /* 未选中 */
+    .item-input {
+      width: 0.6rem !important;
+      height: 0.6rem !important;
+      margin: 0.05rem 0.28rem 0 0 !important;
+      border: none !important;
+      border-radius: var(--sk-radius-box) !important;
+      background-color: var(--sk-surface) !important;
+      background-repeat: no-repeat;
+      background-position: center;
+      box-shadow: var(--sk-shadow-sm);
+
+      &[type='radio'] {
+        border-radius: 50% !important;
+      }
+    }
+
+    /* 选中 */
+    &.is-checked {
+      .item-title {
+        color: var(--sk-primary) !important;
+        font-weight: 700;
+      }
+
+      .item-input {
+        background-color: var(--sk-surface) !important;
+        box-shadow: var(--sk-shadow-sm);
+        /* 压掉图标字体的勾（本来也渲染不出来，这里显式关掉更干净） */
+        font-family: inherit !important;
+        color: transparent !important;
+      }
+
+      .item-input[type='checkbox'] {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='24' viewBox='0 0 30 24' fill='none'%3E%3Cline x1='2.82843' y1='9.17157' x2='14.8284' y2='21.1716' stroke='%23FF77AC' stroke-width='8'/%3E%3Cline x1='9.17157' y1='21.1716' x2='27.1716' y2='3.17157' stroke='%23FF77AC' stroke-width='8'/%3E%3C/svg%3E");
+        background-size: 62%;
+      }
+
+      .item-input[type='radio'] {
+        background-image: radial-gradient(
+          circle at 50% 50%,
+          var(--sk-primary) 0 33%,
+          transparent 35%
+        );
+      }
+
+      /* 禁用态：按钮内不显示伪元素，这里只在标签上降透明度 */
+      .item-input:disabled {
+        opacity: 0.5;
+      }
+    }
+
+    &.disabled,
+    .item-input:disabled + .item-title,
+    .item-input:disabled ~ .item-title {
+      color: #c2c6cc !important;
+    }
+  }
+
+  /* 选项配额提示 */
+  .choice-item .remaining-text {
+    color: #8a8aa8 !important;
+  }
+
+  /* 横排时给每个选项留出间距 */
+  .choice-box.horizontal .choice-outer {
+    padding-right: 0.2rem;
+    box-sizing: border-box;
+  }
+
+  /* ============================================================
+     文本输入 / 多行输入 —— pjsk 的白底药丸
+     ============================================================ */
+  .input-wrapper,
+  .input-box {
+    input,
+    textarea {
+      border: none !important;
+      border-radius: var(--sk-radius-box) !important;
+      background-color: var(--sk-surface) !important;
+      box-shadow: var(--sk-shadow);
+      color: var(--sk-ink) !important;
+      font-size: 0.34rem !important;
+      font-family: inherit;
+      padding: 0.24rem 0.28rem !important;
+      outline: none;
+
+      &::placeholder {
+        color: #b8b9c8 !important;
+      }
+    }
+
+    textarea {
+      line-height: 0.5rem;
+      min-height: 1.6rem;
+    }
+  }
+
+  .text-number-tip {
+    color: #8a8aa8 !important;
+  }
+
+  /* ============================================================
+     评分 / NPS —— pjsk 的圆形刻度
+     ============================================================ */
+  .rate-wrapper-main {
+    .rate-item {
+      color: var(--sk-ink) !important;
+    }
+
+    .rate-item.on,
+    .rate-item.is-active {
+      color: var(--sk-pink) !important;
+    }
+
+    .rate-box {
+      border-radius: var(--sk-radius-box) !important;
+      background-color: var(--sk-surface) !important;
+      box-shadow: var(--sk-shadow-sm);
+      border: none !important;
+    }
+  }
+
+  .radio-star .qicon {
+    font-family: inherit !important;
+  }
+
+  .nps-wrapper-main {
+    .rate-item,
+    .left,
+    .right,
+    .nps-msg,
+    .nps-row-msg {
+      color: var(--sk-ink) !important;
+    }
+
+    .rate-item.on,
+    .rate-item.is-active {
+      color: var(--sk-pink) !important;
+    }
+  }
+
+  /* ============================================================
+     矩阵题 —— pjsk 表格
+     ============================================================ */
+  .matrix-wrapper {
+    .matrix-table {
+      .matrix-col-head {
+        color: var(--sk-ink) !important;
+        font-weight: 700;
+      }
+
+      .matrix-row-title {
+        color: var(--sk-ink) !important;
+        font-size: 0.3rem;
+        border-top-color: #eef1f6 !important;
+      }
+
+      .matrix-cell {
+        border-top-color: #eef1f6 !important;
+      }
+
+      .matrix-radio {
+        width: 0.5rem;
+        height: 0.5rem;
+        border: none;
+        background-color: var(--sk-surface);
+        box-shadow: var(--sk-shadow-sm);
+      }
+
+      .matrix-cell.is-picked .matrix-radio {
+        border: none;
+        background-image: radial-gradient(
+          circle at 50% 50%,
+          var(--sk-primary) 0 34%,
+          transparent 36%
+        );
+      }
+
+      .matrix-clear {
+        color: #b8b9c8;
+        &:hover {
+          color: var(--sk-danger);
+        }
+      }
+    }
+
+    .matrix-scale-labels {
+      color: #8a8aa8 !important;
+    }
+  }
+
+  .matrix-empty {
+    background: #f4f6fb !important;
+    color: #8a8aa8 !important;
+    border-radius: var(--sk-radius-box);
+  }
+
+  /* ============================================================
+     排序题 —— pjsk 卡片列表
+     ============================================================ */
+  .sort-wrapper {
+    .sort-item {
+      border: none !important;
+      border-radius: var(--sk-radius-box);
+      background: var(--sk-surface);
+      box-shadow: var(--sk-shadow-sm);
+      color: var(--sk-ink);
+      padding: 0.22rem 0.24rem;
+
+      &:hover {
+        border: none;
+      }
+
+      &.is-dragging {
+        opacity: 0.5;
+        border: none;
+      }
+    }
+
+    .sort-index {
+      background: var(--sk-primary) !important;
+      color: var(--sk-ink);
+      font-weight: 700;
+      width: 0.36rem;
+      height: 0.36rem;
+      line-height: 0.36rem;
+    }
+
+    .sort-handle i {
+      background: #c2c6cc !important;
+    }
+
+    .sort-btn {
+      background: #f4f6fb !important;
+      border: none !important;
+      border-radius: 0.12rem;
+      color: var(--sk-ink);
+
+      &:hover:not(:disabled) {
+        background: var(--sk-press-bg) !important;
+        color: #4a4a72 !important;
+      }
+    }
+
+    .sort-tip {
+      color: #8a8aa8 !important;
+    }
+  }
+
+  .sort-empty {
+    background: #f4f6fb !important;
+    color: #8a8aa8 !important;
+    border-radius: var(--sk-radius-box);
+  }
+
+  /* ============================================================
+     滑块题 —— pjsk 轨道
+     ============================================================ */
+  .slider-wrapper {
+    .slider-value {
+      background: #f4f6fb;
+      color: #8a8aa8;
+
+      &.is-answered {
+        background: var(--sk-primary);
+        color: var(--sk-ink);
+        font-weight: 700;
+      }
+    }
+
+    .slider-input {
+      height: 0.16rem;
+      border-radius: var(--sk-radius-pill);
+      background: linear-gradient(
+        to right,
+        var(--sk-primary) var(--slider-percent, 0%),
+        #eef1f6 var(--slider-percent, 0%)
+      );
+
+      &::-webkit-slider-thumb {
+        width: 0.44rem;
+        height: 0.44rem;
+        background: var(--sk-surface);
+        border: none;
+        box-shadow: var(--sk-shadow-sm);
+      }
+
+      &::-moz-range-thumb {
+        width: 0.4rem;
+        height: 0.4rem;
+        background: var(--sk-surface);
+        border: none;
+        box-shadow: var(--sk-shadow-sm);
+      }
+    }
+
+    .slider-scale {
+      color: #8a8aa8 !important;
+    }
+  }
+
+  /* ============================================================
+     投票题
+     ============================================================ */
+  .vote-detail {
+    .vote-progress,
+    .progress-bar {
+      background-color: var(--sk-primary) !important;
+      border-radius: var(--sk-radius-pill) !important;
+    }
+  }
+
+  /* ============================================================
+     提交按钮 —— pjsk pushbutton
+     源站规格：min-height 60px / 圆角 30px / 阴影 0 0 8px rgba(68,68,102,.5)
+     按下反馈是"换色"，不是位移或缩放
+     ============================================================ */
+  .submit-warp {
+    &.preview-submit_wrapper {
+      padding: 0.5rem 0.4rem 0.6rem;
+    }
+
+    .submit-btn {
+      width: 100%;
+      min-height: 1.1rem;
+      padding: 0.24rem 0.4rem;
+      font-size: 0.36rem;
+      font-weight: 800;
+      line-height: 0.62rem;
+      color: var(--sk-ink);
+      background: var(--sk-primary);
+      border: none;
+      border-radius: var(--sk-radius-pill);
+      box-shadow: var(--sk-shadow);
+      cursor: pointer;
+      font-family: inherit;
+
+      &:active {
+        background: var(--sk-press-bg);
+        color: #5ad8c6;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  /* ============================================================
+     弹窗 —— pjsk 白色圆角卡片
+     这些组件会被 teleport 到 body，所以 .sk-theme 必须挂在 body 上
+     ============================================================ */
+  .el-dialog {
+    border-radius: var(--sk-radius-box) !important;
+    box-shadow: var(--sk-shadow) !important;
+    overflow: hidden;
+
+    .el-dialog__title {
+      color: var(--sk-ink) !important;
+      font-weight: 800;
+    }
+
+    .el-button {
+      border: none !important;
+      border-radius: var(--sk-radius-pill) !important;
+      box-shadow: var(--sk-shadow-sm);
+      font-weight: 700;
+      min-height: 0.8rem;
+
+      &.el-button--primary {
+        background: var(--sk-primary) !important;
+        color: var(--sk-ink) !important;
+      }
+
+      &:not(.el-button--primary) {
+        background: var(--sk-surface) !important;
+        color: var(--sk-ink) !important;
+      }
+
+      &:active {
+        background: var(--sk-press-bg) !important;
+      }
+    }
+
+    .el-input__wrapper {
+      border-radius: var(--sk-radius-box) !important;
+      box-shadow: var(--sk-shadow-sm) !important;
+      background: var(--sk-surface) !important;
+    }
+  }
+
+  .el-overlay,
+  .el-overlay-dialog {
+    background-color: rgba(68, 68, 102, 0.35);
+  }
+
+  .el-message-box {
+    border-radius: var(--sk-radius-box) !important;
+    box-shadow: var(--sk-shadow) !important;
+  }
+
+  /* ============================================================
+     完成页 / 错误页
+     ============================================================ */
+  .success-page,
+  .error-page,
+  .empty-page {
+    color: var(--sk-ink);
+
+    .title,
+    h1,
+    h2 {
+      color: var(--sk-ink) !important;
+      font-weight: 800;
+    }
+
+    p,
+    .desc {
+      color: #8a8aa8 !important;
+    }
+  }
+}
