@@ -19,6 +19,7 @@ import { DownloadTaskController } from './controllers/downloadTask.controller';
 import { SessionController } from './controllers/session.controller';
 import { SurveyGroupController } from './controllers/surveyGroup.controller';
 import { RecycleBinController } from './controllers/recycleBin.controller';
+import { SurveyResponseManageController } from './controllers/surveyResponseManage.controller';
 
 import { SurveyConf } from 'src/models/surveyConf.entity';
 import { SurveyHistory } from 'src/models/surveyHistory.entity';
@@ -36,6 +37,7 @@ import { SurveyHistoryService } from './services/surveyHistory.service';
 import { SurveyMetaService } from './services/surveyMeta.service';
 import { ContentSecurityService } from './services/contentSecurity.service';
 import { CollaboratorService } from './services/collaborator.service';
+import { SurveyResponseManageService } from './services/surveyResponseManage.service';
 
 import { Counter } from 'src/models/counter.entity';
 import { CounterService } from '../surveyResponse/services/counter.service';
@@ -77,6 +79,7 @@ import { WorkspaceService } from '../workspace/services/workspace.service';
     SessionController,
     SurveyGroupController,
     RecycleBinController,
+    SurveyResponseManageController,
   ],
   providers: [
     DataStatisticService,
@@ -93,6 +96,7 @@ import { WorkspaceService } from '../workspace/services/workspace.service';
     SessionService,
     SurveyGroupService,
     WorkspaceService,
+    SurveyResponseManageService,
   ],
 })
 export class SurveyModule {}

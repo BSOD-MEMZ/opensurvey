@@ -30,7 +30,8 @@ export const questionChartsConfig = {
 
 export const analysisTypeMap = {
   dataTable: 'dataTable',
-  separateStatistics: 'separateStatistics'
+  separateStatistics: 'separateStatistics',
+  responseManage: 'responseManage'
 }
 
 export const analysisType = [
@@ -43,6 +44,11 @@ export const analysisType = [
     value: analysisTypeMap.separateStatistics,
     label: '分题统计',
     icon: 'icon-fentitongji'
+  },
+  {
+    value: analysisTypeMap.responseManage,
+    label: '答卷管理',
+    icon: 'icon-wodekongjian'
   }
 ]
 

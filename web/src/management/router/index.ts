@@ -137,6 +137,15 @@ const routes: RouteRecordRaw[] = [
           premissions: [SurveyPermissions.DataManage]
         },
         component: () => import('../pages/analysis/pages/SeparateStatisticsPage.vue')
+      },
+      {
+        path: analysisTypeMap.responseManage,
+        name: analysisTypeMap.responseManage,
+        meta: {
+          needLogin: true,
+          premissions: [SurveyPermissions.DataManage]
+        },
+        component: () => import('../pages/analysis/pages/ResponseManagePage.vue')
       }
     ]
   },
