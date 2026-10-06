@@ -85,9 +85,13 @@ const updateLogicConf = () => {
     try {
       showLogicEngine.value.validateSchema()
     } catch (error) {
+      // 原来无论什么原因都报「逻辑配置不能为空」，误导性很强；
+      // 这里把 yup 的具体原因带出来，便于定位是哪条规则有问题
+      const reason =
+        (error as any)?.errors?.[0] || (error as any)?.message || ''
       res = {
         validated: false,
-        message: '逻辑配置不能为空'
+        message: reason ? `逻辑配置有误：${reason}` : '逻辑配置不能为空'
       }
 
       return res

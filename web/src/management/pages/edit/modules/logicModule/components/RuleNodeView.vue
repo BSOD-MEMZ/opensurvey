@@ -30,7 +30,6 @@
               collapse-tags-tooltip
               :multiple-limit="20"
               placeholder="可选择多道题批量应用"
-              @change="handleTargetsChange"
             >
               <el-option
                 v-for="{ label, value, disabled } in targetQuestionList"
@@ -75,18 +74,24 @@ const props = defineProps({
 })
 const emit = defineEmits(['delete'])
 
-/** 当前分组下的全部目标题（多选绑定） */
-const ruleTargets = computed(() =>
-  showLogicEngine.value.findTargetsByGroup(props.ruleNode.groupId)
-)
-
 /**
- * 目标变化：把这条逻辑批量应用到选中的多道题。
- * 引擎里会为每道题生成一条独立规则（同组），条件完全一致。
+ * 当前分组下的全部目标题（多选绑定）。
+ *
+ * 必须用「可写 computed」而不是只读 computed + @change：
+ * el-select 的 v-model 会回写 modelValue，只读 computed 无法接收，
+ * 会导致选中值与引擎状态不同步、把空串混进目标列表，
+ * 进而让 yup 校验报「[0].target is a required field」。
  */
-const handleTargetsChange = (targets: string[]) => {
-  showLogicEngine.value.setGroupTargets(props.ruleNode.id, targets)
-}
+const ruleTargets = computed({
+  get: () =>
+    showLogicEngine.value
+      .findTargetsByGroup(props.ruleNode.groupId)
+      .filter((t: string) => typeof t === 'string' && t),
+  set: (targets: string[]) => {
+    const list = (targets || []).filter((t) => typeof t === 'string' && t)
+    showLogicEngine.value.setGroupTargets(props.ruleNode.id, list)
+  }
+})
 
 // 组的条件只在首条上编辑，改动后同步给同组其它规则，避免落到库里不一致
 watch(
