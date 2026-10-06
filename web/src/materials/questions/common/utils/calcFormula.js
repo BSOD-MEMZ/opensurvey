@@ -169,13 +169,3 @@ export function evaluateFormula(expression, variables = {}) {
 
   return stack[0]
 }
-
-/** 校验公式（编辑器里做即时提示用） */
-export function validateFormula(expression) {
-  try {
-    evaluateFormula(expression, {})
-    return ''
-  } catch (error) {
-    return error?.message || '公式有误'
-  }
-}

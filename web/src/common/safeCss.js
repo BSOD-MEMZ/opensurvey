@@ -42,21 +42,6 @@ export function sanitizeCustomCss(css) {
 }
 
 /**
- * 扫出作者原文里有哪些写法会被拦掉，用于在编辑器里给出提示。
- * @param {string} css
- * @returns {string[]} 命中项的中文名
- */
-export function findBlockedCss(css) {
-  if (!css || typeof css !== 'string') return []
-
-  const hits = []
-  if (/@import/i.test(css)) hits.push('@import')
-  if (/url\(\s*(['"]?)\s*(?:https?:)?\/\//i.test(css)) hits.push('外部 url()')
-  if (/expression\s*\(|behavior\s*:|-moz-binding\s*:/i.test(css)) hits.push('危险属性')
-  return hits
-}
-
-/**
  * 把过滤后的 CSS 注入页面。用 textContent 而不是 innerHTML，
  * 所以哪怕作者写了 </style><script> 也只会被当成普通文本。
  * @param {string} css

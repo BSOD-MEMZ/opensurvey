@@ -27,18 +27,3 @@ export const setSurveySubmit = (id: string, value: number) => {
   localStorage.setItem(`${id}_submit`, JSON.stringify(value))
 }
 export const clearSurveySubmit = (id: string) => localStorage.removeItem(`${id}_submit`)
-
-// 投票记录
-export const getVoteData = (): any => {
-  try {
-    return JSON.parse(localStorage.getItem('voteData') as string) || null
-  } catch (e) {
-    console.log(e)
-  }
-
-  return null
-}
-export const setVoteData = (params: any) => {
-  localStorage.setItem('voteData', JSON.stringify(params))
-}
-export const clearVoteData = () => localStorage.removeItem('voteData')

@@ -5,13 +5,3 @@ export enum QOP_MAP {
   EDIT = 'edit'
 }
 
-export const operatorOptions = [
-  {
-    label: '选择了',
-    value: 'in'
-  },
-  {
-    label: '不选择',
-    value: 'nin'
-  }
-]

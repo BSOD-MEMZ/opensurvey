@@ -93,9 +93,4 @@ export enum SurveyPermissions {
   DataManage = 'SURVEY_RESPONSE_MANAGE',
   CollaboratorManage = 'SURVEY_COOPERATION_MANAGE'
 }
-// 定义协作者权限标签映射对象
-export const surveyPermissionsLabels: Record<SurveyPermissions, string> = {
-  [SurveyPermissions.SurveyManage]: '问卷管理',
-  [SurveyPermissions.DataManage]: '数据管理',
-  [SurveyPermissions.CollaboratorManage]: '协作管理'
-}
+

@@ -76,9 +76,6 @@ export const CHOICES = [
 // 评分题题型分类
 export const RATES = [QUESTION_TYPE.RADIO_STAR, QUESTION_TYPE.RADIO_NPS]
 
-// 高级题型分类
-export const ADVANCED = [QUESTION_TYPE.CASCADER]
-
 // 矩阵题型分类（行 × 列二维作答）
 export const MATRIX_TYPES = [
   QUESTION_TYPE.MATRIX_RADIO,
@@ -93,12 +90,6 @@ export const OBJECT_VALUE_TYPES = [
   QUESTION_TYPE.MULTI_FILL,
   QUESTION_TYPE.PROPORTION
 ]
-
-// 排序题型分类
-export const SORTS = [QUESTION_TYPE.SORT]
-
-// 滑块题型分类
-export const SLIDERS = [QUESTION_TYPE.SLIDER]
 
 // 不产生答案的说明类题型
 export const NON_ANSWER_TYPES = [QUESTION_TYPE.SECTION]

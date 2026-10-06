@@ -3,17 +3,6 @@ export enum ROLE {
   USER = 'user',
 }
 
-export const ROLE_DESCRIPTION = {
-  ADMIN: {
-    name: '管理员',
-    value: ROLE.ADMIN,
-  },
-  USER: {
-    name: '用户',
-    value: ROLE.USER,
-  },
-};
-
 export enum PERMISSION {
   READ_WORKSPACE = 'READ_WORKSPACE',
   WRITE_WORKSPACE = 'WRITE_WORKSPACE',
