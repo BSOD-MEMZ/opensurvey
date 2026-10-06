@@ -150,6 +150,15 @@ const routes: RouteRecordRaw[] = [
     ]
   },
   {
+    path: '/survey/:id/screen',
+    name: 'screenPage',
+    meta: {
+      needLogin: true,
+      permissions: [SurveyPermissions.DataManage]
+    },
+    component: () => import('../pages/screen/ScreenPage.vue')
+  },
+  {
     path: '/survey/:id/publish',
     name: 'publish',
     meta: {

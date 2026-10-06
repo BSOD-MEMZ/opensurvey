@@ -28,8 +28,18 @@ const { showLogicEngine } = storeToRefs(editStore)
 
 import RuleNodeView from './RuleNodeView.vue'
 
+// 批量应用的规则同属一组，只渲染每组的第一条（卡片里用多选展示全部目标）
 const list = computed(() => {
-  return showLogicEngine.value?.rules || []
+  const rules = showLogicEngine.value?.rules || []
+  const seen = new Set<string>()
+  return rules.filter((rule: any) => {
+    const key = rule.groupId || rule.id
+    if (seen.has(key)) {
+      return false
+    }
+    seen.add(key)
+    return true
+  })
 })
 
 const handleAdd = () => {

@@ -33,10 +33,21 @@ export class RuleNode {
   conditions: ConditionNode[] = []
   scope: string = Scope.Question
   target: string = ''
-  constructor(target: string = '', scope: string = Scope.Question, id?: string) {
+  /**
+   * 批量应用分组：同一条条件的多个目标题属于同一组，编辑器里合并成一张卡片。
+   * 仅用于编辑态，toJson() 不输出 —— 落库后是独立规则，答题端无需知道分组。
+   */
+  groupId: string = ''
+  constructor(
+    target: string = '',
+    scope: string = Scope.Question,
+    id?: string,
+    groupId?: string
+  ) {
     this.id = id || generateID(PrefixID.Rule)
     this.scope = scope
     this.target = target
+    this.groupId = groupId || `g-${nanoid(5)}`
   }
   setTarget(value: string) {
     this.target = value
@@ -63,7 +74,54 @@ export class RuleBuild {
     this.rules.push(rule)
   }
   removeRule(ruleId: string) {
+    const target = this.rules.find((rule) => rule.id === ruleId)
+    if (target?.groupId) {
+      // 批量应用的规则整组一起删
+      this.rules = this.rules.filter(
+        (rule) => rule.groupId !== target.groupId,
+      )
+      return
+    }
     this.rules = this.rules.filter((rule) => rule.id !== ruleId)
+  }
+
+  /** 取同一批量分组下的所有目标题 */
+  findTargetsByGroup(groupId: string) {
+    return this.rules
+      .filter((rule) => rule.groupId === groupId)
+      .map((rule) => rule.target)
+  }
+
+  /**
+   * 把某条规则的目标批量设为 targets。
+   * 首条复用原规则 id（保持 UI 引用稳定），其余新建同组规则、复制同一套条件。
+   */
+  setGroupTargets(ruleId: string, targets: string[]) {
+    const head = this.rules.find((rule) => rule.id === ruleId)
+    if (!head) {
+      return
+    }
+    const groupId = head.groupId
+    const baseConditions = head.conditions
+    this.rules = this.rules.filter((rule) => rule.groupId !== groupId)
+    targets.forEach((target, index) => {
+      const node = new RuleNode(
+        target,
+        Scope.Question,
+        index === 0 ? head.id : undefined,
+        groupId,
+      )
+      baseConditions.forEach((condition) => {
+        node.addCondition(
+          new ConditionNode(
+            condition.field,
+            condition.operator,
+            condition.value,
+          ),
+        )
+      })
+      this.rules.push(node)
+    })
   }
   clear() {
     this.rules = []

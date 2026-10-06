@@ -12,6 +12,14 @@
           <i class="iconfont" :class="item.icon"></i>
           <span>{{ item.label }}</span>
         </router-link>
+        <router-link
+          class="analysis-tabs__screen"
+          :to="{ name: 'screenPage', params: { id: route.params.id } }"
+          target="_blank"
+        >
+          <i-ep-monitor class="screen-icon" />
+          <span>数据大屏</span>
+        </router-link>
       </div>
       <div class="content-wrapper">
         <router-view />
@@ -21,8 +29,11 @@
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router'
 import LeftMenu from '@/management/components/LeftMenu.vue'
 import { analysisType } from '@/management/config/analysisConfig'
+
+const route = useRoute()
 </script>
 
 <style lang="scss" scoped>
@@ -58,6 +69,7 @@ import { analysisType } from '@/management/config/analysisConfig'
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 0 24px;
       background-color: #fff;
       border-bottom: 1px solid #e7e9eb;
 
@@ -68,6 +80,29 @@ import { analysisType } from '@/management/config/analysisConfig'
 
         .iconfont {
           margin-right: 8px;
+        }
+      }
+
+      &__screen {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 16px;
+        font-size: 13px;
+        color: #2fa596;
+        background: #eafcf9;
+        border: 1px solid #b8ece4;
+        transition: all 0.2s;
+
+        .screen-icon {
+          font-size: 15px;
+        }
+
+        &:hover {
+          background: #d7f7f2;
+          box-shadow: 0 0 0 3px #77eedd33;
         }
       }
 

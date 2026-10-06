@@ -39,3 +39,7 @@ export const deleteResponses = (data) => {
   return axios.post('/survey/response/delete', { ...data })
 }
 
+// 数据大屏：一次性取回概览 / 趋势 / 渠道 / 各题分布 / 最新答卷
+export const getScreenData = (data) => {
+  return axios.get('/survey/response/screen', { params: { ...data } })
+}

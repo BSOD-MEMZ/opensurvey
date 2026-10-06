@@ -24,21 +24,28 @@
           >
             <el-select
               class="select field-select"
-              v-model="ruleTarget"
-              placeholder="请选择"
-              @change="(val: any) => handleChange(ruleNode, 'target', val)"
+              v-model="ruleTargets"
+              multiple
+              collapse-tags
+              collapse-tags-tooltip
+              :multiple-limit="20"
+              placeholder="可选择多道题批量应用"
+              @change="handleTargetsChange"
             >
               <el-option
                 v-for="{ label, value, disabled } in targetQuestionList"
                 :key="value"
                 :label="label"
-                :disabled="disabled && ruleNode.target !== value"
+                :disabled="disabled && !ruleTargets.includes(value)"
                 :value="value"
               >
               </el-option>
               <template #empty> 无数据 </template>
             </el-select>
           </el-form-item>
+          <span v-if="ruleTargets.length > 1" class="group-tip">
+            已批量应用到 {{ ruleTargets.length }} 道题
+          </span>
         </div>
         <i-ep-delete style="font-size: 14px" @click="() => handleDelete(ruleNode.id)" />
       </div>
@@ -46,11 +53,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed, shallowRef, inject, type ComputedRef } from 'vue'
+import { ref, computed, shallowRef, watch, inject, type ComputedRef } from 'vue'
 import { cloneDeep } from 'lodash-es'
 import { ElMessageBox } from 'element-plus'
 import 'element-plus/theme-chalk/src/message-box.scss'
-import { RuleNode } from '@/common/logicEngine/RuleBuild'
+import { RuleNode, ConditionNode } from '@/common/logicEngine/RuleBuild'
 import { cleanRichText } from '@/common/xss'
 import { useEditStore } from '@/management/stores/edit'
 import { storeToRefs } from 'pinia'
@@ -67,16 +74,40 @@ const props = defineProps({
   }
 })
 const emit = defineEmits(['delete'])
-const ruleTarget = computed(() => {
-  return props.ruleNode.target
-})
-const handleChange = (ruleNode: any, key: any, value: any) => {
-  switch (key) {
-    case 'target':
-      ruleNode.setTarget(value)
-      break
-  }
+
+/** 当前分组下的全部目标题（多选绑定） */
+const ruleTargets = computed(() =>
+  showLogicEngine.value.findTargetsByGroup(props.ruleNode.groupId)
+)
+
+/**
+ * 目标变化：把这条逻辑批量应用到选中的多道题。
+ * 引擎里会为每道题生成一条独立规则（同组），条件完全一致。
+ */
+const handleTargetsChange = (targets: string[]) => {
+  showLogicEngine.value.setGroupTargets(props.ruleNode.id, targets)
 }
+
+// 组的条件只在首条上编辑，改动后同步给同组其它规则，避免落到库里不一致
+watch(
+  () => JSON.stringify(props.ruleNode.conditions.map((c) => [c.field, c.operator, c.value])),
+  () => {
+    const group = showLogicEngine.value.rules.filter(
+      (rule) => rule.groupId === props.ruleNode.groupId
+    )
+    if (group.length < 2) {
+      return
+    }
+    group
+      .filter((rule) => rule.id !== props.ruleNode.id)
+      .forEach((rule) => {
+        rule.conditions = props.ruleNode.conditions.map(
+          (c) => new ConditionNode(c.field, c.operator, c.value)
+        )
+      })
+  }
+)
+
 const handleDelete = async (id: any) => {
   await ElMessageBox.confirm('是否确认删除规则？', '提示', {
     confirmButtonText: '确定',
@@ -146,6 +177,16 @@ defineExpose({
   }
 }
 .select {
-  width: 200px;
+  width: 320px;
+}
+.group-tip {
+  margin-left: 10px;
+  font-size: 12px;
+  color: #2fa596;
+  background: #eafcf9;
+  border: 1px solid #b8ece4;
+  border-radius: 10px;
+  padding: 2px 10px;
+  line-height: 18px;
 }
 </style>

@@ -75,6 +75,32 @@ export class SurveyResponseManageController {
     return { code: 200, data };
   }
 
+  /** 数据大屏：一次性取回概览 / 趋势 / 渠道 / 各题分布 / 最新答卷 */
+  @Get('/screen')
+  @HttpCode(200)
+  @UseGuards(SurveyGuard)
+  @SetMetadata('surveyId', 'query.surveyId')
+  @SetMetadata('surveyPermission', [SURVEY_PERMISSION.SURVEY_RESPONSE_MANAGE])
+  @UseGuards(Authentication)
+  async screen(@Query() queryInfo) {
+    const { value, error } = Joi.object({
+      surveyId: Joi.string().required(),
+    }).validate(queryInfo);
+    if (error) {
+      this.logger.error(error.message);
+      throw new HttpException('参数有误', EXCEPTION_CODE.PARAMETER_ERROR);
+    }
+    const responseSchema =
+      await this.responseSchemaService.getResponseSchemaByPageId(
+        value.surveyId,
+      );
+    const data = await this.surveyResponseManageService.getScreenData({
+      surveyId: value.surveyId,
+      responseSchema,
+    });
+    return { code: 200, data };
+  }
+
   /** 答卷列表（分页 + 筛选） */
   @Get('/list')
   @HttpCode(200)

@@ -8,6 +8,7 @@ import moment from 'moment';
 import { SurveyResponse } from 'src/models/surveyResponse.entity';
 import { ResponseSchema } from 'src/models/responseSchema.entity';
 import { DataItem } from 'src/interfaces/survey';
+import { QUESTION_TYPE } from 'src/enums/question';
 import { answerToText, isEmptyAnswer } from '../utils/answerText';
 
 /** 答卷筛选条件：某题选中了某些选项（值 = 选项 hash） */
@@ -350,6 +351,153 @@ export class SurveyResponseManageService {
     };
   }
 
+  /**
+   * 数据大屏一次性取数。
+   * 大屏每几秒刷新一次，所以合并成一个接口，避免多请求互相错峰。
+   */
+  async getScreenData({
+    surveyId,
+    responseSchema,
+    topQuestions = 6,
+    latestCount = 12,
+  }: {
+    surveyId: string;
+    responseSchema: ResponseSchema;
+    topQuestions?: number;
+    latestCount?: number;
+  }) {
+    const where = { pageId: surveyId, isDeleted: { $ne: true } };
+    const overview = await this.getOverview({ surveyId });
+
+    // 近 24 小时按小时分布
+    const since = moment().subtract(23, 'hour').startOf('hour').toDate();
+    const recentDocs = await this.surveyResponseRepository.find({
+      where: { ...where, createdAt: { $gte: since } },
+      order: { createdAt: 1 },
+      take: 20000,
+      select: ['_id', 'createdAt', 'channelId'],
+    });
+
+    const hourlyMap: Record<string, number> = {};
+    for (let i = 0; i < 24; i++) {
+      hourlyMap[moment(since).add(i, 'hour').format('HH:00')] = 0;
+    }
+    const channelMap: Record<string, number> = {};
+    for (const doc of recentDocs) {
+      const key = moment(doc.createdAt).format('HH:00');
+      if (key in hourlyMap) {
+        hourlyMap[key] += 1;
+      }
+    }
+
+    // 全量渠道分布（不限于 24 小时）
+    const allDocs = await this.surveyResponseRepository.find({
+      where,
+      take: 20000,
+      select: ['_id', 'channelId'],
+    });
+    for (const doc of allDocs) {
+      const key = doc.channelId || '__none__';
+      channelMap[key] = (channelMap[key] || 0) + 1;
+    }
+
+    // 各题分布：取前 N 道「有选项分布意义」的题
+    const dataList: DataItem[] = responseSchema?.code?.dataConf?.dataList || [];
+    const distTypes: string[] = [
+      QUESTION_TYPE.RADIO,
+      QUESTION_TYPE.CHECKBOX,
+      QUESTION_TYPE.BINARY_CHOICE,
+      QUESTION_TYPE.SELECT,
+      QUESTION_TYPE.IMAGE_RADIO,
+      QUESTION_TYPE.IMAGE_CHECKBOX,
+      QUESTION_TYPE.VOTE,
+      QUESTION_TYPE.RADIO_STAR,
+      QUESTION_TYPE.RADIO_NPS,
+    ];
+    const picked = dataList
+      .filter((item) => distTypes.includes(item.type))
+      .slice(0, topQuestions);
+
+    let questions: any[] = [];
+    if (picked.length) {
+      const aggregate = this.surveyResponseRepository.aggregate(
+        [
+          { $match: { pageId: surveyId, isDeleted: { $ne: true } } },
+          {
+            $facet: picked.reduce((pre, item) => {
+              pre[item.field] = [
+                { $match: { [`data.${item.field}`]: { $nin: [[], '', null] } } },
+                { $group: { _id: `$data.${item.field}`, count: { $sum: 1 } } },
+              ];
+              return pre;
+            }, {}),
+          },
+        ],
+        { maxTimeMS: 30000, allowDiskUse: true },
+      );
+      const facet = await aggregate.next();
+      questions = picked.map((item) => {
+        const rows: any[] = facet?.[item.field] || [];
+        const countMap: Record<string, number> = {};
+        for (const r of rows) {
+          const key = Array.isArray(r._id) ? r._id.join('|') : r._id;
+          countMap[key] = (countMap[key] || 0) + r.count;
+        }
+        const options = Array.isArray(item.options) ? item.options : [];
+        let aggregation = options.length
+          ? options.map((opt) => ({
+              id: opt.hash,
+              text: opt.text,
+              count: countMap[opt.hash] || 0,
+            }))
+          : rows
+              .map((r) => ({
+                id: String(r._id),
+                text: String(r._id),
+                count: r.count,
+              }))
+              .sort((a, b) => b.count - a.count);
+        aggregation = aggregation
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 8);
+        return {
+          field: item.field,
+          title: item.title,
+          type: item.type,
+          total: aggregation.reduce((sum, a) => sum + a.count, 0),
+          aggregation,
+        };
+      });
+    }
+
+    // 最新答卷
+    const latestDocs = await this.surveyResponseRepository.find({
+      where,
+      order: { createdAt: -1 },
+      take: latestCount,
+    });
+    const latest = latestDocs.map((doc) =>
+      this.toListItem(doc, dataList.filter((i) => !/section|hidden/i.test(i.type)), keyBy(dataList, 'field')),
+    );
+
+    return {
+      overview,
+      hourly: Object.keys(hourlyMap).map((hour) => ({
+        hour,
+        count: hourlyMap[hour],
+      })),
+      channels: Object.keys(channelMap)
+        .map((channelId) => ({
+          channelId,
+          count: channelMap[channelId],
+        }))
+        .sort((a, b) => b.count - a.count),
+      questions,
+      latest,
+      generatedAt: new Date(),
+    };
+  }
+
   /** 软删除（可批量）。返回实际删除条数 */
   async removeResponses({
     surveyId,
@@ -357,8 +505,7 @@ export class SurveyResponseManageService {
   }: {
     surveyId: string;
     ids: string[];
-  }) {
-    const objectIds: ObjectId[] = [];
+  }) {    const objectIds: ObjectId[] = [];
     for (const id of ids) {
       try {
         objectIds.push(new ObjectId(id));
