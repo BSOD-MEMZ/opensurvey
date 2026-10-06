@@ -133,6 +133,10 @@ const submitSurvey = async () => {
     const params = normalizationRequestBody()
     const res: any = await submitForm(params)
     if (res.code === 200) {
+      // 考试模式：服务端会带回 score / fullScore / accuracy，成功页展示
+      if (res.data && typeof res.data.score === 'number') {
+        surveyStore.setExamResult(res.data)
+      }
       router.replace({ name: 'successPage' })
     } else {
       alert({

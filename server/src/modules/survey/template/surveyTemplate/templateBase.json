@@ -44,7 +44,9 @@
     "whitelist": [],
     "memberType": "MOBILE",
     "fillAnswer": false,
-    "fillSubmitAnswer": false
+    "fillSubmitAnswer": false,
+    "examMode": false,
+    "examPassScore": 0
   },
   "skinConf": {
     "skinColor": "#444466",

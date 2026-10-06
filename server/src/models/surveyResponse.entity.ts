@@ -28,6 +28,14 @@ export class SurveyResponse extends BaseEntity {
   @Column()
   channelId: string;
 
+  /** 考试模式下的得分（未开启考试模式时不写入） */
+  @Column({ nullable: true })
+  score?: number;
+
+  /** 考试模式下每题的对错明细 */
+  @Column('jsonb', { nullable: true })
+  examDetail?: any;
+
   @BeforeInsert()
   async onDataInsert() {
     return await pluginManager.triggerHook('encryptResponseData', this);

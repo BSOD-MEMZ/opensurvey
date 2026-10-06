@@ -1,5 +1,19 @@
 // 问卷设置，定义了字段和对应的设置器
 export default {
+
+  // 考试设置：一个自定义面板搞定（开关 + 逐题标准答案与分值）
+  exam_config: {
+    type: 'Customed',
+    content: [
+      {
+        label: '',
+        type: 'ExamScorePanel',
+        key: 'examPanel',
+        custom: true
+      }
+    ]
+  },
+
   base_effectTime: {
     keys: ['beginTime', 'endTime'],
     label: '答题有效期',

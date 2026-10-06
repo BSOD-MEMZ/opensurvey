@@ -36,6 +36,8 @@ export const useSurveyStore = defineStore('survey', () => {
   const formValues = ref({})
   const whiteData = ref({})
   const pageConf = ref([])
+  // 考试模式下提交后返回的判分结果（成功页展示，刷新即失效）
+  const examResult = ref(null)
 
   const router = useRouter()
   const questionStore = useQuestionStore()
@@ -47,6 +49,10 @@ export const useSurveyStore = defineStore('survey', () => {
 
   const setSurveyPath = (data) => {
     surveyPath.value = data
+  }
+
+  const setExamResult = (data) => {
+    examResult.value = data || null
   }
 
   const setEnterTime = () => {
@@ -189,6 +195,8 @@ export const useSurveyStore = defineStore('survey', () => {
     formValues,
     whiteData,
     pageConf,
+    examResult,
+    setExamResult,
     initSurvey,
     changeData,
     setWhiteData,

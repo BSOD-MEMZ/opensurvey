@@ -6,6 +6,7 @@ import { ENCRYPT_TYPE } from 'src/enums/encrypt';
 import { EXCEPTION_CODE } from 'src/enums/exceptionCode';
 import { getPushingData } from 'src/utils/messagePushing';
 import { RECORD_SUB_STATUS } from 'src/enums';
+import { gradeAnswer, type ExamResult } from 'src/utils/exam';
 
 import { ResponseSchemaService } from '../services/responseScheme.service';
 import { SurveyResponseService } from '../services/surveyResponse.service';
@@ -64,10 +65,11 @@ export class SurveyResponseController {
     }
     formValues = JSON.parse(JSON.stringify(result));
     try {
-      await this.createResponseProcess({ ...value, data: formValues });
+      const exam = await this.createResponseProcess({ ...value, data: formValues });
       return {
         code: 200,
         msg: '提交成功',
+        ...(exam ? { data: exam } : {}),
       };
     } catch (error) {
       this.logger.error(`createResponse error: ${error.message}`);
@@ -93,13 +95,14 @@ export class SurveyResponseController {
         ? JSON.parse(data)
         : JSON.parse(JSON.stringify(data));
     try {
-      await this.createResponseProcess(
+      const exam = await this.createResponseProcess(
         { ...value, data: formValues, channelId },
         false,
       );
       return {
         code: 200,
         msg: '提交成功',
+        ...(exam ? { data: exam } : {}),
       };
     } catch (error) {
       this.logger.error(`createResponse error: ${error.message}`);
@@ -304,6 +307,15 @@ export class SurveyResponseController {
 
     const surveyId = responseSchema.pageId;
 
+    // 考试模式：按每题的标准答案判分（标准答案存在题目的 examAnswer/examScore 上）
+    let examResult: ExamResult | null = null;
+    if (responseSchema?.code?.baseConf?.examMode) {
+      examResult = gradeAnswer(
+        responseSchema?.code?.dataConf?.dataList || [],
+        formValues,
+      );
+    }
+
     // 入库
     const model: any = {
       surveyPath: surveyPath,
@@ -313,6 +325,9 @@ export class SurveyResponseController {
       surveyId: responseSchema.pageId,
       optionTextAndId,
       channelId: params.channelId,
+      ...(examResult
+        ? { score: examResult.score, examDetail: examResult.detail }
+        : {}),
     };
     const surveyResponse =
       await this.surveyResponseService.createSurveyResponse(model);
@@ -336,5 +351,17 @@ export class SurveyResponseController {
     if (sessionId) {
       this.clientEncryptService.deleteEncryptInfo(sessionId);
     }
+
+    // 考试模式下把得分回给答题端（成功页展示）
+    if (examResult) {
+      return {
+        score: examResult.score,
+        fullScore: examResult.fullScore,
+        correctCount: examResult.correctCount,
+        gradedCount: examResult.gradedCount,
+        accuracy: examResult.accuracy,
+      };
+    }
+    return null;
   }
 }

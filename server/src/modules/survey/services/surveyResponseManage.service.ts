@@ -176,6 +176,8 @@ export class SurveyResponseManageService {
       createdAt: record.createdAt,
       diffTime: record.diffTime ? Number((record.diffTime / 1000).toFixed(1)) : 0,
       channelId: record.channelId || '',
+      // 考试模式下的得分，未开启时为 null
+      score: typeof (record as any).score === 'number' ? (record as any).score : null,
       answerCount: Object.keys(data).filter(
         (k) => k.indexOf('data') === 0 && !isEmptyAnswer(data[k]),
       ).length,
@@ -297,6 +299,8 @@ export class SurveyResponseManageService {
       id: String(record._id),
       createdAt: record.createdAt,
       clientTime: record.clientTime,
+      score: typeof (record as any).score === 'number' ? (record as any).score : null,
+      examDetail: (record as any).examDetail || null,
       diffTime: record.diffTime
         ? Number((record.diffTime / 1000).toFixed(1))
         : 0,
@@ -328,7 +332,8 @@ export class SurveyResponseManageService {
       where,
       order: { createdAt: -1 },
       take: 500,
-      select: ['_id', 'diffTime'],
+      // 必须带上 score，否则考试模式的得分统计拿不到值
+      select: ['_id', 'diffTime', 'score'],
     });
     const durations = recent
       .map((item) => item.diffTime)
@@ -343,11 +348,23 @@ export class SurveyResponseManageService {
         )
       : 0;
 
+    // 考试模式下补充平均分 / 最高分
+    const scored = recent
+      .map((item) => (item as any).score)
+      .filter((v) => typeof v === 'number');
+    const avgScore = scored.length
+      ? Number((scored.reduce((x, y) => x + y, 0) / scored.length).toFixed(1))
+      : null;
+    const maxScore = scored.length ? Math.max(...scored) : null;
+
     return {
       total,
       todayTotal,
       avgDuration,
       lastSubmitAt: last[0]?.createdAt || null,
+      avgScore,
+      maxScore,
+      scoredCount: scored.length,
     };
   }
 

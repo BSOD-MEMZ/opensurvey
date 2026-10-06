@@ -112,6 +112,10 @@ export interface DataItem {
   innerType?: string;
   cascaderData: CascaderDate;
   quotaDisplay?: boolean;
+  /** 考试模式：该题的标准答案（选项 hash 数组，或文本题的字符串） */
+  examAnswer?: string | string[];
+  /** 考试模式：该题分值，默认 1 */
+  examScore?: number;
 }
 
 export interface Option {
@@ -183,6 +187,10 @@ export interface BaseConf {
   whitelist?: string[];
   // 提示语
   whitelistTip?: string;
+  // 考试模式：开启后按每题的 examAnswer/examScore 自动判分
+  examMode?: boolean;
+  // 考试模式：及格分（用于成绩单提示，不影响判分）
+  examPassScore?: number;
 }
 
 export interface SkinConf {

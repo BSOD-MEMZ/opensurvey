@@ -18,6 +18,20 @@ export class SurveyResponseService {
     surveyPath,
     optionTextAndId,
     channelId = undefined,
+    score,
+    examDetail,
+  }: {
+    data: any;
+    clientTime: any;
+    diffTime: any;
+    surveyId: any;
+    surveyPath: any;
+    optionTextAndId: any;
+    channelId?: any;
+    /** 考试模式的得分，未开启考试模式时传 undefined */
+    score?: number;
+    /** 考试模式的逐题对错明细 */
+    examDetail?: any;
   }) {
     const newSubmitData = this.surveyResponseRepository.create({
       surveyPath,
@@ -28,6 +42,9 @@ export class SurveyResponseService {
       pageId: surveyId,
       optionTextAndId,
       channelId,
+      // 考试模式下才有值；未开启考试模式时不写入这两个字段
+      ...(typeof score === 'number' ? { score } : {}),
+      ...(examDetail ? { examDetail } : {}),
     });
 
     // 提交问卷

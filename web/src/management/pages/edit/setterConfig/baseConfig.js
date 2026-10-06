@@ -10,6 +10,11 @@ export default [
     formList: ['limit_tLimit', 'limit_fillAnswer', 'limit_fillSubmitAnswer']
   },
   {
+    title: '考试设置',
+    key: 'examConfig',
+    formList: ['exam_config']
+  },
+  {
     title: '作答限制',
     key: 'respondConfig',
     formList: [

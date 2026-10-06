@@ -17,7 +17,8 @@
             :module-config="baseConf"
             :custom-components="{
               WhiteList,
-              TeamMemberList
+              TeamMemberList,
+              ExamScorePanel
             }"
             @form-change="handleFormChange"
           ></SetterField>
@@ -36,6 +37,7 @@ import SetterField from '@/management/pages/edit/components/SetterField.vue'
 
 import WhiteList from './components/WhiteList.vue'
 import TeamMemberList from './components/TeamMemberList.vue'
+import ExamScorePanel from './components/ExamScorePanel.vue'
 
 const editStore = useEditStore()
 const { schema, changeSchema } = editStore

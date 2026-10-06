@@ -14,6 +14,13 @@
         <div class="stat-card__label">平均用时</div>
         <div class="stat-card__value">{{ overview.avgDuration }}<span class="unit">秒</span></div>
       </div>
+      <div v-if="overview.avgScore !== null && overview.avgScore !== undefined" class="stat-card">
+        <div class="stat-card__label">平均分</div>
+        <div class="stat-card__value">
+          {{ overview.avgScore }}<span class="unit">分</span>
+          <em class="sub">最高 {{ overview.maxScore }}</em>
+        </div>
+      </div>
       <div class="stat-card">
         <div class="stat-card__label">最近提交</div>
         <div class="stat-card__value stat-card__value--time">{{ formatTime(overview.lastSubmitAt) }}</div>
@@ -117,6 +124,13 @@
         <el-table-column label="作答" width="80">
           <template #default="{ row }">{{ row.answerCount }} 题</template>
         </el-table-column>
+        <el-table-column v-if="hasScore" label="得分" width="82">
+          <template #default="{ row }">
+            <span :class="['score-cell', { 'is-low': row.score !== null && row.score < lowLine }]">
+              {{ row.score === null ? '—' : row.score }}
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column label="答案摘要" min-width="300">
           <template #default="{ row }">
             <div v-if="row.preview.length" class="preview">
@@ -178,6 +192,22 @@
           show-icon
           :title="detail.flags.map((f) => f.label + '：' + f.detail).join('；')"
         />
+        <div v-if="detail.examDetail && detail.examDetail.length" class="exam-detail">
+          <div class="exam-detail__head">
+            得分 <b>{{ detail.score }}</b> / {{ detail.examDetail.reduce((s, d) => s + d.fullScore, 0) }}
+            · 答对 {{ detail.examDetail.filter((d) => d.correct).length }} / {{ detail.examDetail.length }} 题
+          </div>
+          <div
+            v-for="d in detail.examDetail"
+            :key="d.field"
+            class="exam-detail__row"
+            :class="{ 'is-wrong': !d.correct }"
+          >
+            <span class="exam-detail__mark">{{ d.correct ? '✓' : '✗' }}</span>
+            <span class="exam-detail__field">{{ d.field }}</span>
+            <span class="exam-detail__score">{{ d.score }} / {{ d.fullScore }}</span>
+          </div>
+        </div>
         <div class="detail__list">
           <div
             v-for="(item, idx) in detail.items"
@@ -254,6 +284,15 @@ const {
   overview,
   questions
 } = toRefs(state)
+
+/** 是否为考试模式（有任意一行带分数就认为是） */
+const hasScore = computed(
+  () => state.rows.some((r) => typeof r.score === 'number') || state.overview.avgScore !== null
+)
+const lowLine = computed(() => {
+  const max = state.overview.maxScore
+  return typeof max === 'number' ? max / 2 : 0
+})
 
 const filterForm = reactive({ field: '', values: [] })
 const selectedIds = ref([])
@@ -596,6 +635,77 @@ onMounted(async () => {
 
 .flag-tag {
   margin-right: 4px;
+}
+
+.stat-card__value .sub {
+  margin-left: 8px;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  color: #92949d;
+}
+
+.score-cell {
+  font-weight: 600;
+  color: #2fa596;
+
+  &.is-low {
+    color: #ec4e29;
+  }
+}
+
+.exam-detail {
+  margin-bottom: 12px;
+  border: 1px solid #e6e9f2;
+  border-radius: 8px;
+  overflow: hidden;
+
+  &__head {
+    padding: 8px 12px;
+    background: #f7f9fb;
+    font-size: 13px;
+    color: #444466;
+
+    b {
+      color: #2fa596;
+      font-size: 15px;
+    }
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: #6e707c;
+    border-top: 1px solid #eef1f6;
+
+    &.is-wrong {
+      background: #fff8f6;
+    }
+  }
+
+  &__mark {
+    flex: none;
+    width: 14px;
+    font-weight: 700;
+    color: #2fa596;
+  }
+
+  &__row.is-wrong &__mark {
+    color: #ec4e29;
+  }
+
+  &__field {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__score {
+    flex: none;
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 .warn-text {
