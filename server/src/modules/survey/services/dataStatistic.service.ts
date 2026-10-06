@@ -7,7 +7,8 @@ import moment from 'moment';
 import { keyBy } from 'lodash';
 import { DataItem } from 'src/interfaces/survey';
 import { ResponseSchema } from 'src/models/responseSchema.entity';
-import { getListHeadByDataList, transformAndMergeArrayFields } from '../utils';
+import { getListHeadByDataList } from '../utils';
+import { buildFacet, shapeAggregation } from '../utils/aggregation';
 import {
   OBJECT_VALUE_TYPES,
   stringifyObjectAnswer,
@@ -137,61 +138,36 @@ export class DataStatisticService {
     };
   }
 
-  async aggregationStatis({ surveyId, fieldList }) {
-    const $facet = fieldList.reduce((pre, cur) => {
-      const $match = { $match: { [`data.${cur}`]: { $nin: [[], '', null] } } };
-      const $group = { $group: { _id: `$data.${cur}`, count: { $sum: 1 } } };
-      const $project = {
-        $project: {
-          _id: 0,
-          count: 1,
-          secretKeys: 1,
-          sensitiveKeys: 1,
-          [`data.${cur}`]: '$_id',
-        },
-      };
-      pre[cur] = [$match, $group, $project];
-      return pre;
-    }, {});
+  /**
+   * 分题统计（全题型）。
+   *
+   * 每种题型对应一套聚合管道：矩阵按行拆、排序按名次展开、滑块直接分桶、
+   * 其余按值分组。结果统一整形成前端契约 { aggregation: [{id,text,count}] }。
+   */
+  async aggregationStatisAll({
+    surveyId,
+    dataList,
+  }: {
+    surveyId: string;
+    dataList: DataItem[];
+  }) {
+    if (!dataList.length) {
+      return [];
+    }
+    const facet = buildFacet(dataList);
     const aggregation = this.surveyResponseRepository.aggregate(
       [
         {
           $match: {
             pageId: surveyId,
-            isDeleted: {
-              $ne: true,
-            },
+            isDeleted: { $ne: true },
           },
         },
-        { $facet },
+        { $facet: facet },
       ],
       { maxTimeMS: 30000, allowDiskUse: true },
     );
-    const res = await aggregation.next();
-    const submitionCountMap: Record<string, number> = {};
-    for (const field in res) {
-      let count = 0;
-      if (Array.isArray(res[field])) {
-        for (const optionItem of res[field]) {
-          count += optionItem.count;
-        }
-      }
-      submitionCountMap[field] = count;
-    }
-    const transformedData = transformAndMergeArrayFields(res);
-    return fieldList.map((field) => {
-      return {
-        field,
-        data: {
-          aggregation: (transformedData?.[field] || []).map((optionItem) => {
-            return {
-              id: optionItem.data[field],
-              count: optionItem.count,
-            };
-          }),
-          submitionCount: submitionCountMap?.[field] || 0,
-        },
-      };
-    });
+    const facetResult = await aggregation.next();
+    return shapeAggregation({ facetResult, dataList });
   }
 }

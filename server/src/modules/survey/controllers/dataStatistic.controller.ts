@@ -20,7 +20,7 @@ import { Logger } from 'src/logger';
 import { HttpException } from 'src/exceptions/httpException';
 import { EXCEPTION_CODE } from 'src/enums/exceptionCode';
 import { AggregationStatisDto } from '../dto/aggregationStatis.dto';
-import { handleAggretionData } from '../utils';
+import { AGGREGATABLE_TYPES } from '../utils/aggregation';
 import { QUESTION_TYPE } from 'src/enums/question';
 
 @ApiTags('survey')
@@ -104,31 +104,17 @@ export class DataStatisticController {
         data: [],
       };
     }
-    const allowQuestionType = [
-      QUESTION_TYPE.RADIO,
-      QUESTION_TYPE.CHECKBOX,
-      QUESTION_TYPE.BINARY_CHOICE,
-      QUESTION_TYPE.RADIO_STAR,
-      QUESTION_TYPE.RADIO_NPS,
-      QUESTION_TYPE.VOTE,
-      QUESTION_TYPE.CASCADER,
-    ];
-    const fieldList = responseSchema.code.dataConf.dataList
-      .filter((item) => allowQuestionType.includes(item.type as QUESTION_TYPE))
-      .map((item) => item.field);
-    const dataMap = responseSchema.code.dataConf.dataList.reduce((pre, cur) => {
-      pre[cur.field] = cur;
-      return pre;
-    }, {});
-    const res = await this.dataStatisticService.aggregationStatis({
+    // 全题型统计：题型白名单收敛到 utils/aggregation 的单一来源
+    const dataList = responseSchema.code.dataConf.dataList.filter((item) =>
+      AGGREGATABLE_TYPES.includes(item.type),
+    );
+    const res = await this.dataStatisticService.aggregationStatisAll({
       surveyId: value.surveyId,
-      fieldList,
+      dataList,
     });
     return {
       code: 200,
-      data: res.map((item) => {
-        return handleAggretionData({ item, dataMap });
-      }),
+      data: res,
     };
   }
 }

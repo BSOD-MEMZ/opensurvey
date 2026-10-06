@@ -308,160 +308,80 @@ describe('DataStatisticService', () => {
     });
   });
 
-  describe('aggregationStatis', () => {
-    it('should return correct aggregation data', async () => {
+  describe('aggregationStatisAll', () => {
+    it('应把单选 / 滑块 / 矩阵的结果整形成 aggregation', async () => {
       const surveyId = '65afc62904d5db18534c0f78';
-      const mockAggregationResult = {
-        data515: [
-          {
-            count: 1,
-            data: {
-              data515: '115019',
-            },
-          },
-          {
-            count: 1,
-            data: {
-              data515: '115020',
-            },
-          },
-        ],
-        data893: [
-          {
-            count: 1,
-            data: {
-              data893: ['466671'],
-            },
-          },
-          {
-            count: 1,
-            data: {
-              data893: ['466671', '095415'],
-            },
-          },
-        ],
-        data820: [
-          {
-            count: 1,
-            data: {
-              data820: 8,
-            },
-          },
-        ],
-        data549: [
-          {
-            count: 1,
-            data: {
-              data549: 5,
-            },
-          },
-        ],
-      };
-
-      const fieldList = Object.keys(mockAggregationResult);
+      const dataList = [
+        {
+          field: 'data1',
+          type: 'radio',
+          title: '性别',
+          options: [
+            { hash: 'h1', text: '男' },
+            { hash: 'h2', text: '女' },
+          ],
+        },
+        {
+          field: 'data2',
+          type: 'slider',
+          title: '推荐度',
+          sliderMin: 0,
+          sliderMax: 100,
+        },
+        {
+          field: 'data3',
+          type: 'matrix-radio',
+          title: '评价',
+          options: [{ hash: 'c1', text: '满意' }],
+          matrixRows: [{ hash: 'r1', text: '整体' }],
+        },
+      ];
 
       jest.spyOn(surveyResponseRepository, 'aggregate').mockReturnValue({
-        next: jest.fn().mockResolvedValue(mockAggregationResult),
+        next: jest.fn().mockResolvedValue({
+          data1: [
+            { _id: 'h1', count: 3 },
+            { _id: 'h2', count: 1 },
+          ],
+          data1__total: [{ count: 4 }],
+          data2: [{ _id: { min: 0, max: 50 }, count: 2 }],
+          data2__stats: [{ avg: 30, min: 10, max: 50, count: 2 }],
+          data3__row__r1: [{ _id: 'c1', count: 4 }],
+          data3__total: [{ count: 4 }],
+        }),
       } as any);
 
-      const result = await service.aggregationStatis({
+      const result = await service.aggregationStatisAll({
         surveyId,
-        fieldList,
-      });
+        dataList,
+      } as any);
 
-      expect(result).toEqual(
-        expect.arrayContaining([
-          {
-            field: 'data515',
-            data: {
-              aggregation: [
-                {
-                  id: '115019',
-                  count: 1,
-                },
-                {
-                  id: '115020',
-                  count: 1,
-                },
-              ],
-              submitionCount: 2,
-            },
-          },
-          {
-            field: 'data893',
-            data: {
-              aggregation: [
-                {
-                  id: '466671',
-                  count: 2,
-                },
-                {
-                  id: '095415',
-                  count: 1,
-                },
-              ],
-              submitionCount: 2,
-            },
-          },
-          {
-            field: 'data820',
-            data: {
-              aggregation: [
-                {
-                  id: '8',
-                  count: 1,
-                },
-              ],
-              submitionCount: 1,
-            },
-          },
-          {
-            field: 'data549',
-            data: {
-              aggregation: [
-                {
-                  id: '5',
-                  count: 1,
-                },
-              ],
-              submitionCount: 1,
-            },
-          },
-        ]),
-      );
+      // 选项类：按 schema 选项顺序补齐
+      const radio = result.find((item: any) => item.field === 'data1');
+      expect(radio.data.aggregation).toEqual([
+        { id: 'h1', text: '男', count: 3 },
+        { id: 'h2', text: '女', count: 1 },
+      ]);
+      expect(radio.data.submitionCount).toBe(4);
+
+      // 数值类：桶 + 统计摘要
+      const slider = result.find((item: any) => item.field === 'data2');
+      expect(slider.data.aggregation[0].text).toBe('0 ~ 50');
+      expect(slider.data.summary.average).toBe(30);
+
+      // 矩阵类：展开成「行 · 列」
+      const matrix = result.find((item: any) => item.field === 'data3');
+      expect(matrix.data.aggregation).toEqual([
+        { id: 'r1_c1', text: '整体 · 满意', count: 4 },
+      ]);
     });
 
-    it('should return empty aggregation data when no responses', async () => {
-      const surveyId = '65afc62904d5db18534c0f78';
-      const fieldList = ['data458', 'data515'];
-
-      jest.spyOn(surveyResponseRepository, 'aggregate').mockReturnValue({
-        next: jest.fn().mockResolvedValue({}),
+    it('没有题目时返回空数组', async () => {
+      const result = await service.aggregationStatisAll({
+        surveyId: 'x',
+        dataList: [],
       } as any);
-
-      const result = await service.aggregationStatis({
-        surveyId,
-        fieldList,
-      });
-
-      expect(result).toEqual(
-        expect.arrayContaining([
-          {
-            field: 'data458',
-            data: {
-              aggregation: [],
-              submitionCount: 0,
-            },
-          },
-          {
-            field: 'data515',
-            data: {
-              aggregation: [],
-              submitionCount: 0,
-            },
-          },
-        ]),
-      );
+      expect(result).toEqual([]);
     });
   });
 });
