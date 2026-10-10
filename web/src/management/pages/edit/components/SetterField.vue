@@ -101,11 +101,12 @@ const handleFormChange = (data: any, formConfig: any) => {
 }
 
 const normalizationValues = (configList: Array<any> = []) => {
-  return configList
+  return (configList || [])
     .filter((item: any) => {
-      // 组件组
+      if (!item) return false
+
+      // 组件组（下面的 map 里再递归处理内容，别在这里改 item）
       if (item.type === 'Customed') {
-        item.content = normalizationValues(item.content)
         return true
       }
 
@@ -125,10 +126,21 @@ const normalizationValues = (configList: Array<any> = []) => {
       return true
     })
     .map((item: any) => {
-      return {
-        ...item,
-        value: formatValue({ item, moduleConfig: props.moduleConfig }) // 动态赋值
+      // ⚠️ 必须返回**新对象**，绝不能就地改传进来的配置对象。
+      // 这里的入参往往就是父组件里那份 config 数组本身（问卷设置页就是直接把
+      // baseFormConfig 的对象塞进 formList 的），而外层 watch 对 props.formConfigList
+      // 开了 deep:true —— 一旦在这里 `item.content = ...`，就等于把 watch 自己点着：
+      // 重新渲染 → 再进来改一次 → 再触发 watch → 无限循环。
+      // 表现就是点「问卷设置」直接 RESULT_CODE_HUNG（实测栈里全是 SetterField 的
+      // renderList + componentLoader 的动态 import）。
+      const next: any = { ...item }
+
+      if (next.type === 'Customed') {
+        next.content = normalizationValues(next.content)
       }
+
+      next.value = formatValue({ item: next, moduleConfig: props.moduleConfig }) // 动态赋值
+      return next
     })
 }
 
@@ -139,7 +151,12 @@ const registerComponents = async (formFieldData: any) => {
     .filter((item: any) => !item.custom)
     .map((item: any) => {
       if (item.type === 'Customed') {
-        innerSetters.push(...(item.content || []).map((content: any) => content.type))
+        // 组内也要跳过 custom 的（ExamScorePanel / WhiteList 这类由父组件通过
+        // customComponents 传进来），否则会去 setters/widgets 目录里 import 一个
+        // 并不存在的文件，每次重渲染都白跑 3 次失败重试
+        innerSetters.push(
+          ...(item.content || []).filter((content: any) => !content.custom).map((content: any) => content.type)
+        )
       }
 
       return item.type

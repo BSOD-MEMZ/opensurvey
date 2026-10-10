@@ -1,3 +1,8 @@
+/**
+ * 答题端弹窗（问卷不存在 / 已过期 / 提交确认…）—— pjsk 风格
+ * 作用域：render 端，1rem = 50px
+ * 原来是深色蒙层 + 方角白盒，跟 pjsk 的"白片 + 光晕 + 胶囊按钮"语言不搭。
+ */
 .mask {
   position: fixed;
   left: 0;
@@ -8,13 +13,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #292a36f2;
+  /* 原来是 #292a36f2（几乎全黑），换成 pjsk 的浅色柔蒙层 */
+  background-color: rgba(68, 68, 102, 0.3);
+  backdrop-filter: blur(0.06rem);
 }
 
 .box {
   width: 6.3rem;
   background: #fff;
   padding: 0.56rem 0.44rem 0.4rem;
+  border-radius: 0.32rem;
+  box-shadow: 0 0 0.3rem rgba(68, 68, 102, 0.36);
 }
 
 .head-wrapper {
@@ -23,10 +32,10 @@
 
 .title {
   font-size: 0.33rem;
-  color: #4a4c5b;
+  color: #444466;
   letter-spacing: 0;
   text-align: center;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .form-item {
@@ -36,16 +45,18 @@
 .input-wrapper {
   padding: 1px 11px;
   background-color: #fff;
-  border-radius: 0.1rem;
-  box-shadow: 0 0 0 1px #dcdfe6 inset;
+  border-radius: 0.2rem;
+  /* 无边框，改用光晕（同答题端输入框） */
+  box-shadow: 0 0 0.16rem rgba(68, 68, 102, 0.32);
 }
+
 .input-wrapper:hover {
-  box-shadow: 0 0 0 1px var(--primary-color) inset;
+  box-shadow: 0 0 0.2rem rgba(68, 68, 102, 0.42);
 }
 
 .input-inner {
   width: 100%;
-  color: #606266;
+  color: #444466;
   font-size: 0.27rem;
   height: 0.6rem;
   line-height: 0.6rem;
@@ -58,20 +69,29 @@
 
 .btn {
   font-size: 0.26rem;
-  border-radius: 0.04rem;
+  border-radius: 999px;
   text-align: center;
   padding: 0.1rem 0;
   line-height: 0.5rem;
+  font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 0 0.16rem rgba(68, 68, 102, 0.5);
+  transition: background 0.16s ease, color 0.16s ease;
 
   &.btn-shallow {
     background: #fff;
-    color: #92949d;
-    border: 1px solid #e3e4e8;
+    color: #5d5d80;
+    border: none;
   }
 
+  /* 青底 + 墨色字（原站 btn-blue），按下换淡青底 + 青字 */
   &.btn-primary {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: var(--primary-color, #77eedd);
+    color: #444466;
+  }
+
+  &.btn-primary:active {
+    background-color: #e3fcf8;
+    color: #2fa596;
   }
 }

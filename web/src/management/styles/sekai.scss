@@ -13,6 +13,8 @@
 //   纯色块 + 同色系柔和扩散阴影 + 大圆角 + 深蓝紫灰字；按下换色、不位移
 // =============================================================================
 
+@use '@/common/styles/sekai-widgets' as sekaiWidgets;
+
 body.mgmt-theme {
   /* ---------- 自有 token ---------- */
   --sk-teal: #77eedd;
@@ -609,4 +611,26 @@ body.mgmt-theme {
   .content-wrap {
     background-color: var(--sk-bg);
   }
+}
+
+/* =============================================================================
+   pjsk 风格通用控件皮肤（按钮 / 输入框 / 下拉 / 单选多选 / 开关 / 弹窗 …）
+   规则本体在 common/styles/sekai-widgets.scss，答题端共用同一份，
+   这里固定用管理端的青绿 token（不能用 --primary-color）
+   ============================================================================= */
+body.mgmt-theme {
+  @include sekaiWidgets.sekai-widgets(
+    $accent: var(--sk-teal, #77eedd),
+    $accent-deep: var(--sk-teal-deep, #2fa596),
+    $accent-press: #e3fcf8,
+    $ink: var(--sk-ink, #444466),
+    $ink-2: var(--sk-ink-2, #5d5d80),
+    $ink-3: var(--sk-ink-3, #8a8aa8),
+    $surface: #ffffff,
+    $line: var(--sk-line, #e6e9f2),
+    $pink: var(--sk-pink, #ff5599),
+    $danger: #ff2b2b,
+    $halo: rgba(68, 68, 102, 0.3),
+    $halo-strong: rgba(68, 68, 102, 0.5)
+  );
 }

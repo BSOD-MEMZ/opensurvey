@@ -1,0 +1,484 @@
+/**
+ * pjsk 风格通用控件皮肤（管理端 + 答题端共用一份 mixin）
+ *
+ * 设计取自 pjsk 剧情站的样式表：
+ *   https://sekai-stories.pages.dev/assets/index-PoQpRr9D.css
+ * 关键特征（原站实测值）：
+ *   - 控件一律 **无边框**，只靠 `box-shadow: 0 0 8px rgba(68,68,102,.5)` 那种"贴纸光晕"托起来
+ *   - 按钮一律胶囊形（border-radius 30px），青底墨字 / 粉底白字 / 白底墨字三档
+ *   - 按下态是「淡青底 #e3fcf8 + 青字」
+ *   - 输入框白底 + 圆角 10px + 同款光晕
+ *   - 单选是白色圆片 + 青绿圆点；勾选是白色方块 + 粉勾（#FF77AC）
+ *
+ * 用法：各自的主题文件里 @include 一次
+ *   管理端 body.mgmt-theme  → sekai-widgets($accent: var(--sk-teal, #77eedd))
+ *   答题端 .sk-theme        → sekai-widgets($accent: var(--sk-primary, #77eedd))
+ * 管理端**不能**用 --primary-color（那是每份问卷的主题色）。
+ */
+
+@mixin sekai-widgets(
+  $accent: #77eedd,
+  $accent-deep: #2fa596,
+  $accent-press: #e3fcf8,
+  $ink: #444466,
+  $ink-2: #5d5d80,
+  $ink-3: #8a8aa8,
+  $surface: #ffffff,
+  $line: #e6e9f2,
+  $pink: #ff5599,
+  $danger: #ff2b2b,
+  $halo: rgba(68, 68, 102, 0.32),
+  $halo-strong: rgba(68, 68, 102, 0.5)
+) {
+  /* pjsk 的招牌：白片 + 光晕，没有描边 */
+  .el-button {
+    border: none !important;
+    border-radius: 999px !important;
+    background: $surface;
+    color: $ink;
+    font-weight: 700;
+    box-shadow: 0 0 8px 0 $halo;
+    transition: background 0.16s cubic-bezier(0.33, 0, 0.2, 1),
+      color 0.16s cubic-bezier(0.33, 0, 0.2, 1),
+      box-shadow 0.16s cubic-bezier(0.33, 0, 0.2, 1),
+      transform 0.16s cubic-bezier(0.33, 0, 0.2, 1);
+
+    &:hover:not(.is-disabled):not(.is-text):not(.is-link) {
+      background: $surface;
+      color: $accent-deep;
+      box-shadow: 0 2px 12px 0 rgba(68, 68, 102, 0.42);
+      transform: translateY(-1px);
+    }
+
+    &:active:not(.is-disabled):not(.is-text):not(.is-link) {
+      background: $accent-press;
+      color: $accent-deep;
+      box-shadow: 0 0 6px 0 rgba(68, 68, 102, 0.3);
+      transform: none;
+    }
+
+    &.is-disabled,
+    &.is-disabled:hover {
+      opacity: 0.5;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* 文字态按钮：不要光晕，只要颜色 */
+    &.is-text,
+    &.is-link {
+      background: transparent !important;
+      box-shadow: none !important;
+      border-radius: 8px !important;
+
+      &:hover {
+        background: $accent-press !important;
+        color: $accent-deep;
+      }
+    }
+
+    /* 主按钮：青底 + 墨字（原站 btn-blue） */
+    &--primary {
+      background: $accent;
+      color: $ink;
+
+      &:hover:not(.is-disabled) {
+        background: $accent;
+        color: $ink;
+        filter: brightness(1.04);
+      }
+
+      &:active:not(.is-disabled) {
+        background: $accent-press;
+        color: $accent-deep;
+      }
+    }
+
+    &--success {
+      background: $accent;
+      color: $ink;
+    }
+
+    &--warning {
+      background: #ffbb00;
+      color: $ink;
+    }
+
+    /* 危险/删除：原站 btn-red */
+    &--danger {
+      background: $danger;
+      color: #fff;
+
+      &:hover:not(.is-disabled),
+      &:active:not(.is-disabled) {
+        background: $danger;
+        color: #fff;
+        filter: brightness(1.06);
+      }
+    }
+
+    &--info {
+      background: $surface;
+      color: $ink-2;
+    }
+
+    /* 纯图标圆钮 */
+    &.is-circle {
+      border-radius: 50% !important;
+    }
+  }
+
+  /* ---------------- 输入框 / 文本域 / 数字框 ---------------- */
+  .el-input__wrapper,
+  .el-textarea__inner,
+  .el-input-number .el-input__wrapper {
+    background: $surface;
+    border-radius: 10px;
+    /* EP 默认是 inset 描边，这里整条盖掉，换成光晕 */
+    box-shadow: 0 0 8px 0 $halo !important;
+    border: none !important;
+    transition: box-shadow 0.16s ease;
+  }
+
+  .el-input__wrapper:hover,
+  .el-textarea__inner:hover {
+    box-shadow: 0 2px 12px 0 rgba(68, 68, 102, 0.42) !important;
+  }
+
+  .el-input__wrapper.is-focus,
+  .el-textarea__inner:focus {
+    box-shadow: 0 0 0 2px $accent, 0 0 10px 0 $halo !important;
+  }
+
+  .el-input.is-disabled .el-input__wrapper,
+  .el-textarea.is-disabled .el-textarea__inner {
+    background: #f4f6fb !important;
+    box-shadow: none !important;
+  }
+
+  .el-input__inner,
+  .el-textarea__inner {
+    color: $ink;
+    background: transparent;
+  }
+
+  .el-input__inner::placeholder,
+  .el-textarea__inner::placeholder {
+    color: #b9bccd;
+  }
+
+  /* 输入框两端的附加区：不要方角、不要灰底 */
+  .el-input-group__append,
+  .el-input-group__prepend {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: $ink-3;
+  }
+
+  .el-input-number__decrease,
+  .el-input-number__increase {
+    background: transparent !important;
+    border: none !important;
+    color: $ink-3;
+
+    &:hover {
+      color: $accent-deep;
+    }
+  }
+
+  /* ---------------- 下拉选择（combobox） ---------------- */
+  .el-select__wrapper {
+    background: $surface !important;
+    border-radius: 10px !important;
+    box-shadow: 0 0 8px 0 $halo !important;
+    border: none !important;
+    transition: box-shadow 0.16s ease;
+  }
+
+  .el-select__wrapper:hover {
+    box-shadow: 0 2px 12px 0 rgba(68, 68, 102, 0.42) !important;
+  }
+
+  .el-select__wrapper.is-focused {
+    box-shadow: 0 0 0 2px $accent, 0 0 10px 0 $halo !important;
+  }
+
+  .el-select__placeholder {
+    color: $ink;
+
+    &.is-transparent {
+      color: #b9bccd;
+    }
+  }
+
+  /* 下拉面板 / 各种 popper */
+  .el-popper.is-light,
+  .el-select-dropdown,
+  .el-picker-panel {
+    border: none !important;
+    border-radius: 12px !important;
+    background: $surface;
+    box-shadow: 0 8px 26px 0 rgba(68, 68, 102, 0.22) !important;
+  }
+
+  .el-select-dropdown__list {
+    padding: 6px;
+  }
+
+  .el-select-dropdown__item {
+    border-radius: 8px;
+    color: $ink-2;
+    font-weight: 500;
+
+    &.is-hovering,
+    &:hover {
+      background: $accent-press !important;
+      color: $accent-deep;
+    }
+
+    &.is-selected {
+      color: $accent-deep !important;
+      font-weight: 800;
+      background: transparent;
+    }
+
+    &.is-disabled {
+      color: #c3c6d6;
+    }
+  }
+
+  /* 多选里的小胶囊 */
+  .el-tag,
+  .el-select__tags .el-tag {
+    border: none !important;
+    border-radius: 999px !important;
+    background: $accent-press !important;
+    color: $accent-deep !important;
+    font-weight: 700;
+
+    .el-tag__close {
+      color: $accent-deep;
+
+      &:hover {
+        background: $accent-deep;
+        color: #fff;
+      }
+    }
+  }
+
+  .el-tag--danger {
+    background: #ffefef !important;
+    color: $danger !important;
+  }
+
+  /* ---------------- 单选 / 多选 ---------------- */
+  .el-radio__inner {
+    width: 18px;
+    height: 18px;
+    background: $surface;
+    border: none !important;
+    box-shadow: 0 0 6px 0 $halo;
+    transition: box-shadow 0.16s ease;
+  }
+
+  .el-radio__input.is-checked .el-radio__inner {
+    /* 白圆片 + 青绿圆点（原站 custom-radio-button） */
+    background: $surface !important;
+    border: none !important;
+
+    &::after {
+      width: 60%;
+      height: 60%;
+      background: $accent !important;
+    }
+  }
+
+  .el-radio__label,
+  .el-radio-button__inner {
+    color: $ink;
+    font-weight: 500;
+  }
+
+  .el-radio__input.is-checked + .el-radio__label {
+    color: $accent-deep;
+    font-weight: 700;
+  }
+
+  .el-radio-button__inner {
+    border: none !important;
+    box-shadow: none !important;
+    background: $surface;
+    color: $ink-2;
+  }
+
+  .el-radio-button__original-radio:checked + .el-radio-button__inner {
+    background: $accent !important;
+    color: $ink !important;
+    box-shadow: 0 0 8px 0 $halo !important;
+    border: none !important;
+  }
+
+  .el-checkbox__inner {
+    width: 18px;
+    height: 18px;
+    background: $surface;
+    border: none !important;
+    border-radius: 6px;
+    box-shadow: 0 0 6px 0 $halo;
+  }
+
+  /* 白底 + 粉勾（和答题端一致） */
+  .el-checkbox__input.is-checked .el-checkbox__inner,
+  .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+    background: $surface !important;
+    border: none !important;
+    box-shadow: 0 0 6px 0 $halo;
+
+    &::after {
+      border-color: #ff77ac !important;
+      border-width: 2px;
+    }
+  }
+
+  .el-checkbox__label {
+    color: $ink;
+  }
+
+  .el-checkbox__input.is-checked + .el-checkbox__label {
+    color: $ink;
+  }
+
+  /* ---------------- 开关 / 滑块 ---------------- */
+  .el-switch__core {
+    border: none !important;
+    border-radius: 999px;
+    background: #e6e9f2;
+    box-shadow: inset 0 0 4px 0 rgba(68, 68, 102, 0.16);
+  }
+
+  .el-switch.is-checked .el-switch__core {
+    background: $accent;
+    border: none !important;
+  }
+
+  .el-switch__action {
+    background: $surface;
+    box-shadow: 0 0 4px 0 rgba(68, 68, 102, 0.35);
+  }
+
+  .el-slider__runway {
+    background: #eef1f6;
+    border-radius: 999px;
+  }
+
+  .el-slider__bar {
+    background: $accent;
+    border-radius: 999px;
+  }
+
+  .el-slider__button {
+    width: 18px;
+    height: 18px;
+    border: none !important;
+    background: $surface;
+    box-shadow: 0 0 8px 0 $halo-strong;
+  }
+
+  /* ---------------- 弹窗 / 抽屉 ---------------- */
+  .el-overlay {
+    background: rgba(68, 68, 102, 0.28);
+  }
+
+  .el-dialog,
+  .el-drawer,
+  .el-message-box {
+    border: none !important;
+    border-radius: 18px !important;
+    box-shadow: 0 18px 48px 0 rgba(68, 68, 102, 0.24);
+  }
+
+  .el-dialog__title,
+  .el-message-box__title {
+    color: $ink;
+    font-weight: 800;
+  }
+
+  .el-message-box__content {
+    color: $ink-2;
+  }
+
+  /* ---------------- 分页 / 滚动条 ---------------- */
+  .el-pagination {
+    --el-pagination-button-bg-color: #{$surface};
+    --el-pagination-hover-color: #{$accent-deep};
+  }
+
+  .el-pagination .el-pager li {
+    border-radius: 999px;
+    color: $ink-2;
+    font-weight: 700;
+    background: transparent;
+
+    &:hover {
+      background: $accent-press;
+      color: $accent-deep;
+    }
+
+    &.is-active {
+      background: $accent;
+      color: $ink;
+      box-shadow: 0 0 8px 0 $halo;
+    }
+  }
+
+  /* ---------------- 提示条 ---------------- */
+  .el-message {
+    border: none !important;
+    border-radius: 999px !important;
+    box-shadow: 0 4px 18px 0 rgba(68, 68, 102, 0.2);
+    background: $surface;
+  }
+
+  /* ---------------- 日期选择 ---------------- */
+  .el-date-table td.available:hover span {
+    color: $accent-deep;
+  }
+
+  .el-date-table td.current:not(.disabled) .el-date-table-cell__text,
+  .el-date-table td.current:not(.disabled) span {
+    background: $accent;
+    color: $ink;
+  }
+
+  .el-date-table td.today .el-date-table-cell__text,
+  .el-date-table td.today span {
+    color: $accent-deep;
+    font-weight: 800;
+  }
+
+  .el-time-panel,
+  .el-date-range-picker__content.is-left,
+  .el-date-range-picker__content.is-right {
+    border-color: $line !important;
+  }
+
+  /* ---------------- 表格（信息密集区只做轻量处理） ---------------- */
+  .el-table {
+    --el-table-border-color: #{$line};
+    --el-table-header-bg-color: #f7fdfc;
+    --el-table-row-hover-bg-color: #f1fdfc;
+    background: transparent;
+  }
+
+  .el-table th.el-table__cell {
+    background: #f7fdfc !important;
+    color: $ink-2;
+    font-weight: 700;
+  }
+
+  .el-table td.el-table__cell,
+  .el-table th.el-table__cell.is-leaf {
+    border-bottom: 1px solid $line !important;
+  }
+}
