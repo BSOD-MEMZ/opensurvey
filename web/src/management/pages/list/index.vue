@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, defineAsyncComponent } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -126,13 +126,18 @@ import BaseList from './components/BaseList.vue'
 import RecycleBinList from './components/RecycleBinList.vue'
 import GroupList from './components/GroupList.vue'
 import SliderBar from './components/SliderBar.vue'
-import GroupModify from './components/GroupModify.vue'
-import TextImport from './components/TextImport.vue'
-import ExcelImport from './components/ExcelImport.vue'
 
 import TopNav from '@/management/components/TopNav.vue'
-import CreateForm from '@/management/components/CreateForm.vue';
 import { MenuType } from '@/management/utils/workSpace'
+
+// 下面四个都藏在弹窗 / 遮罩后面（v-if 或 el-dialog），用户不点就不会渲染。
+// 但**静态 import 依旧会把它们的整棵依赖树拖进列表页首屏** ——
+// 实测文本导入那条链会连带拉进全部题型模块、物料面板和 wangeditor（dev 下 1MB+）。
+// 改成异步组件后列表页首屏不再加载它们，点开时按需拉取。
+const GroupModify = defineAsyncComponent(() => import('./components/GroupModify.vue'))
+const TextImport = defineAsyncComponent(() => import('./components/TextImport.vue'))
+const ExcelImport = defineAsyncComponent(() => import('./components/ExcelImport.vue'))
+const CreateForm = defineAsyncComponent(() => import('@/management/components/CreateForm.vue'))
 
 import { useWorkSpaceStore } from '@/management/stores/workSpace'
 import { useSurveyListStore } from '@/management/stores/surveyList'

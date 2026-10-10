@@ -8,6 +8,10 @@ type IUserInfo = {
   token: string
 }
 
+// 服务端 OPENSURVEY_JWT_EXPIRES_IN = 8h（见 server/.env*）。
+// 前端本地登录态按同一个值判定，留 60s 裕量避免「本地还认、服务端已过期」的边界抖动。
+const TOKEN_TTL_MS = 8 * 3600000 - 60000
+
 export const useUserStore = defineStore('user', () => {
   const userInfo = ref<IUserInfo | null>({
     username: '',
@@ -27,7 +31,7 @@ export const useUserStore = defineStore('user', () => {
       // 而 NaN > x 恒为 false，于是走 else 执行 login(undefined)，
       // 把 hasLogin 置为 true —— 未登录用户被当成已登录，
       // 导致先加载整个问卷列表页、等接口 401 后才被弹回登录页（首屏空白一大截）。
-      if (info?.token && typeof time === 'number' && Date.now() - time <= 7 * 3600000) {
+      if (info?.token && typeof time === 'number' && Date.now() - time <= TOKEN_TTL_MS) {
         login(info)
       } else {
         clearUserInfo()
@@ -44,7 +48,11 @@ export const useUserStore = defineStore('user', () => {
     loginTime.value = Date.now()
     setUserInfo({
       userInfo: data,
-      loginTime: loginTime
+      // 必须取 .value！写 loginTime 会把 ref 对象本身序列化进 localStorage:
+      // {"__v_isRef":true,"_rawValue":...,"_value":...}，
+      // 于是 init() 里 `typeof time === 'number'` 判定为 false，
+      // 每次整页加载（F5 / 直接开链接 / vite 整页刷新）都会走 clearUserInfo() 被踢回登录页。
+      loginTime: loginTime.value
     })
   }
   const logout = () => {

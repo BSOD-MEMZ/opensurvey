@@ -6,7 +6,8 @@ import { useUserStore } from '../stores/user'
 export const CODE_MAP = {
   SUCCESS: 200,
   ERROR: 500,
-  NO_AUTH: 403,
+  // 服务端只用 1001（未授权）表示登录态失效，见 server/src/enums/exceptionCode.ts。
+  // 1003（没有操作权限）/3001（没有问卷权限）是业务权限问题，**不应该登出**。
   ERR_AUTH: 1001
 }
 
@@ -21,7 +22,7 @@ instance.interceptors.response.use(
       throw new Error('http请求出错')
     }
     const res = response.data
-    if (res.code === CODE_MAP.NO_AUTH || res.code === CODE_MAP.ERR_AUTH) {
+    if (res.code === CODE_MAP.ERR_AUTH) {
       // 必须连本地登录态一起清掉。
       // 只 router.replace 不清 token 的话，hasLogin 仍是 true，
       // 路由守卫会再次放行受保护页面 → 页面又发请求 → 又 1001 → 又被弹回登录页，
