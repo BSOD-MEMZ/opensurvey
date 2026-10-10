@@ -23,6 +23,7 @@ import 'element-plus/theme-chalk/src/message.scss'
 import LeftMenu from '@/management/components/LeftMenu.vue'
 import CommonTemplate from './components/CommonTemplate.vue'
 import Navbar from './components/ModuleNavbar.vue'
+import { applySkinVars } from '@/common/skinVars'
 
 const editStore = useEditStore()
 const { init, setSurveyId, schema } = editStore
@@ -33,25 +34,9 @@ const route = useRoute()
 watch(
   () => schema.skinConf,
   (skinConfig) => {
-    const root = document.documentElement
-    const { themeConf, backgroundConf, contentConf } = skinConfig
-
-    if (themeConf?.color) {
-      // 设置主题颜色
-      root.style.setProperty('--primary-color', themeConf?.color)
-    }
-
-    // 设置背景
-    const { color, type, image } = backgroundConf || {}
-    root.style.setProperty(
-      '--primary-background',
-      type === 'image' ? `url(${image}) no-repeat center / cover` : color
-    )
-
-    if (contentConf?.opacity.toString()) {
-      // 设置全局透明度
-      root.style.setProperty('--opacity', `${contentConf.opacity / 100}`)
-    }
+    // 与答题端共用同一份逻辑：作者没设背景时，预演区那层半透明白也会一起让开，
+    // 这样编辑器里看到的背景和真实答题页一致
+    applySkinVars(skinConfig)
   },
   {
     deep: true,

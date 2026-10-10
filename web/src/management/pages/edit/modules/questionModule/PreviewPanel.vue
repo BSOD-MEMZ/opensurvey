@@ -49,6 +49,7 @@ import MaterialGroup from '@/management/pages/edit/components/MaterialGroup.vue'
 import AdvancedComponent from './components/AdvancedConfig/index.vue'
 
 import { useEditStore } from '@/management/stores/edit'
+import { applySkinVars } from '@/common/skinVars'
 
 const MainTitle = communalLoader.loadComponent('MainTitle')
 const SubmitButton = communalLoader.loadComponent('SubmitButton')
@@ -107,17 +108,8 @@ const onQuestionOperation = (data) => {
 watch(
   skinConf,
   (newVal) => {
-    const { themeConf, backgroundConf, contentConf } = newVal
-    const root = document.documentElement
-    if (themeConf?.color) {
-      root.style.setProperty('--primary-color', themeConf?.color) // 设置主题颜色
-    }
-    if (backgroundConf?.color) {
-      root.style.setProperty('--primary-background-color', backgroundConf?.color) // 设置背景颜色
-    }
-    if (contentConf?.opacity) {
-      root.style.setProperty('--opacity', contentConf?.opacity / 100) // 设置全局透明度
-    }
+    // 与答题端 / 编辑器外壳共用同一份逻辑（作者没设背景时蒙层会让开，露出 pjsk 渐变）
+    applySkinVars(newVal)
   },
   {
     immediate: true,

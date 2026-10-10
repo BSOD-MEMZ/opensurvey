@@ -86,11 +86,13 @@
     padding: 0.36rem 0 !important;
     margin: 0 0 0.28rem;
 
-    /* 干掉原来的粗分割线，改用卡片间距区分 */
+    /* 干掉原来的粗分割线，改用卡片间距区分。
+       注意：这里**不能**写 `background: none !important` —— 上游的 .spliter 只是
+       border-bottom，加了 background:none 会把卡片自己的白底一起干掉，
+       页面一透出 pjsk 背景就变成"没有卡片"了。 */
     &.spliter,
     &.spliter::after {
       border-bottom: none !important;
-      background: none !important;
     }
 
     .module-title {

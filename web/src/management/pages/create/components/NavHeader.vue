@@ -4,13 +4,14 @@
       <div class="logo">
         <img class="logoImg" :src="img" @click="toHomePage" />
       </div>
-      <div class="return no-logo-return icon-fanhui" @click="onBack">返回</div>
+      <SekaiBackButton size="sm" plain @click="onBack" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import SekaiBackButton from '@/management/components/SekaiBackButton.vue'
 
 interface Props {
   boxShadow?: boolean
@@ -58,23 +59,9 @@ const toHomePage = () => {
         width: 32px;
       }
     }
-    .return {
-      margin-left: 20px;
-      line-height: 56px;
-      font-size: 18px;
-      color: #6e707c;
-      position: relative;
-      cursor: pointer;
-      &::before {
-        position: absolute;
-        left: -20px;
-        bottom: 2px;
-        font-weight: 600;
-        content: '<';
-      }
-    }
-    .no-logo-return {
-      left: 20px;
+    /* 返回按钮已换成 pjsk 圆形按钮（SekaiBackButton），这里只留间距 */
+    :deep(.sk-back) {
+      margin-left: 18px;
     }
   }
 }

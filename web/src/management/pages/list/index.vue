@@ -92,7 +92,7 @@
     </el-dialog>
     <div class="fiexed-text-import-wrapper" v-if="showTextImport">
       <div class="text-import-header">
-        <div class="return no-logo-return icon-fanhui" @click="showTextImport = false">返回</div>
+        <SekaiBackButton size="sm" plain title="返回列表" @click="showTextImport = false" />
         <div class="title">文本导入</div>
         <el-button type="primary" class="publish-btn" @click="onShowCreateForm">
           创建
@@ -128,6 +128,7 @@ import GroupList from './components/GroupList.vue'
 import SliderBar from './components/SliderBar.vue'
 
 import TopNav from '@/management/components/TopNav.vue'
+import SekaiBackButton from '@/management/components/SekaiBackButton.vue'
 import { MenuType } from '@/management/utils/workSpace'
 
 // 下面四个都藏在弹窗 / 遮罩后面（v-if 或 el-dialog），用户不点就不会渲染。
@@ -464,21 +465,6 @@ const onShowCreateFormExcelImport = () => {
     align-items: center;
     justify-content: space-between;
     box-shadow: 0 4px 8px 0 rgba(74, 76, 91, 0.08);
-    .return {
-      margin-left: 20px;
-      line-height: 56px;
-      font-size: 16px;
-      color: #6e707c;
-      position: relative;
-      cursor: pointer;
-      &::before {
-        position: absolute;
-        left: -20px;
-        bottom: 2px;
-        font-weight: 600;
-        content: '<';
-      }
-    }
     .title {
       font-size: 16px;
     }

@@ -8,30 +8,17 @@ import { storeToRefs } from 'pinia'
 
 import SekaiBackground from '@/common/SekaiBackground/index.vue'
 import { injectCustomCss } from '@/common/safeCss'
+import { applySkinVars } from '@/common/skinVars'
 import { useSurveyStore } from './stores/survey'
 
 const { skinConf } = storeToRefs(useSurveyStore())
 
 watch(skinConf, (skinConfig) => {
-  const root = document.documentElement
-  const { themeConf, backgroundConf, contentConf, customCssConf }: any = skinConfig
+  const { customCssConf }: any = skinConfig || {}
 
-  if (themeConf?.color) {
-    // 设置主题颜色
-    root.style.setProperty('--primary-color', themeConf?.color)
-  }
-
-  // 设置背景
-  const { color, type, image } = backgroundConf || {}
-  root.style.setProperty(
-    '--primary-background',
-    type === 'image' ? `url(${image}) no-repeat center / cover` : color
-  )
-
-  if (contentConf?.opacity.toString()) {
-    // 设置全局透明度
-    root.style.setProperty('--opacity', `${contentConf.opacity / 100}`)
-  }
+  // 主题色 / 背景 / 蒙层透明度统一在 skinVars 里处理
+  // （作者没设背景时会把那层半透明白蒙层关掉，露出 pjsk 渐变背景）
+  applySkinVars(skinConfig)
 
   // 问卷作者自定义的 CSS —— 渲染时过滤掉会向第三方发请求的写法（@import / 外链 url）
   injectCustomCss(customCssConf?.code)

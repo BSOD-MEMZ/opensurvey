@@ -149,6 +149,26 @@ export interface SubmitConf {
   submitTitle: string;
   confirmAgain: ConfirmAgain;
   msgContent: MsgContent;
+  // 提交成功页：自动跳转（作者在「结果页 → 自动跳转」配置）
+  linkConf?: {
+    enable?: boolean;
+    url?: string;
+    /** 延迟秒数 */
+    delay?: number;
+  };
+  // 提交成功页：抽奖转盘（作者在「结果页 → 抽奖转盘」配置）
+  luckDrawConf?: {
+    enable?: boolean;
+    title?: string;
+    prizes?: {
+      /** 奖品名称 */
+      name: string;
+      /** emoji / 文字 / 图片地址 */
+      icon?: string;
+      /** 爆率：相对权重，按总和归一化 */
+      rate: number;
+    }[];
+  };
 }
 
 // 白名单类型

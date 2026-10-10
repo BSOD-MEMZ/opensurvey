@@ -1,11 +1,11 @@
 <template>
-  <div class="back-btn" @click="handleNavigateHome">
-    <i class="iconfont icon-fanhui"></i>
-    <span>返回</span>
-  </div>
+  <!-- 编辑器左上角返回：pjsk 圆形按钮（原来是 iconfont 箭头 + “返回”文字） -->
+  <SekaiBackButton size="sm" plain title="返回问卷列表" @click="handleNavigateHome" />
 </template>
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import SekaiBackButton from '@/management/components/SekaiBackButton.vue'
+
 const router = useRouter()
 const handleNavigateHome = () => {
   router.push({
@@ -13,14 +13,3 @@ const handleNavigateHome = () => {
   })
 }
 </script>
-<style lang="scss" scoped>
-.back-btn {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  .iconfont {
-    margin-right: 5px;
-  }
-}
-</style>
