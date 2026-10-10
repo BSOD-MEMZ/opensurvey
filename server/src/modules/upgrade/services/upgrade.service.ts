@@ -4,7 +4,6 @@ import { MongoRepository } from 'typeorm';
 import { SurveyMeta } from 'src/models/surveyMeta.entity';
 import { ResponseSchema } from 'src/models/responseSchema.entity';
 import { RECORD_STATUS, RECORD_SUB_STATUS } from 'src/enums';
-import { Workspace } from 'src/models/workspace.entity';
 import { Collaborator } from 'src/models/collaborator.entity';
 import { Counter } from 'src/models/counter.entity';
 import { DownloadTask } from 'src/models/downloadTask.entity';
@@ -13,7 +12,6 @@ import { MessagePushingTask } from 'src/models/messagePushingTask.entity';
 import { Session } from 'src/models/session.entity';
 import { SurveyConf } from 'src/models/surveyConf.entity';
 import { User } from 'src/models/user.entity';
-import { WorkspaceMember } from 'src/models/workspaceMember.entity';
 import { SESSION_STATUS } from 'src/enums/surveySessionStatus';
 import { Logger } from 'src/logger';
 
@@ -41,10 +39,6 @@ export class UpgradeService {
     private readonly surveyMetaRepository: MongoRepository<SurveyMeta>,
     @InjectRepository(User)
     private readonly userRepository: MongoRepository<User>,
-    @InjectRepository(Workspace)
-    private readonly workspaceRepository: MongoRepository<Workspace>,
-    @InjectRepository(WorkspaceMember)
-    private readonly workspaceMemberRepository: MongoRepository<WorkspaceMember>,
   ) {}
 
   async upgradeFeatureStatus() {
@@ -59,8 +53,6 @@ export class UpgradeService {
       this.surveyConfRepository,
       this.surveyMetaRepository,
       this.userRepository,
-      this.workspaceRepository,
-      this.workspaceMemberRepository,
     ];
     const handleCreatedAtAndUpdatedAt = (doc) => {
       if (!doc.createdAt) {
@@ -180,7 +172,6 @@ export class UpgradeService {
             repository === this.surveyMetaRepository ||
             repository === this.downloadTaskRepository ||
             repository === this.messagePushingTaskRepository ||
-            repository === this.workspaceRepository ||
             repository === this.responseSchemaRepository
           ) {
             // 新增isDeleted等相关字段

@@ -63,7 +63,6 @@ describe('SurveyMetaService', () => {
         userId: new ObjectId().toString(),
         createMethod: '',
         createFrom: '',
-        workspaceId: 'workspace1',
       };
       const newSurvey = new SurveyMeta();
 
@@ -86,7 +85,6 @@ describe('SurveyMetaService', () => {
         ownerId: params.userId,
         createMethod: params.createMethod,
         createFrom: params.createFrom,
-        workspaceId: params.workspaceId,
         groupId: null,
       });
       expect(surveyRepository.save).toHaveBeenCalledWith(newSurvey);
@@ -273,25 +271,6 @@ describe('SurveyMetaService', () => {
     });
   });
 
-  describe('getSurveyMetaListByWorkspaceIdList', () => {
-    it('should return a list of survey metadata by work space id', async () => {
-      const mockData = [
-        { _id: 1, title: 'Survey 1', workSpaceId: 'wk1', isDeleted: true, isCompleteDeleted: null },
-      ] as unknown as Array<SurveyMeta>;
-
-      jest
-        .spyOn(surveyRepository, 'find')
-        .mockResolvedValue(mockData);
-
-        const workspaceIdList = ['wk1'];
-        const isDeleted = true;
-
-      const result = await service.getSurveyMetaListByWorkspaceIdList({workspaceIdList, isDeleted});
-
-      expect(result).toEqual(mockData);
-    });
-  });
-
   describe('publishSurveyMeta', () => {
     it('should publish a survey and update curStatus', async () => {
       const surveyMeta = new SurveyMeta();
@@ -306,25 +285,6 @@ describe('SurveyMetaService', () => {
       expect(surveyMeta.statusList[0].status).toBe(RECORD_STATUS.PUBLISHED);
       expect(surveyRepository.save).toHaveBeenCalledWith(surveyMeta);
       expect(result).toEqual(surveyMeta);
-    });
-  });
-
-  describe('countSurveyMetaByWorkspaceId', () => {
-    it('should return the count of surveys in a workspace', async () => {
-      const workspaceId = 'workspace1';
-      const mockCount = 5;
-
-      jest.spyOn(surveyRepository, 'count').mockResolvedValue(mockCount);
-
-      const result = await service.countSurveyMetaByWorkspaceId({
-        workspaceId,
-      });
-
-      expect(result).toBe(mockCount);
-      expect(surveyRepository.count).toHaveBeenCalledWith({
-        workspaceId,
-        isDeleted: { $ne: true },
-      });
     });
   });
 });

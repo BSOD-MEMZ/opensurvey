@@ -47,7 +47,6 @@ export class SurveyMetaService {
     userId: string;
     createMethod: string;
     createFrom: string;
-    workspaceId?: string;
     groupId?: string;
   }) {
     const {
@@ -58,7 +57,6 @@ export class SurveyMetaService {
       createMethod,
       createFrom,
       userId,
-      workspaceId,
       groupId,
     } = params;
     const surveyPath = await this.getNewSurveyPath();
@@ -73,7 +71,6 @@ export class SurveyMetaService {
       ownerId: userId,
       createMethod,
       createFrom,
-      workspaceId,
       groupId: groupId && groupId !== '' ? groupId : null,
     });
 
@@ -177,7 +174,6 @@ export class SurveyMetaService {
     userId: string;
     filter: Record<string, any>;
     order: Record<string, any>;
-    workspaceId?: string;
     groupId?: string;
     surveyIdList?: Array<string>;
     isRecycleBin?: boolean;
@@ -187,7 +183,6 @@ export class SurveyMetaService {
       pageSize,
       userId,
       // username,
-      workspaceId,
       groupId,
       surveyIdList,
       isRecycleBin,
@@ -241,49 +236,29 @@ export class SurveyMetaService {
       if (condition.filter['curStatus.status']) {
         otherQuery['subStatus.status'] = RECORD_SUB_STATUS.DEFAULT;
       }
-      if (workspaceId) {
-        otherQuery.workspaceId = workspaceId;
-      } else {
-        otherQuery.$and = [
-          {
-            workspaceId: { $exists: false },
-          },
-          {
-            workspaceId: null,
-          },
-        ];
-        if (groupId && groupId !== GROUP_STATE.ALL) {
-          if (groupId === GROUP_STATE.UNCLASSIFIED) {
-            if (!otherQuery.$or) {
-              otherQuery.$or = [];
-            }
-            otherQuery.$or.push(
-              ...[
-                {
-                  groupId: {
-                    $exists: false,
-                  },
-                },
-                {
-                  groupId: null,
-                },
-              ],
-            );
-          } else {
-            otherQuery.groupId = groupId;
+      if (groupId && groupId !== GROUP_STATE.ALL) {
+        if (groupId === GROUP_STATE.UNCLASSIFIED) {
+          if (!otherQuery.$or) {
+            otherQuery.$or = [];
           }
+          otherQuery.$or.push(
+            ...[
+              {
+                groupId: {
+                  $exists: false,
+                },
+              },
+              {
+                groupId: null,
+              },
+            ],
+          );
+        } else {
+          otherQuery.groupId = groupId;
         }
-        // 引入空间之前，新建的问卷只有owner字段，引入空间之后，新建的问卷多了ownerId字段，使用owenrId字段进行关联更加合理，此处做了兼容
-        // query.$or = [
-        //   {
-        //     owner: username,
-        //   },
-        //   {
-        //     ownerId: userId,
-        //   },
-        // ];
-        otherQuery.ownerId = userId;
       }
+      // 问卷按 ownerId 关联（老数据只有 owner 字段，见 SurveyGuard 里的兼容分支）
+      otherQuery.ownerId = userId;
 
       if (Array.isArray(query.$or)) {
         query.$or.push(otherQuery);
@@ -326,28 +301,6 @@ export class SurveyMetaService {
     return this.surveyRepository.save(surveyMeta);
   }
 
-  async countSurveyMetaByWorkspaceId({ workspaceId }) {
-    const total = await this.surveyRepository.count({
-      workspaceId,
-      isDeleted: {
-        $ne: true,
-      },
-    });
-    return total;
-  }
-
-  async getSurveyMetaListByWorkspaceIdList({ workspaceIdList, isDeleted }: {workspaceIdList: string[]; isDeleted?: boolean;}) {
-    const surveyMetaList = await this.surveyRepository.find({
-      workspaceId: {
-        $in: workspaceIdList,
-      },
-      isDeleted: isDeleted? {$eq: true}:{$ne: true},
-      isCompleteDeleted: {$ne: true},
-    });
-    return surveyMetaList;
-  }
-
-
   async countSurveyMetaByGroupId({
     groupId,
     userId,
@@ -388,14 +341,6 @@ export class SurveyMetaService {
         },
       };
     }
-    otherQuery.$and = [
-      {
-        workspaceId: { $exists: false },
-      },
-      {
-        workspaceId: null,
-      },
-    ];
     if (groupId) {
       if (groupId !== 'all') {
         otherQuery.groupId = groupId;
@@ -411,7 +356,6 @@ export class SurveyMetaService {
           },
         },
       ];
-      // otherQuery.groupId = null;
     }
     if (Array.isArray(query.$or)) {
       query.$or.push(otherQuery);

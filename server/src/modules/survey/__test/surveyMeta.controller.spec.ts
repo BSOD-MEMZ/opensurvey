@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SurveyMetaController } from '../controllers/surveyMeta.controller';
 import { SurveyMetaService } from '../services/surveyMeta.service';
-import { WorkspaceService } from 'src/modules/workspace/services/workspace.service';
 import { Logger } from 'src/logger';
 import { HttpException } from 'src/exceptions/httpException';
 import { EXCEPTION_CODE } from 'src/enums/exceptionCode';
@@ -10,7 +9,6 @@ import { ObjectId } from 'mongodb';
 
 jest.mock('src/guards/authentication.guard');
 jest.mock('src/guards/survey.guard');
-jest.mock('src/guards/workspace.guard');
 
 describe('SurveyMetaController', () => {
   let controller: SurveyMetaController;
@@ -41,12 +39,6 @@ describe('SurveyMetaController', () => {
             getCollaboratorListByUserId: jest.fn().mockResolvedValue([]),
           },
         },
-        {
-          provide: WorkspaceService,
-          useValue: {
-            getAllSurveyIdListByUserId: jest.fn().mockResolvedValue([]),
-          },
-        }
       ],
     }).compile();
 
@@ -180,7 +172,6 @@ describe('SurveyMetaController', () => {
       order: {},
       surveyIdList: [],
       userId,
-      workspaceId: undefined,
     });
   });
 
@@ -219,7 +210,6 @@ describe('SurveyMetaController', () => {
       userId,
       filter: { surveyType: 'normal', title: { $regex: 'hahah' } },
       order: { createdAt: -1 },
-      workspaceId: undefined,
     });
   });
 

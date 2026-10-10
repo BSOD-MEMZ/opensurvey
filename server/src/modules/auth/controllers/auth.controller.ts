@@ -16,7 +16,8 @@ import { EXCEPTION_CODE } from 'src/enums/exceptionCode';
 import { create } from 'svg-captcha';
 import { ApiTags } from '@nestjs/swagger';
 
-const passwordReg = /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+$/;
+// 注册/登录已不再需要验证码与密码强度校验（校园内网自部署，按需放开）。
+// 下面的 passwordReg 已废弃，保留注释以便日后恢复。
 
 @ApiTags('auth')
 @Controller('/api/auth')
@@ -35,48 +36,23 @@ export class AuthController {
     userInfo: {
       username: string;
       password: string;
-      captchaId: string;
-      captcha: string;
+      captchaId?: string;
+      captcha?: string;
     },
   ) {
-    if (!userInfo.password) {
-      throw new HttpException('密码无效', EXCEPTION_CODE.PASSWORD_INVALID);
-    }
-
-    if (userInfo.password.length < 6 || userInfo.password.length > 16) {
-      throw new HttpException(
-        '密码长度在 6 到 16 个字符',
-        EXCEPTION_CODE.PASSWORD_INVALID,
-      );
-    }
-
-    if (!passwordReg.test(userInfo.password)) {
-      throw new HttpException(
-        '密码只能输入数字、字母、特殊字符',
-        EXCEPTION_CODE.PASSWORD_INVALID,
-      );
-    }
-
-    const isCorrect = await this.captchaService.checkCaptchaIsCorrect({
-      captcha: userInfo.captcha,
-      id: userInfo.captchaId,
-    });
-
-    if (!isCorrect) {
-      throw new HttpException('验证码不正确', EXCEPTION_CODE.CAPTCHA_INCORRECT);
-    }
+    // 按设计放开了密码限制：允许空密码与弱密码。
+    // 仍然做 ?? 兜底，因为 hash256 收到 undefined 会直接抛异常。
+    const password = userInfo.password ?? '';
 
     const user = await this.userService.createUser({
       username: userInfo.username,
-      password: userInfo.password,
+      password,
     });
 
     const token = await this.authService.generateToken({
       username: user.username,
       _id: user._id.toString(),
     });
-    // 验证过的验证码要删掉，防止被别人保存重复调用
-    this.captchaService.deleteCaptcha(userInfo.captchaId);
     return {
       code: 200,
       data: {
@@ -93,18 +69,11 @@ export class AuthController {
     userInfo: {
       username: string;
       password: string;
-      captchaId: string;
-      captcha: string;
+      captchaId?: string;
+      captcha?: string;
     },
   ) {
-    const isCorrect = await this.captchaService.checkCaptchaIsCorrect({
-      captcha: userInfo.captcha,
-      id: userInfo.captchaId,
-    });
-
-    if (!isCorrect) {
-      throw new HttpException('验证码不正确', EXCEPTION_CODE.CAPTCHA_INCORRECT);
-    }
+    const password = userInfo.password ?? '';
 
     const username = await this.userService.getUserByUsername(
       userInfo.username,
@@ -118,7 +87,7 @@ export class AuthController {
 
     const user = await this.userService.getUser({
       username: userInfo.username,
-      password: userInfo.password,
+      password,
     });
     if (user === null) {
       throw new HttpException(
@@ -132,8 +101,6 @@ export class AuthController {
         username: user.username,
         _id: user._id.toString(),
       });
-      // 验证过的验证码要删掉，防止被别人保存重复调用
-      this.captchaService.deleteCaptcha(userInfo.captchaId);
     } catch (error) {
       throw new Error(
         'generateToken erro:' +
@@ -152,6 +119,11 @@ export class AuthController {
     };
   }
 
+  /**
+   * 图形验证码。
+   * 注意：注册 / 登录已不再校验验证码，此接口目前仅供冒烟测试与日后恢复使用，
+   * 管理端登录页也已移除对应输入框。
+   */
   @Post('/captcha')
   @HttpCode(200)
   async getCaptcha(): Promise<{

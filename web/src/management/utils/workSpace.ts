@@ -17,37 +17,11 @@ export type IGroup = {
   name: string
 }
 
-export type IWorkspace = {
-  _id?: string
-  name: string
-  description: string
-  members: IMember[]
-}
-
 export type IMember = {
   userId: string
   username: string
   role: any
   _id?: string
-}
-
-export interface SpaceDetail {
-  _id?: string
-  name: string
-  currentUserId?: string
-  description: string
-  surveyTotal: number
-  members: IMember[]
-}
-
-export type SpaceItem = Required<Omit<SpaceDetail, 'members'>> & {
-  createdAt: string
-  curStatus: { date: number; status: string }
-  memberTotal: number
-  currentUserRole: string
-  owner: string
-  ownerId: string
-  surveyTotal: number
 }
 
 export interface ICollaborator {
@@ -68,7 +42,6 @@ export type GroupItem = {
 
 export enum MenuType {
   PersonalGroup = 'personalGroup',
-  SpaceGroup = 'spaceGroup',
   RecycleBin = 'recycleBin'
 }
 

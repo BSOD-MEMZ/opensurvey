@@ -15,8 +15,6 @@ import { SurveyHistory } from 'src/models/surveyHistory.entity';
 import { SurveyMeta } from 'src/models/surveyMeta.entity';
 import { SurveyResponse } from 'src/models/surveyResponse.entity';
 import { User } from 'src/models/user.entity';
-import { Workspace } from 'src/models/workspace.entity';
-import { WorkspaceMember } from 'src/models/workspaceMember.entity';
 
 import { UpgradeController } from './controllers/upgrade.controller';
 import { AuthModule } from '../auth/auth.module';
@@ -38,8 +36,6 @@ import { Logger } from 'src/logger';
       SurveyMeta,
       SurveyResponse,
       User,
-      Workspace,
-      WorkspaceMember,
     ]),
     ConfigModule,
     AuthModule,

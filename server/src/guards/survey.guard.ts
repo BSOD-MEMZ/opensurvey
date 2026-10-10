@@ -2,7 +2,6 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { get } from 'lodash';
 
-import { WorkspaceMemberService } from 'src/modules/workspace/services/workspaceMember.service';
 import { CollaboratorService } from 'src/modules/survey/services/collaborator.service';
 import { SurveyMetaService } from 'src/modules/survey/services/surveyMeta.service';
 import { SurveyNotFoundException } from 'src/exceptions/surveyNotFoundException';
@@ -14,7 +13,6 @@ export class SurveyGuard implements CanActivate {
     private reflector: Reflector,
     private readonly collaboratorService: CollaboratorService,
     private readonly surveyMetaService: SurveyMetaService,
-    private readonly workspaceMemberService: WorkspaceMemberService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -45,17 +43,6 @@ export class SurveyGuard implements CanActivate {
       surveyMeta.owner === user.username
     ) {
       // 问卷的owner，可以访问和操作问卷
-      return true;
-    }
-
-    if (surveyMeta.workspaceId) {
-      const memberInfo = await this.workspaceMemberService.findOne({
-        workspaceId: surveyMeta.workspaceId,
-        userId: user._id.toString(),
-      });
-      if (!memberInfo) {
-        throw new NoPermissionException('没有权限');
-      }
       return true;
     }
 

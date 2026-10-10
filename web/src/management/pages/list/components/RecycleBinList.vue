@@ -128,7 +128,7 @@ import { color } from 'echarts'
 
 const surveyListStore = useSurveyListStore()
 const workSpaceStore = useWorkSpaceStore()
-const { workSpaceId, groupAllList, menuType } = storeToRefs(workSpaceStore)
+const { groupAllList, menuType } = storeToRefs(workSpaceStore)
 const router = useRouter()
 const props = defineProps({
   loading: {
@@ -209,9 +209,6 @@ const onRefresh = async () => {
     curPage: currentPage.value,
     order: order.value
   }
-  if (workSpaceId.value) {
-    params.workspaceId = workSpaceId.value
-  }
   emit('refresh', params)
 }
 
@@ -291,7 +288,6 @@ const onDelete = async (row) => {
     ElMessage.success('删除成功')
     onRefresh()
     workSpaceStore.getGroupList()
-    workSpaceStore.getSpaceList()
   } else {
     ElMessage.error(res.errmsg || '删除失败')
   }
@@ -303,7 +299,6 @@ const onRecover = async (row) => {
     ElMessage.success('恢复成功')
     onRefresh()
     workSpaceStore.getGroupList()
-    workSpaceStore.getSpaceList()
     workSpaceStore.getRecycleBinCount()
   } else {
     ElMessage.error(res.errmsg || '恢复失败')
@@ -326,7 +321,6 @@ const onCompleteDelete = async (row) => {
     ElMessage.success('删除成功')
     onRefresh()
     workSpaceStore.getGroupList()
-    workSpaceStore.getSpaceList()
     workSpaceStore.getRecycleBinCount()
   } else {
     ElMessage.error(res.errmsg || '删除失败')
@@ -367,7 +361,6 @@ const onCloseModify = (type) => {
   if (type === 'update') {
     onRefresh()
     workSpaceStore.getGroupList()
-    workSpaceStore.getSpaceList()
   }
 }
 const onRowClick = async (row) => {

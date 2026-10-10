@@ -2,22 +2,13 @@
   <div class="question-list-root">
     <TopNav></TopNav>
     <div class="content-wrap">
-      <SliderBar :menus="spaceMenus" :activeValue="activeValue" @select="handleSpaceSelect" />
+      <SliderBar :menus="spaceMenus" :activeValue="activeValue" @select="handleMenuSelect" />
       <div class="list-content">
         <div class="top">
           <h2>
             {{ tableTitle }}
           </h2>
           <div class="operation">
-            <el-button
-              class="btn create-btn"
-              type="default"
-              @click="onSpaceCreate"
-              v-if="menuType === MenuType.SpaceGroup && !workSpaceId"
-            >
-              <i class="iconfont icon-chuangjian"></i>
-              <span>创建团队空间</span>
-            </el-button>
             <el-button
               class="btn create-btn"
               type="default"
@@ -28,19 +19,10 @@
               <span>创建分组</span>
             </el-button>
             <el-button
-              type="default"
-              class="btn"
-              @click="onSetGroup"
-              v-if="workSpaceId && menuType === MenuType.SpaceGroup"
-            >
-              <i class="iconfont icon-shujuliebiao"></i>
-              <span>团队管理</span>
-            </el-button>
-            <el-button
               class="btn create-btn"
               type="default"
               @click="onCreate"
-              v-if="workSpaceId || groupId"
+              v-if="groupId"
             >
               <i class="iconfont icon-chuangjian"></i>
               <span>创建问卷</span>
@@ -53,7 +35,7 @@
           :total="surveyTotal"
           @refresh="fetchSurveyList"
           ref="listRef"
-          v-if="workSpaceId || groupId"
+          v-if="groupId"
         ></BaseList>
         <RecycleBinList
           :loading="loading"
@@ -63,14 +45,6 @@
           ref="listRef"
           v-if="menuType === MenuType.RecycleBin"
         ></RecycleBinList>
-        <SpaceList
-          ref="spaceListRef"
-          @refresh="fetchSpaceList"
-          :loading="spaceLoading"
-          :data="workSpaceList"
-          :total="workSpaceListTotal"
-          v-if="menuType === MenuType.SpaceGroup && !workSpaceId"
-        ></SpaceList>
         <GroupList
           ref="groupListRef"
           @refresh="fetchGroupList"
@@ -82,13 +56,6 @@
   
       </div>
     </div>
-    <SpaceModify
-      v-if="showSpaceModify"
-      :type="modifyType"
-      :visible="showSpaceModify"
-      @on-close-codify="onCloseSpaceModify"
-      @update-data="onCloseModifyInTeamWork"
-    />
     <GroupModify
       v-if="showGroupModify"
       type="add"
@@ -157,10 +124,8 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import BaseList from './components/BaseList.vue'
 import RecycleBinList from './components/RecycleBinList.vue'
-import SpaceList from './components/SpaceList.vue'
 import GroupList from './components/GroupList.vue'
 import SliderBar from './components/SliderBar.vue'
-import SpaceModify from './components/SpaceModify.vue'
 import GroupModify from './components/GroupModify.vue'
 import TextImport from './components/TextImport.vue'
 import ExcelImport from './components/ExcelImport.vue'
@@ -171,35 +136,25 @@ import { MenuType } from '@/management/utils/workSpace'
 
 import { useWorkSpaceStore } from '@/management/stores/workSpace'
 import { useSurveyListStore } from '@/management/stores/surveyList'
-import { type IWorkspace } from '@/management/utils/workSpace'
 import { createSurvey } from '@/management/api/survey'
 
 const workSpaceStore = useWorkSpaceStore()
 const surveyListStore = useSurveyListStore()
 
 const { surveyList, surveyTotal } = storeToRefs(surveyListStore)
-const {
-  spaceMenus,
-  workSpaceId,
-  groupId,
-  menuType,
-  workSpaceList,
-  workSpaceListTotal,
-  groupList,
-  groupListTotal
-} = storeToRefs(workSpaceStore)
+const { spaceMenus, groupId, menuType, groupList, groupListTotal } =
+  storeToRefs(workSpaceStore)
 const router = useRouter()
 
 const tableTitle = computed(() => {
-  if (menuType.value === MenuType.PersonalGroup && !groupId.value) {
-    return '我的空间'
-  } else if (menuType.value === MenuType.SpaceGroup && !workSpaceId.value) {
-    return '团队空间'
-  } else if (menuType.value === MenuType.RecycleBin) {
+  if (menuType.value === MenuType.RecycleBin) {
     return ''
-  } else {
-    return currentTeamSpace.value?.name || '问卷列表'
   }
+  if (!groupId.value) {
+    return '我的空间'
+  }
+  const currentGroup = groupList.value.find((item: any) => item._id === groupId.value)
+  return currentGroup?.name || '问卷列表'
 })
 
 interface BaseListInstance {
@@ -211,8 +166,6 @@ const listRef = ref<BaseListInstance | null>(null)
 
 const loading = ref(false)
 
-const spaceListRef = ref<any>(null)
-const spaceLoading = ref(false)
 const groupLoading = ref(false)
 
 const showCreateMethod = ref(false)
@@ -221,19 +174,10 @@ const showExcelImport = ref(false)
 const showCreateForm = ref(false)
 const questionList = ref<Array<any>>([])
 const createMethod = ref('')
-const isRecycleBin = computed(() => menuType.value === MenuType.RecycleBin);
-
-
-const fetchSpaceList = async (params?: any) => {
-  spaceLoading.value = true
-  workSpaceStore.changeWorkSpace('')
-  await workSpaceStore.getSpaceList(params)
-  spaceLoading.value = false
-}
+const isRecycleBin = computed(() => menuType.value === MenuType.RecycleBin)
 
 const fetchGroupList = async (params?: any) => {
   groupLoading.value = true
-  workSpaceStore.changeWorkSpace('')
   await workSpaceStore.getGroupList(params)
   groupLoading.value = false
 }
@@ -242,7 +186,7 @@ const getRecycleBinCount = async (params?: any) => {
   await workSpaceStore.getRecycleBinCount(params)
 }
 
-const handleSpaceSelect = async (id: string) => {
+const handleMenuSelect = async (id: string) => {
   if (activeValue.value === id) {
     return void 0
   }
@@ -250,24 +194,13 @@ const handleSpaceSelect = async (id: string) => {
   switch (id) {
     case MenuType.PersonalGroup:
       workSpaceStore.changeMenuType(MenuType.PersonalGroup)
-      workSpaceStore.changeWorkSpace('')
       await fetchGroupList()
-      // isRecycleBin.value = false
-      break
-    case MenuType.SpaceGroup:
-      workSpaceStore.changeMenuType(MenuType.SpaceGroup)
-      workSpaceStore.changeWorkSpace('')
-      await fetchSpaceList()
-      // isRecycleBin.value = false
       break
     case MenuType.RecycleBin:
       workSpaceStore.changeMenuType(MenuType.RecycleBin)
-      workSpaceStore.changeWorkSpace('')
-      // isRecycleBin.value = true
       await fetchSurveyList()
       break
     default: {
-      // isRecycleBin.value = false
       const parentMenu = spaceMenus.value.find((parent: any) =>
         parent.children.find((children: any) => children.id.toString() === id)
       )
@@ -275,8 +208,6 @@ const handleSpaceSelect = async (id: string) => {
         workSpaceStore.changeMenuType(parentMenu.id)
         if (parentMenu.id === MenuType.PersonalGroup) {
           workSpaceStore.changeGroup(id)
-        } else if (parentMenu.id === MenuType.SpaceGroup) {
-          workSpaceStore.changeWorkSpace(id)
         }
       }
       listRef?.value?.resetCurrentPage()
@@ -293,9 +224,6 @@ const fetchSurveyList = async (params?: any) => {
       curPage: 1
     }
   }
-  if (workSpaceId.value) {
-    params.workspaceId = workSpaceId.value
-  }
   params.isRecycleBin = isRecycleBin.value
   loading.value = true
   await surveyListStore.getSurveyList(params)
@@ -303,57 +231,13 @@ const fetchSurveyList = async (params?: any) => {
 }
 
 onMounted(async () => {
-  await Promise.all([fetchGroupList(), fetchSpaceList()])
+  await fetchGroupList()
   // 异步获取回收站数量
   getRecycleBinCount()
   activeValue.value = 'all'
   workSpaceStore.changeGroup('all')
   await fetchSurveyList()
 })
-
-const modifyType = ref('add')
-const showSpaceModify = ref(false)
-
-// 当前团队信息
-const currentTeamSpace = computed(() => {
-  return workSpaceList.value.find((item: any) => item._id === workSpaceId.value)
-})
-
-const onSetGroup = async () => {
-  await workSpaceStore.getSpaceDetail(workSpaceId.value)
-  modifyType.value = 'edit'
-  showSpaceModify.value = true
-}
-
-const onCloseModifyInTeamWork = (data: IWorkspace) => {
-  if (activeValue.value === MenuType.SpaceGroup) {
-    const currentData = workSpaceList.value.find((item) => item._id === data._id)
-    if (currentData) {
-      currentData.name = data.name
-      currentData.memberTotal = data.members.length
-      currentData.description = data.description
-    }
-    const currentMenus: any = spaceMenus.value?.[1]?.children?.find(
-      (item: { id: string; name: string }) => item.id === data._id
-    )
-    if (currentMenus) {
-      currentMenus.name = data.name
-    }
-  }
-}
-
-const onCloseSpaceModify = (type: string) => {
-  showSpaceModify.value = false
-  if (type === 'update' && spaceListRef.value) {
-    fetchSpaceList()
-    spaceListRef.value.onCloseModify()
-  }
-}
-
-const onSpaceCreate = () => {
-  modifyType.value = 'add'
-  showSpaceModify.value = true
-}
 
 const showGroupModify = ref<boolean>(false)
 
@@ -404,9 +288,6 @@ const onConfirmCreate = async (formValue: { title: string; remark?: string; surv
           ...formValue,
           createMethod: createMethod.value,
           questionList: questionList.value,
-        }
-        if (workSpaceId.value) {
-          payload.workspaceId = workSpaceId.value
         }
         const res: any = await createSurvey(payload)
         if (res?.code === 200 && res?.data?.id) {

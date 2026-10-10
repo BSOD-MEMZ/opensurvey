@@ -18,7 +18,6 @@ import { ResponseSchemaController } from './controllers/responseSchema.controlle
 import { SurveyResponseController } from './controllers/surveyResponse.controller';
 import { SurveyResponseUIController } from './controllers/surveyResponseUI.controller';
 import { AuthModule } from '../auth/auth.module';
-import { WorkspaceModule } from '../workspace/workspace.module';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -37,7 +36,6 @@ import { AppManagerService } from '../appManager/services/appManager.service';
     MessageModule,
     // RedisModule,
     AuthModule,
-    WorkspaceModule,
   ],
   controllers: [
     ClientEncryptController,

@@ -17,7 +17,6 @@
             :module-config="baseConf"
             :custom-components="{
               WhiteList,
-              TeamMemberList,
               ExamScorePanel
             }"
             @form-change="handleFormChange"
@@ -36,7 +35,6 @@ import baseFormConfig from '@/management/pages/edit/setterConfig/baseFormConfig'
 import SetterField from '@/management/pages/edit/components/SetterField.vue'
 
 import WhiteList from './components/WhiteList.vue'
-import TeamMemberList from './components/TeamMemberList.vue'
 import ExamScorePanel from './components/ExamScorePanel.vue'
 
 const editStore = useEditStore()

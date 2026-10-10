@@ -9,7 +9,6 @@ import { GetSurveyCollaboratorListDto } from '../dto/getSurveyCollaboratorList.d
 import { UserService } from 'src/modules/auth/services/user.service';
 import { ObjectId } from 'mongodb';
 import { SurveyMetaService } from '../services/surveyMeta.service';
-import { WorkspaceMemberService } from 'src/modules/workspace/services/workspaceMember.service';
 import {
   SURVEY_PERMISSION,
   SURVEY_PERMISSION_DESCRIPTION,
@@ -20,7 +19,6 @@ import { SurveyMeta } from 'src/models/surveyMeta.entity';
 
 jest.mock('src/guards/authentication.guard');
 jest.mock('src/guards/survey.guard');
-jest.mock('src/guards/workspace.guard');
 
 describe('CollaboratorController', () => {
   let controller: CollaboratorController;
@@ -28,7 +26,6 @@ describe('CollaboratorController', () => {
   let logger: Logger;
   let userService: UserService;
   let surveyMetaService: SurveyMetaService;
-  let workspaceMemberServie: WorkspaceMemberService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -73,12 +70,6 @@ describe('CollaboratorController', () => {
             getSurveyById: jest.fn(),
           },
         },
-        {
-          provide: WorkspaceMemberService,
-          useValue: {
-            findOne: jest.fn().mockResolvedValue(null),
-          },
-        },
       ],
     }).compile();
 
@@ -87,9 +78,6 @@ describe('CollaboratorController', () => {
     logger = module.get<Logger>(Logger);
     userService = module.get<UserService>(UserService);
     surveyMetaService = module.get<SurveyMetaService>(SurveyMetaService);
-    workspaceMemberServie = module.get<WorkspaceMemberService>(
-      WorkspaceMemberService,
-    );
   });
 
   it('should be defined', () => {
@@ -377,7 +365,6 @@ describe('CollaboratorController', () => {
       const surveyMeta = {
         ownerId: req.user._id.toString(),
         owner: req.user.username,
-        workspaceId: 'workspaceId',
       };
 
       jest
@@ -399,37 +386,6 @@ describe('CollaboratorController', () => {
       });
     });
 
-    it('should return default permissions if user is a workspace member', async () => {
-      const req = {
-        user: { _id: new ObjectId(), username: 'user' },
-      };
-      const query = { surveyId: 'surveyId' };
-      const surveyMeta = {
-        ownerId: 'ownerId',
-        owner: 'owner',
-        workspaceId: 'workspaceId',
-      };
-
-      jest
-        .spyOn(surveyMetaService, 'getSurveyById')
-        .mockResolvedValue(surveyMeta as SurveyMeta);
-      jest.spyOn(workspaceMemberServie, 'findOne').mockResolvedValue({} as any);
-
-      const response = await controller.getUserSurveyPermissions(req, query);
-
-      expect(response).toEqual({
-        code: 200,
-        data: {
-          isOwner: false,
-          permissions: [
-            SURVEY_PERMISSION.SURVEY_COOPERATION_MANAGE,
-            SURVEY_PERMISSION.SURVEY_RESPONSE_MANAGE,
-            SURVEY_PERMISSION.SURVEY_CONF_MANAGE,
-          ],
-        },
-      });
-    });
-
     it('should return collaborator permissions if user is a collaborator', async () => {
       const req = {
         user: { _id: new ObjectId(), username: 'user' },
@@ -438,7 +394,6 @@ describe('CollaboratorController', () => {
       const surveyMeta = {
         ownerId: 'ownerId',
         owner: 'owner',
-        workspaceId: 'workspaceId',
       };
       const collaborator = {
         permissions: ['read', 'write'],
@@ -447,7 +402,6 @@ describe('CollaboratorController', () => {
       jest
         .spyOn(surveyMetaService, 'getSurveyById')
         .mockResolvedValue(surveyMeta as SurveyMeta);
-      jest.spyOn(workspaceMemberServie, 'findOne').mockResolvedValue(null);
       jest
         .spyOn(collaboratorService, 'getCollaborator')
         .mockResolvedValue(collaborator as Collaborator);
@@ -471,13 +425,11 @@ describe('CollaboratorController', () => {
       const surveyMeta = {
         ownerId: 'ownerId',
         owner: 'owner',
-        workspaceId: 'workspaceId',
       };
 
       jest
         .spyOn(surveyMetaService, 'getSurveyById')
         .mockResolvedValue(surveyMeta as SurveyMeta);
-      jest.spyOn(workspaceMemberServie, 'findOne').mockResolvedValue(null);
       jest
         .spyOn(collaboratorService, 'getCollaborator')
         .mockResolvedValue(null);

@@ -24,7 +24,6 @@ import { Logger } from 'src/logger';
 import { ResponseSchema } from 'src/models/responseSchema.entity';
 import { EXCEPTION_CODE } from 'src/enums/exceptionCode';
 import { UserService } from 'src/modules/auth/services/user.service';
-import { WorkspaceMemberService } from 'src/modules/workspace/services/workspaceMember.service';
 import { AppManagerService } from 'src/modules/appManager/services/appManager.service';
 import { OpenAuthGuard } from 'src/guards/openAuth.guard';
 import { APPList } from 'src/modules/appManager/appConfg';
@@ -137,12 +136,6 @@ describe('SurveyResponseController', () => {
           provide: UserService,
           useValue: {
             getUserByUsername: jest.fn(),
-          },
-        },
-        {
-          provide: WorkspaceMemberService,
-          useValue: {
-            findAllByUserId: jest.fn(),
           },
         },
         {

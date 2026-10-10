@@ -145,7 +145,6 @@ export const useSurveyListStore = defineStore('surveyList', () => {
         pageSize: payload?.pageSize || 10, // 默认一页10条
         filter: filterString,
         order: orderString,
-        workspaceId: workSpaceStore.workSpaceId,
         groupId: workSpaceStore.groupId,
         isRecycleBin: payload?.isRecycleBin || false,
       }

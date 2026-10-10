@@ -66,7 +66,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const workSpaceStore = useWorkSpaceStore()
 workSpaceStore.getGroupList()
-const { groupAllList, menuType, groupId, workSpaceId } = storeToRefs(workSpaceStore)
+const { groupAllList, menuType, groupId } = storeToRefs(workSpaceStore)
 
 const ruleForm = ref<any>(null)
 
@@ -112,9 +112,6 @@ const submit = () => {
         state.form.groupId === GroupState.All || state.form.groupId === GroupState.Not
           ? ''
           : state.form.groupId
-    }
-    if (workSpaceId.value) {
-      payload.workspaceId = workSpaceId.value
     }
     const res: any = await createSurvey(payload)
     if (res?.code === 200 && res?.data?.id) {

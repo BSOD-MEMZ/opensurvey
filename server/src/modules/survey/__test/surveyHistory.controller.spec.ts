@@ -11,7 +11,6 @@ import { Logger } from 'src/logger';
 
 jest.mock('src/guards/authentication.guard');
 jest.mock('src/guards/survey.guard');
-jest.mock('src/guards/workspace.guard');
 
 describe('SurveyHistoryController', () => {
   let controller: SurveyHistoryController;

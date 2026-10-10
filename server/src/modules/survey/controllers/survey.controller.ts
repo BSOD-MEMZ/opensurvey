@@ -31,8 +31,6 @@ import { Logger } from 'src/logger';
 import { SurveyGuard } from 'src/guards/survey.guard';
 import { SURVEY_PERMISSION } from 'src/enums/surveyPermission';
 
-import { WorkspaceGuard } from 'src/guards/workspace.guard';
-import { PERMISSION as WORKSPACE_PERMISSION } from 'src/enums/workspace';
 import { SessionService } from '../services/session.service';
 import { UserService } from 'src/modules/auth/services/user.service';
 
@@ -73,9 +71,6 @@ export class SurveyController {
   @UseGuards(SurveyGuard)
   @SetMetadata('surveyId', 'body.createFrom')
   @SetMetadata('surveyPermission', [SURVEY_PERMISSION.SURVEY_CONF_MANAGE])
-  @UseGuards(WorkspaceGuard)
-  @SetMetadata('workspacePermissions', [WORKSPACE_PERMISSION.READ_SURVEY])
-  @SetMetadata('workspaceId', { key: 'body.workspaceId', optional: true })
   @UseGuards(Authentication)
   async createSurvey(
     @Body()
@@ -92,15 +87,12 @@ export class SurveyController {
     const { title, remark, createMethod, createFrom, groupId, questionList } =
       value;
 
-    let surveyType = '',
-      workspaceId = null;
+    let surveyType = '';
     if (createMethod === 'copy') {
       const survey = req.surveyMeta;
       surveyType = survey.surveyType;
-      workspaceId = survey.workspaceId;
     } else {
       surveyType = value.surveyType;
-      workspaceId = value.workspaceId;
     }
 
     const surveyMeta = await this.surveyMetaService.createSurveyMeta({
@@ -111,7 +103,6 @@ export class SurveyController {
       userId: req.user._id.toString(),
       createMethod,
       createFrom,
-      workspaceId,
       groupId,
     });
     await this.surveyConfService.createSurveyConf({

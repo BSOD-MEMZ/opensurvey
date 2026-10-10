@@ -35,9 +35,6 @@ export class SurveyMeta extends BaseEntity {
   createFrom: string;
 
   @Column()
-  workspaceId: string;
-
-  @Column()
   groupId: string;
 
   @Column()

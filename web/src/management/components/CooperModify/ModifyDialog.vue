@@ -165,7 +165,7 @@ const onConfirm = async () => {
           ElMessage.error(res.errmsg || '协作管理接口调用失败')
         }
       } catch (err) {
-        ElMessage.error('createSpace status err' + err)
+        ElMessage.error('saveCollaborator status err' + err)
       }
     } else {
       return false

@@ -74,10 +74,6 @@ export default {
         value: 'ALL'
       },
       {
-        label: '空间成员',
-        value: 'MEMBER'
-      },
-      {
         label: '白名单',
         value: 'CUSTOM'
       }
@@ -108,7 +104,7 @@ export default {
     type: 'InputSetter',
     maxLength: 40,
     relyFunc: (data) => {
-      return ['CUSTOM', 'MEMBER'].includes(data.whitelistType)
+      return data.whitelistType === 'CUSTOM'
     }
   },
   white_list: {
@@ -118,15 +114,6 @@ export default {
     custom: true, // 自定义导入高级组件
     relyFunc: (data) => {
       return data.whitelistType === 'CUSTOM'
-    }
-  },
-  team_list: {
-    key: 'whitelist',
-    label: '团队空间成员选择',
-    type: 'TeamMemberList',
-    custom: true, // 自定义导入高级组件
-    relyFunc: (data) => {
-      return data.whitelistType === 'MEMBER'
     }
   }
 }

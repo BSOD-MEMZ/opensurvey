@@ -56,7 +56,8 @@ export default defineConfig({
       'vuedraggable',
       'element-plus/es',
       '@wangeditor/editor-for-vue',
-      'element-plus/es/components/*/style/index',
+      'element-plus/es/components/*/style/index.mjs',
+      '@element-plus/icons-vue',
       'element-plus/dist/locale/zh-cn.mjs',
       'copy-to-clipboard',
       'qrcode',
@@ -121,6 +122,17 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 8080,
     open: false, // 是否自动打开浏览器
+    // 启动时就把主入口和被依赖最重的页面预热转换掉。
+    // 不做这一步的话，dev 下首次进入问卷列表页要现转换 150+ 个模块
+    // （实测注册成功后被卡住 18.8s 才跳页），预热后首次访问即热。
+    warmup: {
+      clientFiles: [
+        './src/management/main.js',
+        './src/management/pages/list/index.vue',
+        './src/management/pages/login/LoginPage.vue',
+        './src/render/main.js'
+      ]
+    },
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:3000',

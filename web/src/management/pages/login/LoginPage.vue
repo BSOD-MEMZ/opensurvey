@@ -36,13 +36,6 @@
           ></span>
         </el-form-item>
 
-        <el-form-item label="验证码" prop="captcha">
-          <div class="captcha-wrapper">
-            <el-input style="width: 280px" v-model="formData.captcha" size="large"></el-input>
-            <div class="captcha-img" @click="refreshCaptcha" v-html="captchaImgData"></div>
-          </div>
-        </el-form-item>
-
         <el-form-item class="button-group">
           <el-button
             :loading="pending.register"
@@ -67,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { ElMessage } from 'element-plus'
@@ -76,7 +69,6 @@ import 'element-plus/theme-chalk/src/message.scss'
 import { debounce } from 'lodash-es'
 
 import { getPasswordStrength, login, register } from '@/management/api/auth'
-import { refreshCaptcha as refreshCaptchaApi } from '@/management/api/captcha'
 import { CODE_MAP } from '@/management/api/base'
 import { useUserStore } from '@/management/stores/user'
 
@@ -86,8 +78,6 @@ const router = useRouter()
 interface FormData {
   name: string
   password: string
-  captcha: string
-  captchaId: string
 }
 
 interface Pending {
@@ -97,9 +87,7 @@ interface Pending {
 
 const formData = reactive<FormData>({
   name: '',
-  password: '',
-  captcha: '',
-  captchaId: ''
+  password: ''
 })
 
 // 每个滑块不同强度的颜色，索引0对应第一个滑块
@@ -121,29 +109,10 @@ const strengthColor = reactive([
   }
 ])
 
-// 密码内容校验
-const passwordValidator = (_: any, value: any, callback: any) => {
-  if (!value) {
-    callback(new Error('请输入密码'))
-    passwordStrength.value = undefined
-    return
-  }
-
-  if (value.length < 6 || value.length > 16) {
-    callback(new Error('长度在 6 到 16 个字符'))
-    passwordStrength.value = undefined
-    return
-  }
-
-  if (!/^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+$/.test(value)) {
-    callback(new Error('只能输入数字、字母、特殊字符'))
-    passwordStrength.value = undefined
-    return
-  }
-  passwordStrengthHandle(value)
-  callback()
-}
-
+// 密码不再做任何限制：允许空密码、弱密码、任意字符。
+// 密码强度只作为装饰性提示，单独防抖查询，不参与表单校验 ——
+// 之前把它塞进表单校验器（debounce(..., 500)）里，导致每次点登录/注册
+// 都要等 debounce 尾沿触发、还白打一次接口，实测点击到请求发出要多花 0.5~1s。
 const passwordStrengthHandle = async (value: string) => {
   const res: any = await getPasswordStrength(value)
   if (res.code === CODE_MAP.SUCCESS) {
@@ -151,36 +120,26 @@ const passwordStrengthHandle = async (value: string) => {
   }
 }
 
-const rules = {
-  name: [
-    { required: true, message: '请输入账号', trigger: 'blur' },
-    {
-      min: 3,
-      max: 10,
-      message: '长度在 3 到 10 个字符',
-      trigger: 'blur'
+watch(
+  () => formData.password,
+  debounce((value: string) => {
+    if (typeof value === 'string' && value.length > 0) {
+      passwordStrengthHandle(value)
+    } else {
+      passwordStrength.value = undefined
     }
-  ],
-  password: [{ required: true, validator: debounce(passwordValidator, 500), trigger: 'change' }],
-  captcha: [
-    {
-      required: true,
-      message: '请输入验证码',
-      trigger: 'blur'
-    }
-  ]
-}
+  }, 500)
+)
 
-onMounted(() => {
-  refreshCaptcha()
-})
+const rules = {
+  name: [{ required: true, message: '请输入账号', trigger: 'blur' }]
+}
 
 const pending = reactive<Pending>({
   login: false,
   register: false
 })
 
-const captchaImgData = ref<string>('')
 const formDataRef = ref<any>(null)
 const passwordStrength = ref<'Strong' | 'Medium' | 'Weak'>()
 
@@ -193,11 +152,10 @@ const submitForm = (type: 'login' | 'register') => {
           register
         }
         pending[type] = true
+        // 已不需要验证码
         const res: any = await submitTypes[type]({
           username: formData.name,
-          password: formData.password,
-          captcha: formData.captcha,
-          captchaId: formData.captchaId
+          password: formData.password
         })
         pending[type] = false
         if (res.code !== CODE_MAP.SUCCESS) {
@@ -226,20 +184,6 @@ const submitForm = (type: 'login' | 'register') => {
   })
 }
 
-const refreshCaptcha = async () => {
-  try {
-    const res: any = await refreshCaptchaApi({
-      captchaId: formData.captchaId
-    })
-    if (res.code === 200) {
-      const { id, img } = res.data
-      formData.captchaId = id
-      captchaImgData.value = img
-    }
-  } catch (error) {
-    ElMessage.error('获取验证码失败')
-  }
-}
 </script>
 
 <style lang="scss" scoped>
@@ -300,20 +244,6 @@ const refreshCaptcha = async () => {
     text-align: center;
     margin-left: 50%;
     transform: translateX(-50%);
-  }
-
-  .captcha-wrapper {
-    display: flex;
-    align-items: center;
-    .captcha-img {
-      height: 40px;
-      cursor: pointer;
-      :deep(> svg) {
-        max-height: 40px;
-        width: 120px;
-        margin-left: 20px;
-      }
-    }
   }
 
   .strength {

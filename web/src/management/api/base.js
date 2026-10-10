@@ -22,9 +22,20 @@ instance.interceptors.response.use(
     }
     const res = response.data
     if (res.code === CODE_MAP.NO_AUTH || res.code === CODE_MAP.ERR_AUTH) {
-      router.replace({
-        name: 'login'
-      })
+      // 必须连本地登录态一起清掉。
+      // 只 router.replace 不清 token 的话，hasLogin 仍是 true，
+      // 路由守卫会再次放行受保护页面 → 页面又发请求 → 又 1001 → 又被弹回登录页，
+      // 表现就是"动不动跳登录页、来回弹"。
+      try {
+        useUserStore().logout()
+      } catch (e) {
+        /* store 还没就绪时忽略，下面的跳转仍然生效 */
+      }
+      if (router.currentRoute.value.name !== 'login') {
+        router.replace({
+          name: 'login'
+        })
+      }
       return res
     } else {
       return res

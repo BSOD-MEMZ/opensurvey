@@ -154,8 +154,6 @@ export interface SubmitConf {
 // 白名单类型
 export enum WhitelistType {
   ALL = 'ALL',
-  // 空间成员
-  MEMBER = 'MEMBER',
   // 自定义
   CUSTOM = 'CUSTOM',
 }

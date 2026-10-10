@@ -11,7 +11,6 @@ import { SurveyResponseModule } from './modules/surveyResponse/surveyResponse.mo
 import { AuthModule } from './modules/auth/auth.module';
 import { MessageModule } from './modules/message/message.module';
 import { FileModule } from './modules/file/file.module';
-import { WorkspaceModule } from './modules/workspace/workspace.module';
 import { UpgradeModule } from './modules/upgrade/upgrade.module';
 
 import { join } from 'path';
@@ -32,8 +31,6 @@ import { ClientEncrypt } from './models/clientEncrypt.entity';
 import { Word } from './models/word.entity';
 import { MessagePushingTask } from './models/messagePushingTask.entity';
 import { MessagePushingLog } from './models/messagePushingLog.entity';
-import { WorkspaceMember } from './models/workspaceMember.entity';
-import { Workspace } from './models/workspace.entity';
 import { Collaborator } from './models/collaborator.entity';
 import { DownloadTask } from './models/downloadTask.entity';
 import { Session } from './models/session.entity';
@@ -86,8 +83,6 @@ import { AppManagerModule } from './modules/appManager/appManager.module';
             Word,
             MessagePushingTask,
             MessagePushingLog,
-            Workspace,
-            WorkspaceMember,
             Collaborator,
             DownloadTask,
             Session,
@@ -117,7 +112,6 @@ import { AppManagerModule } from './modules/appManager/appManager.module';
     }),
     MessageModule,
     FileModule,
-    WorkspaceModule,
     UpgradeModule,
     ChannelModule,
     AppManagerModule,

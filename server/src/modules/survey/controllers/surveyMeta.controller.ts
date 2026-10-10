@@ -14,7 +14,6 @@ import moment from 'moment';
 import { ApiTags } from '@nestjs/swagger';
 
 import { SurveyMetaService } from '../services/surveyMeta.service';
-import { WorkspaceService } from 'src/modules/workspace/services/workspace.service';
 
 import { getFilter, getOrder } from 'src/utils/surveyUtil';
 import { HttpException } from 'src/exceptions/httpException';
@@ -23,8 +22,6 @@ import { Authentication } from 'src/guards/authentication.guard';
 import { Logger } from 'src/logger';
 import { SurveyGuard } from 'src/guards/survey.guard';
 import { SURVEY_PERMISSION } from 'src/enums/surveyPermission';
-import { WorkspaceGuard } from 'src/guards/workspace.guard';
-import { PERMISSION as WORKSPACE_PERMISSION } from 'src/enums/workspace';
 
 import { GetSurveyListDto } from '../dto/getSurveyMetaList.dto';
 import { CollaboratorService } from '../services/collaborator.service';
@@ -37,7 +34,6 @@ export class SurveyMetaController {
     private readonly surveyMetaService: SurveyMetaService,
     private readonly logger: Logger,
     private readonly collaboratorService: CollaboratorService,
-    private readonly workspaceService: WorkspaceService,
   ) {}
 
   @Post('/updateMeta')
@@ -75,9 +71,6 @@ export class SurveyMetaController {
     };
   }
 
-  @UseGuards(WorkspaceGuard)
-  @SetMetadata('workspacePermissions', [WORKSPACE_PERMISSION.READ_SURVEY])
-  @SetMetadata('workspaceId', { optional: true, key: 'query.workspaceId' })
   @UseGuards(Authentication)
   @Get('/getList')
   @HttpCode(200)
@@ -92,7 +85,7 @@ export class SurveyMetaController {
       this.logger.error(error.message);
       throw new HttpException('参数有误', EXCEPTION_CODE.PARAMETER_ERROR);
     }
-    const { curPage, pageSize, workspaceId, groupId, isRecycleBin } = value;
+    const { curPage, pageSize, groupId, isRecycleBin } = value;
     let filter = {},
       order = {};
     if (value.filter) {
@@ -124,13 +117,9 @@ export class SurveyMetaController {
       pre[cur.surveyId] = cur;
       return pre;
     }, {});
-    const surveyIdList1 = cooperationList.map((item) => item.surveyId);
-    let surveyIdList2 = []
-    if (isRecycleBin) {
-      // 回收站查询当前用户参与的空间下的回收站的问卷
-      surveyIdList2 = (await this.workspaceService.getAllSurveyIdListByUserId(userId, isRecycleBin)).data.surveyIdList
-    }
-    const surveyIdList = [...new Set([...surveyIdList1, ...surveyIdList2])];
+    const surveyIdList = [
+      ...new Set(cooperationList.map((item) => item.surveyId)),
+    ];
     const username = req.user.username;
     const data = await this.surveyMetaService.getSurveyMetaList({
       pageNum: curPage,
@@ -139,7 +128,6 @@ export class SurveyMetaController {
       username,
       filter,
       order,
-      workspaceId,
       groupId,
       surveyIdList,
       isRecycleBin,

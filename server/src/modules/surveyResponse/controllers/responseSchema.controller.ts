@@ -17,7 +17,6 @@ import { Logger } from 'src/logger';
 import { SurveyNotFoundException } from 'src/exceptions/surveyNotFoundException';
 import { WhitelistType } from 'src/interfaces/survey';
 import { UserService } from 'src/modules/auth/services/user.service';
-import { WorkspaceMemberService } from 'src/modules/workspace/services/workspaceMember.service';
 
 @ApiTags('surveyResponse')
 @Controller('/api/responseSchema')
@@ -26,7 +25,6 @@ export class ResponseSchemaController {
     private readonly responseSchemaService: ResponseSchemaService,
     private readonly logger: Logger,
     private readonly userService: UserService,
-    private readonly workspaceMemberService: WorkspaceMemberService,
   ) {}
 
   @Get('/getSchema')
@@ -115,20 +113,7 @@ export class ResponseSchemaController {
       }
     }
 
-    // 团队成员昵称校验
-    if (whitelistType === WhitelistType.MEMBER) {
-      const user = await this.userService.getUserByUsername(whitelistValue);
-      if (!user) {
-        throw new HttpException('名单验证失败', EXCEPTION_CODE.WHITELIST_ERROR);
-      }
-
-      const workspaceMember = await this.workspaceMemberService.findAllByUserId(
-        { userId: user._id.toString() },
-      );
-      if (!workspaceMember.length) {
-        throw new HttpException('验证失败', EXCEPTION_CODE.WHITELIST_ERROR);
-      }
-    }
+    // 团队成员昵称校验（原「空间成员」白名单，团队空间已移除故一并去掉）
 
     return {
       code: 200,

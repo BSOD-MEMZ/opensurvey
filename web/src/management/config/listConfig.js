@@ -5,35 +5,6 @@ export const type = {
   register: '在线报名'
 }
 
-export const spaceListConfig = {
-  name: {
-    title: '空间名称',
-    key: 'name',
-    width: 200
-  },
-  surveyTotal: {
-    title: '问卷数',
-    key: 'surveyTotal',
-    width: 150,
-    tip: true
-  },
-  memberTotal: {
-    title: '成员数',
-    key: 'memberTotal',
-    width: 150
-  },
-  owner: {
-    title: '所有者',
-    key: 'owner',
-    width: 150
-  },
-  createdAt: {
-    title: '创建时间',
-    key: 'createdAt',
-    minWidth: 200
-  }
-}
-
 export const groupListConfig = {
   name: {
     title: '分组名称',
@@ -125,16 +96,6 @@ export const noListDataConfig = {
   img: '/imgs/icons/list-empty.webp'
 }
 
-export const noSpaceDataConfig = {
-  title: '您还没有创建团队空间',
-  desc: '赶快点击右上角立即创建团队空间吧！',
-  img: '/imgs/icons/list-empty.webp'
-}
-export const noSpaceSearchDataConfig = {
-  title: '没有满足该查询条件的团队空间',
-  desc: '可以更换条件查询试试',
-  img: '/imgs/icons/list-empty.webp'
-}
 export const noGroupDataConfig = {
   title: '您还没有创建问卷分组',
   desc: '赶快点击右上角立即创建问卷分组吧！',

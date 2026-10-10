@@ -38,9 +38,6 @@ const bodyContent = computed(() => {
   }
   if (whitelistType && whitelistType != 'ALL') {
     let placeholder = ''
-    if (whitelistType == 'MEMBER') {
-      placeholder = '请输入用户名'
-    }
     if (memberType == 'MOBILE') {
       placeholder = '请输入手机号'
     }

@@ -22,8 +22,6 @@ import { pick } from 'lodash';
 import { CounterService } from '../services/counter.service';
 import { Logger } from 'src/logger';
 import { WhitelistType } from 'src/interfaces/survey';
-import { UserService } from 'src/modules/auth/services/user.service';
-import { WorkspaceMemberService } from 'src/modules/workspace/services/workspaceMember.service';
 import { QUESTION_TYPE } from 'src/enums/question';
 import { OpenAuthGuard } from 'src/guards/openAuth.guard';
 
@@ -44,8 +42,6 @@ export class SurveyResponseController {
     private readonly messagePushingTaskService: MessagePushingTaskService,
     private readonly counterService: CounterService,
     private readonly logger: Logger,
-    private readonly userService: UserService,
-    private readonly workspaceMemberService: WorkspaceMemberService,
   ) {}
 
   @Post('/createResponse')
@@ -198,26 +194,7 @@ export class SurveyResponseController {
       }
     }
 
-    // 团队成员昵称校验
-    if (baseConf?.whitelistType === WhitelistType.MEMBER) {
-      const user = await this.userService.getUserByUsername(whitelistValue);
-      if (!user) {
-        throw new HttpException(
-          '白名单验证失败',
-          EXCEPTION_CODE.WHITELIST_ERROR,
-        );
-      }
-
-      const workspaceMember = await this.workspaceMemberService.findAllByUserId(
-        { userId: user._id.toString() },
-      );
-      if (!workspaceMember.length) {
-        throw new HttpException(
-          '白名单验证失败',
-          EXCEPTION_CODE.WHITELIST_ERROR,
-        );
-      }
-    }
+    // 团队成员昵称校验（原「空间成员」白名单，团队空间已移除故一并去掉）
 
     const now = Date.now();
     // 提交时间限制

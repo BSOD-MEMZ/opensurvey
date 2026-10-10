@@ -8,7 +8,6 @@
           v-model="item.role"
           :multiple="multiple"
           @customClick="() => handleRemove(index)"
-          :disabled="item.userId === currentUserId"
         ></OperationSelect>
       </div>
     </div>
@@ -18,9 +17,7 @@
 import { computed } from 'vue'
 import { type IMember, type ListItem } from '@/management/utils/workSpace'
 import OperationSelect from './OperationSelect.vue'
-import { useWorkSpaceStore } from '@/management/stores/workSpace'
 
-const workSpaceStore = useWorkSpaceStore()
 const props = withDefaults(
   defineProps<{
     members: IMember[]
@@ -42,9 +39,8 @@ const list = computed({
     emit('change', value)
   }
 })
-const currentUserId = computed(() => {
-  return workSpaceStore.spaceDetail?.currentUserId
-})
+// 原来这里用 workSpaceStore.spaceDetail?.currentUserId 判断"不能移除自己"。
+// 团队空间已移除，该值恒为 undefined，此处不再做禁用判断。
 const handleRemove = (index: number) => {
   list.value.splice(index, 1)
 }

@@ -147,7 +147,7 @@ import {
 
 const surveyListStore = useSurveyListStore()
 const workSpaceStore = useWorkSpaceStore()
-const { workSpaceId, groupAllList, menuType } = storeToRefs(workSpaceStore)
+const { groupAllList, menuType } = storeToRefs(workSpaceStore)
 const router = useRouter()
 const props = defineProps({
   loading: {
@@ -221,9 +221,6 @@ const onRefresh = async () => {
     curPage: currentPage.value,
     order: order.value
   }
-  if (workSpaceId.value) {
-    params.workspaceId = workSpaceId.value
-  }
   emit('refresh', params)
 }
 
@@ -261,57 +258,51 @@ const getToolConfig = (row) => {
       label: '协作'
     }
   ]
-  if (!workSpaceId.value) {
-    if (!row.isCollaborated) {
-      // 创建人显示协作按钮
-      funcList = funcList.concat(permissionsBtn)
-    } else {
-      if (row.currentPermissions.includes(SurveyPermissions.DataManage)) {
-        // 协作人判断权限显示数据分析按钮
-        funcList.push({
-          key: 'analysis',
-          label: '数据'
-        })
-      }
-      if (row.currentPermissions.includes(SurveyPermissions.SurveyManage)) {
-        // 协作人判断权限显示投放按钮
-        funcList.push(
-          {
-            key: subStatus.pausing.value,
-            label: '暂停'
-          },
-          {
-            key: QOP_MAP.EDIT,
-            label: '修改'
-          },
-          {
-            key: 'delete',
-            label: '删除',
-            icon: 'icon-shanchu'
-          },
-          {
-            key: QOP_MAP.COPY,
-            label: '复制',
-            icon: 'icon-shanchu'
-          },
-          {
-            key: 'release',
-            label: '投放'
-          }
-        )
-      }
-      if (row.currentPermissions.includes(SurveyPermissions.CollaboratorManage)) {
-        // 协作人判断权限显示协作按钮
-        funcList.push({
-          key: 'cooper',
-          label: '协作'
-        })
-      }
-    }
+  if (!row.isCollaborated) {
+    // 创建人显示协作按钮
+    funcList = funcList.concat(permissionsBtn)
   } else {
-    // 团队空间没有开放协作功能，不需要判断按钮状态
-    permissionsBtn.splice(-1)
-    funcList = permissionsBtn
+    if (row.currentPermissions.includes(SurveyPermissions.DataManage)) {
+      // 协作人判断权限显示数据分析按钮
+      funcList.push({
+        key: 'analysis',
+        label: '数据'
+      })
+    }
+    if (row.currentPermissions.includes(SurveyPermissions.SurveyManage)) {
+      // 协作人判断权限显示投放按钮
+      funcList.push(
+        {
+          key: subStatus.pausing.value,
+          label: '暂停'
+        },
+        {
+          key: QOP_MAP.EDIT,
+          label: '修改'
+        },
+        {
+          key: 'delete',
+          label: '删除',
+          icon: 'icon-shanchu'
+        },
+        {
+          key: QOP_MAP.COPY,
+          label: '复制',
+          icon: 'icon-shanchu'
+        },
+        {
+          key: 'release',
+          label: '投放'
+        }
+      )
+    }
+    if (row.currentPermissions.includes(SurveyPermissions.CollaboratorManage)) {
+      // 协作人判断权限显示协作按钮
+      funcList.push({
+        key: 'cooper',
+        label: '协作'
+      })
+    }
   }
   const order = ['edit', 'analysis', 'release', 'pausing', 'delete', 'copy', 'cooper']
   if (
@@ -379,7 +370,6 @@ const onDelete = async (row) => {
     ElMessage.success('删除成功')
     onRefresh()
     workSpaceStore.getGroupList()
-    workSpaceStore.getSpaceList()
     workSpaceStore.getRecycleBinCount()
   } else {
     ElMessage.error(res.errmsg || '删除失败')
@@ -420,7 +410,6 @@ const onCloseModify = (type) => {
   if (type === 'update') {
     onRefresh()
     workSpaceStore.getGroupList()
-    workSpaceStore.getSpaceList()
   }
 }
 const onRowClick = (row) => {

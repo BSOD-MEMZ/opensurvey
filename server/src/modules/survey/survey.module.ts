@@ -6,7 +6,6 @@ import { LoggerProvider } from 'src/logger/logger.provider';
 
 import { SurveyResponseModule } from '../surveyResponse/surveyResponse.module';
 import { AuthModule } from '../auth/auth.module';
-import { WorkspaceModule } from '../workspace/workspace.module';
 import { FileModule } from '../file/file.module';
 
 import { DataStatisticController } from './controllers/dataStatistic.controller';
@@ -46,7 +45,6 @@ import { DownloadTaskService } from './services/downloadTask.service';
 import { SessionService } from './services/session.service';
 import { SurveyGroupService } from './services/surveyGroup.service';
 import { Session } from 'src/models/session.entity';
-import { WorkspaceService } from '../workspace/services/workspace.service';
 
 @Module({
   imports: [
@@ -65,7 +63,6 @@ import { WorkspaceService } from '../workspace/services/workspace.service';
     ConfigModule,
     SurveyResponseModule,
     AuthModule,
-    WorkspaceModule,
     FileModule,
   ],
   controllers: [
@@ -95,7 +92,6 @@ import { WorkspaceService } from '../workspace/services/workspace.service';
     FileService,
     SessionService,
     SurveyGroupService,
-    WorkspaceService,
     SurveyResponseManageService,
   ],
 })

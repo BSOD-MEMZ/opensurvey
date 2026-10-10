@@ -21,7 +21,6 @@ jest.mock('../services/session.service');
 jest.mock('../../auth/services/user.service');
 jest.mock('src/guards/authentication.guard');
 jest.mock('src/guards/survey.guard');
-jest.mock('src/guards/workspace.guard');
 
 describe('SurveyController', () => {
   let controller: SurveyController;

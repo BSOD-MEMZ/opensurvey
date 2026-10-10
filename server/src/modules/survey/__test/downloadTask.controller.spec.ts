@@ -6,7 +6,6 @@ import { AuthService } from 'src/modules/auth/services/auth.service';
 import { DownloadTaskService } from '../services/downloadTask.service';
 import { CollaboratorService } from '../services/collaborator.service';
 import { SurveyMetaService } from '../services/surveyMeta.service';
-import { WorkspaceMemberService } from 'src/modules/workspace/services/workspaceMember.service';
 
 import { Logger } from 'src/logger';
 import { HttpException } from 'src/exceptions/httpException';
@@ -61,10 +60,6 @@ describe('DownloadTaskController', () => {
         },
         {
           provide: SurveyMetaService,
-          useValue: {},
-        },
-        {
-          provide: WorkspaceMemberService,
           useValue: {},
         },
         {

@@ -21,7 +21,6 @@ import {
   SURVEY_PERMISSION_DESCRIPTION,
 } from 'src/enums/surveyPermission';
 import { Logger } from 'src/logger';
-import { WorkspaceMemberService } from 'src/modules/workspace/services/workspaceMember.service';
 
 import { CollaboratorService } from '../services/collaborator.service';
 import { UserService } from 'src/modules/auth/services/user.service';
@@ -43,7 +42,6 @@ export class CollaboratorController {
     private readonly logger: Logger,
     private readonly userService: UserService,
     private readonly surveyMetaService: SurveyMetaService,
-    private readonly workspaceMemberServie: WorkspaceMemberService,
   ) {}
 
   @Get('getPermissionList')
@@ -342,27 +340,6 @@ export class CollaboratorController {
         },
       };
     }
-    // 有空间权限，默认也有所有权限
-    if (surveyMeta.workspaceId) {
-      const memberInfo = await this.workspaceMemberServie.findOne({
-        workspaceId: surveyMeta.workspaceId,
-        userId,
-      });
-      if (memberInfo) {
-        return {
-          code: 200,
-          data: {
-            isOwner: false,
-            permissions: [
-              SURVEY_PERMISSION.SURVEY_COOPERATION_MANAGE,
-              SURVEY_PERMISSION.SURVEY_RESPONSE_MANAGE,
-              SURVEY_PERMISSION.SURVEY_CONF_MANAGE,
-            ],
-          },
-        };
-      }
-    }
-
     const colloborator = await this.collaboratorService.getCollaborator({
       surveyId,
       userId,

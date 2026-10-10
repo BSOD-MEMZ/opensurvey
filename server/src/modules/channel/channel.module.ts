@@ -16,7 +16,6 @@ import { OpenAuthGuard } from 'src/guards/openAuth.guard';
 import { LoggerProvider } from 'src/logger/logger.provider';
 import { PluginManagerProvider } from 'src/securityPlugin/pluginManager.provider';
 
-import { WorkspaceMemberService } from 'src/modules/workspace/services/workspaceMember.service';
 import { CollaboratorService } from 'src/modules/survey/services/collaborator.service';
 import { SurveyMetaService } from 'src/modules/survey/services/surveyMeta.service';
 import { SurveyConfService } from 'src/modules/survey/services/surveyConf.service';
@@ -24,9 +23,7 @@ import { SurveyMeta } from 'src/models/surveyMeta.entity';
 import { SurveyConf } from 'src/models/surveyConf.entity';
 import { Collaborator } from 'src/models/collaborator.entity';
 import { AppManagerService } from 'src/modules/appManager/services/appManager.service';
-import { WorkspaceMember } from 'src/models/workspaceMember.entity';
 import { SurveyModule } from 'src/modules/survey/survey.module';
-import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
 
 @Module({
   imports: [
@@ -37,11 +34,9 @@ import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
       SurveyMeta,
       SurveyConf,
       Collaborator,
-      WorkspaceMember,
     ]),
     ConfigModule,
     AuthModule,
-    WorkspaceModule,
   ],
   controllers: [ChannelController],
   providers: [
@@ -51,7 +46,6 @@ import { WorkspaceModule } from 'src/modules/workspace/workspace.module';
     Authentication,
     OpenAuthGuard,
     PluginManagerProvider,
-    WorkspaceMemberService,
     CollaboratorService,
     SurveyMetaService,
     SurveyConfService,

@@ -1,13 +1,12 @@
 import axios from './base'
 
-export const getSurveyList = ({ curPage, filter, order, workspaceId, groupId, isRecycleBin }) => {
+export const getSurveyList = ({ curPage, filter, order, groupId, isRecycleBin }) => {
   return axios.get('/survey/getList', {
     params: {
       pageSize: 10,
       curPage,
       filter,
       order,
-      workspaceId,
       groupId,
       isRecycleBin
     }

@@ -7,18 +7,15 @@ import { RECORD_SUB_STATUS } from 'src/enums';
 import { ResponseSchema } from 'src/models/responseSchema.entity';
 import { Logger } from 'src/logger';
 import { UserService } from 'src/modules/auth/services/user.service';
-import { WorkspaceMemberService } from 'src/modules/workspace/services/workspaceMember.service';
 import { SurveyNotFoundException } from 'src/exceptions/surveyNotFoundException';
 
 jest.mock('../services/responseScheme.service');
 jest.mock('src/modules/auth/services/user.service');
-jest.mock('src/modules/workspace/services/workspaceMember.service');
 
 describe('ResponseSchemaController', () => {
   let controller: ResponseSchemaController;
   let responseSchemaService: ResponseSchemaService;
   let userService: UserService;
-  let workspaceMemberService: WorkspaceMemberService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -38,12 +35,6 @@ describe('ResponseSchemaController', () => {
           },
         },
         {
-          provide: WorkspaceMemberService,
-          useValue: {
-            findAllByUserId: jest.fn(),
-          },
-        },
-        {
           provide: Logger,
           useValue: {
             error: jest.fn(),
@@ -57,9 +48,6 @@ describe('ResponseSchemaController', () => {
       ResponseSchemaService,
     );
     userService = module.get<UserService>(UserService);
-    workspaceMemberService = module.get<WorkspaceMemberService>(
-      WorkspaceMemberService,
-    );
   });
 
   describe('getSchema', () => {
@@ -220,63 +208,6 @@ describe('ResponseSchemaController', () => {
         }),
       ).rejects.toThrow(
         new HttpException('白名单验证失败', EXCEPTION_CODE.WHITELIST_ERROR),
-      );
-    });
-
-    it('should throw HttpException when user is not found in MEMBER whitelist', async () => {
-      const surveyPath = 'testSurveyPath';
-      const mockSchema = {
-        code: {
-          baseConf: {
-            whitelistType: 'MEMBER',
-            whitelist: [],
-          },
-        },
-      };
-
-      jest
-        .spyOn(responseSchemaService, 'getResponseSchemaByPath')
-        .mockResolvedValue(mockSchema as any);
-      jest.spyOn(userService, 'getUserByUsername').mockResolvedValue(null);
-
-      await expect(
-        controller.whitelistValidate(surveyPath, {
-          password: '123456',
-          whitelist: 'nonExistentUser',
-        }),
-      ).rejects.toThrow(
-        new HttpException('名单验证失败', EXCEPTION_CODE.WHITELIST_ERROR),
-      );
-    });
-
-    it('should throw HttpException when user is not a workspace member', async () => {
-      const surveyPath = 'testSurveyPath';
-      const mockSchema = {
-        code: {
-          baseConf: {
-            whitelistType: 'MEMBER',
-            whitelist: [],
-          },
-        },
-      };
-
-      jest
-        .spyOn(responseSchemaService, 'getResponseSchemaByPath')
-        .mockResolvedValue(mockSchema as any);
-      jest
-        .spyOn(userService, 'getUserByUsername')
-        .mockResolvedValue({ _id: new Object(), username: '' } as any);
-      jest
-        .spyOn(workspaceMemberService, 'findAllByUserId')
-        .mockResolvedValue([]);
-
-      await expect(
-        controller.whitelistValidate(surveyPath, {
-          password: '123456',
-          whitelist: 'testUser',
-        }),
-      ).rejects.toThrow(
-        new HttpException('验证失败', EXCEPTION_CODE.WHITELIST_ERROR),
       );
     });
   });

@@ -1,30 +1,6 @@
 import axios from './base'
-// 空间
-export const createSpace = ({ name, description, members }: any) => {
-  return axios.post('/workspace', { name, description, members })
-}
 
-export const updateSpace = ({ workspaceId, name, description, members }: any) => {
-  return axios.post(`/workspace/${workspaceId}`, { name, description, members })
-}
-
-export const getSpaceList = (params: any) => {
-  return axios.get('/workspace', {
-    params
-  })
-}
-
-export const getSpaceDetail = (workspaceId: string) => {
-  return axios.get(`/workspace/${workspaceId}`)
-}
-
-export const getMemberList = () => {
-  return axios.get('/workspace/member/list')
-}
-
-export const deleteSpace = (workspaceId: string) => {
-  return axios.delete(`/workspace/${workspaceId}`)
-}
+// 注：原「团队空间」相关接口（/workspace 增删改查、member/list）已随团队空间功能一并移除。
 
 export const getUserList = (username: string) => {
   return axios.get(`/user/getUserList`, {
