@@ -1,72 +1,87 @@
 <template>
-  <div class="screen-page">
-    <!-- 背景层：径向光晕 + 网格 + 扫描线 -->
+  <div ref="pageRef" class="screen-page">
+    <!-- 背景：顶部单束冷光 + 极淡网格 + 边缘压暗。不放彩色光斑、不做扫描线 -->
     <div class="bg">
-      <div class="bg__glow bg__glow--1"></div>
-      <div class="bg__glow bg__glow--2"></div>
-      <div class="bg__glow bg__glow--3"></div>
+      <div class="bg__aurora"></div>
       <div class="bg__grid"></div>
-      <div class="bg__scan"></div>
+      <div class="bg__vignette"></div>
     </div>
 
     <div class="screen-body">
       <!-- 顶栏 -->
       <header class="topbar">
-        <div class="topbar__side">
-          <span class="live-dot" :class="{ 'is-off': !online }"></span>
-          <span class="live-text">{{ online ? '数据实时同步中' : '连接中断' }}</span>
+        <div class="topbar__left">
+          <span class="stat-dot" :class="{ 'is-off': !online }"></span>
+          <span class="stat-text">{{ online ? '实时同步' : '连接中断' }}</span>
+          <span class="stat-sep"></span>
+          <span class="stat-text stat-text--dim">最后更新 {{ lastUpdate }}</span>
         </div>
+
         <div class="topbar__center">
-          <h1 class="title">{{ title }}</h1>
-          <p class="subtitle">数 据 监 控 大 屏</p>
+          <div class="title-row">
+            <span class="title-rule"></span>
+            <h1 class="title">{{ title }}</h1>
+            <span class="title-rule title-rule--flip"></span>
+          </div>
+          <p class="subtitle">问卷数据监控</p>
         </div>
-        <div class="topbar__side topbar__side--right">
-          <span class="clock">{{ clock }}</span>
+
+        <div class="topbar__right">
+          <div class="clock">
+            <span class="clock__time">{{ clockTime }}</span>
+            <span class="clock__date">{{ clockDate }}</span>
+          </div>
+          <span class="stat-sep"></span>
           <el-button class="exit-btn" link @click="exit">退出</el-button>
         </div>
       </header>
 
       <!-- 主体：左 / 中 / 右 三栏 -->
       <main class="grid">
-        <!-- 左栏 -->
+        <!-- 左栏：核心指标 + 各题排行 -->
         <section class="col col--left">
           <div class="panel panel--kpi">
-            <div class="panel__head"><i class="bar"></i>回收概览</div>
-            <div class="kpi-list">
+            <div class="panel__head"><i class="panel__bar"></i>回收概览</div>
+            <div class="kpi-grid">
               <div v-for="kpi in kpis" :key="kpi.label" class="kpi">
                 <div class="kpi__label">{{ kpi.label }}</div>
                 <div class="kpi__value">
-                  <span class="num">{{ kpi.display }}</span>
-                  <span class="unit">{{ kpi.unit }}</span>
+                  <span class="kpi__num">{{ kpi.display }}</span>
+                  <span class="kpi__unit">{{ kpi.unit }}</span>
                 </div>
-                <div class="kpi__bar">
-                  <span :style="{ width: kpi.percent + '%' }"></span>
+                <div class="kpi__meter">
+                  <i :style="{ width: kpi.percent + '%' }"></i>
                 </div>
+                <div class="kpi__hint">{{ kpi.hint }}</div>
               </div>
             </div>
           </div>
 
           <div class="panel panel--grow">
-            <div class="panel__head"><i class="bar"></i>各题分布</div>
-            <div class="question-list">
+            <div class="panel__head">
+              <i class="panel__bar"></i>各题分布
+              <span class="panel__extra">点击切换右侧环图</span>
+            </div>
+            <div class="rank-list">
               <div
-                v-for="q in questions"
+                v-for="(q, qi) in questions"
                 :key="q.field"
-                class="question"
+                class="rank"
                 :class="{ 'is-active': activeField === q.field }"
                 @click="focusQuestion(q)"
               >
-                <div class="question__title">{{ cleanTitle(q.title) }}</div>
-                <div class="question__rows">
-                  <div v-for="opt in q.aggregation.slice(0, 4)" :key="opt.id" class="qrow">
-                    <span class="qrow__name">{{ cleanTitle(opt.text) }}</span>
-                    <span class="qrow__track">
-                      <span
-                        class="qrow__fill"
-                        :style="{ width: percentOf(opt.count, q.aggregation[0]?.count || 1) + '%' }"
-                      ></span>
+                <div class="rank__head">
+                  <span class="rank__idx">{{ String(qi + 1).padStart(2, '0') }}</span>
+                  <span class="rank__title">{{ cleanTitle(q.title) }}</span>
+                  <span class="rank__total">{{ q.total }}</span>
+                </div>
+                <div class="rank__rows">
+                  <div v-for="opt in q.aggregation.slice(0, 3)" :key="opt.id" class="rrow">
+                    <span class="rrow__name">{{ cleanTitle(opt.text) }}</span>
+                    <span class="rrow__track">
+                      <i :style="{ width: percentOf(opt.count, q.aggregation[0]?.count || 1) + '%' }"></i>
                     </span>
-                    <span class="qrow__num">{{ opt.count }}</span>
+                    <span class="rrow__val">{{ opt.count }}</span>
                   </div>
                 </div>
               </div>
@@ -75,35 +90,40 @@
           </div>
         </section>
 
-        <!-- 中栏 -->
+        <!-- 中栏：趋势 + 环形 -->
         <section class="col col--center">
-          <div class="panel panel--chart">
+          <div class="panel panel--chart panel--main">
             <div class="panel__head">
-              <i class="bar"></i>近 24 小时回收趋势
-              <span class="panel__extra">峰值 {{ peakHour.count }} 份 @ {{ peakHour.hour }}</span>
+              <i class="panel__bar"></i>近 24 小时回收趋势
+              <span class="panel__extra">
+                峰值 {{ peakHour.count }} 份 · {{ peakHour.hour }} · 今日 {{ overview.todayTotal }} 份
+              </span>
             </div>
-            <div ref="trendRef" class="chart chart--trend"></div>
+            <div ref="trendRef" class="chart"></div>
           </div>
 
           <div class="panel panel--chart">
             <div class="panel__head">
-              <i class="bar"></i>{{ focused ? cleanTitle(focused.title) : '题目分布' }}
+              <i class="panel__bar"></i>{{ focused ? cleanTitle(focused.title) : '题目分布' }}
               <span class="panel__extra">{{ focused ? `共 ${focused.total} 次作答` : '点击左侧题目切换' }}</span>
             </div>
-            <div ref="pieRef" class="chart chart--pie"></div>
+            <div ref="pieRef" class="chart"></div>
           </div>
         </section>
 
-        <!-- 右栏 -->
+        <!-- 右栏：渠道 + 最新答卷 -->
         <section class="col col--right">
           <div class="panel panel--fixed">
-            <div class="panel__head"><i class="bar"></i>渠道来源</div>
-            <div ref="channelRef" class="chart chart--channel"></div>
+            <div class="panel__head">
+              <i class="panel__bar"></i>渠道来源
+              <span class="panel__extra">共 {{ channelTotal }} 份</span>
+            </div>
+            <div ref="channelRef" class="chart"></div>
           </div>
 
           <div class="panel panel--grow">
             <div class="panel__head">
-              <i class="bar"></i>最新答卷
+              <i class="panel__bar"></i>最新答卷
               <span class="panel__extra">共 {{ overview.total }} 份</span>
             </div>
             <div class="feed">
@@ -116,7 +136,7 @@
                       <span class="feed__a">{{ cleanTitle(p.text) }}</span>
                     </div>
                   </div>
-                  <div v-if="item.flags.length" class="feed__flag">可疑</div>
+                  <span v-if="item.flags.length" class="feed__flag">疑似异常</span>
                 </div>
                 <div v-if="!latest.length" key="empty" class="empty">等待第一份答卷…</div>
               </transition-group>
@@ -128,9 +148,9 @@
       <footer class="statusbar">
         <span>每 {{ refreshSeconds }} 秒自动刷新</span>
         <span class="statusbar__sep"></span>
-        <span>最后更新 {{ lastUpdate }}</span>
+        <span>数据快照 {{ generatedAtText || '—' }}</span>
         <span class="statusbar__spacer"></span>
-        <span>{{ generatedAtText }}</span>
+        <span class="statusbar__brand">OpenSurvey 数据监控</span>
       </footer>
     </div>
   </div>
@@ -144,7 +164,10 @@ import { LineChart, BarChart, PieChart } from 'echarts/charts'
 import {
   GridComponent,
   TooltipComponent,
-  LegendComponent
+  LegendComponent,
+  MarkPointComponent,
+  GraphicComponent,
+  TitleComponent
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { getSurveyById } from '@/management/api/survey'
@@ -157,6 +180,9 @@ echarts.use([
   GridComponent,
   TooltipComponent,
   LegendComponent,
+  MarkPointComponent,
+  GraphicComponent,
+  TitleComponent,
   CanvasRenderer
 ])
 
@@ -167,10 +193,34 @@ const surveyId = route.params.id
 const REFRESH_SECONDS = 10
 const refreshSeconds = REFRESH_SECONDS
 
+/* ---------- 设计令牌（图表里也用同一套，避免和 CSS 走偏） ---------- */
+const C = {
+  brand: '#2a8cff', // 主色：亮蓝
+  brandHi: '#4fd2ff', // 辅助：青蓝
+  brandDim: '#1f6fd0',
+  accent: '#ffb020', // 点缀：琥珀（只给峰值/告警）
+  danger: '#ff6b6b',
+  ink: '#e8f2ff',
+  ink2: '#9ab4d4',
+  ink3: '#6b88ab',
+  line: 'rgba(42,140,255,0.20)',
+  split: 'rgba(42,140,255,0.10)'
+}
+// 同色相深浅，不用彩虹（紫/粉在这里会显廉价）
+const SERIES = ['#2a8cff', '#4fd2ff', '#1f6fd0', '#7fe0ff', '#1b4f95', '#a8d8ff']
+const TOOLTIP = {
+  backgroundColor: 'rgba(6,20,38,0.94)',
+  borderColor: 'rgba(42,140,255,0.35)',
+  borderWidth: 1,
+  padding: [8, 12],
+  textStyle: { color: '#e8f2ff', fontSize: 13 }
+}
+
 /* ---------- 状态 ---------- */
 const title = ref('')
 const online = ref(true)
-const clock = ref('')
+const clockTime = ref('')
+const clockDate = ref('')
 const lastUpdate = ref('—')
 const generatedAtText = ref('')
 const overview = ref({
@@ -213,33 +263,36 @@ function rollTo(key, target) {
 const kpis = computed(() => {
   const total = overview.value.total || 0
   const today = overview.value.todayTotal || 0
+  const peak = peakHour.value.count || 0
+  const share = total ? Math.round((today / total) * 100) : 0
   return [
     {
       label: '回收总量',
-      display: animated.value.total,
+      display: formatNum(animated.value.total),
       unit: '份',
-      percent: Math.min(100, Math.max(6, total ? 100 : 0))
+      percent: total ? 100 : 0,
+      hint: total ? '累计有效答卷' : '暂无数据'
     },
     {
       label: '今日新增',
-      display: animated.value.todayTotal,
+      display: formatNum(animated.value.todayTotal),
       unit: '份',
-      percent: total ? Math.max(6, Math.round((today / total) * 100)) : 0
+      percent: total ? Math.max(4, share) : 0,
+      hint: total ? `占总量 ${share}%` : '今日暂无新增'
     },
     {
       label: '平均用时',
-      display: animated.value.avgDuration,
+      display: formatNum(animated.value.avgDuration),
       unit: '秒',
-      percent: Math.min(100, animated.value.avgDuration / 3)
+      percent: Math.min(100, animated.value.avgDuration / 3),
+      hint: '按最近 500 份统计'
     },
     {
       label: '峰值 / 小时',
-      display: animated.value.peak,
+      display: formatNum(animated.value.peak),
       unit: '份',
-      percent: Math.min(
-        100,
-        peakHour.value.count ? Math.max(6, peakHour.value.count * 8) : 0
-      )
+      percent: peak ? Math.min(100, Math.max(6, peak * 8)) : 0,
+      hint: peak ? `出现在 ${peakHour.value.hour}` : '近 24 小时无数据'
     }
   ]
 })
@@ -258,7 +311,14 @@ const focused = computed(
   () => questions.value.find((q) => q.field === activeField.value) || questions.value[0]
 )
 
+const channelTotal = computed(() => channels.value.reduce((sum, c) => sum + (c.count || 0), 0))
+
 /* ---------- 工具 ---------- */
+function formatNum(value) {
+  const n = Number(value) || 0
+  return n.toLocaleString('zh-CN')
+}
+
 function cleanTitle(text) {
   if (!text) {
     return ''
@@ -286,16 +346,16 @@ function updateClock() {
   const d = new Date()
   const pad = (n) => String(n).padStart(2, '0')
   const week = ['日', '一', '二', '三', '四', '五', '六'][d.getDay()]
-  clock.value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} 周${week} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+  clockTime.value = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+  clockDate.value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} 周${week}`
 }
 
 /* ---------- 图表 ---------- */
+const pageRef = ref(null)
 const trendRef = ref(null)
 const pieRef = ref(null)
 const channelRef = ref(null)
 const charts = shallowRef({})
-
-const NEON = ['#22d3ee', '#2dd4bf', '#a78bfa', '#f472b6', '#fbbf24', '#60a5fa']
 
 function initCharts() {
   charts.value = {
@@ -305,14 +365,6 @@ function initCharts() {
   }
 }
 
-/** 渐变：由亮到透明，用于折线面积 */
-function areaGradient(color) {
-  return new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-    { offset: 0, color: color + '99' },
-    { offset: 1, color: color + '00' }
-  ])
-}
-
 function renderTrend() {
   const chart = charts.value.trend
   if (!chart) {
@@ -320,48 +372,88 @@ function renderTrend() {
   }
   const hours = hourly.value.map((h) => h.hour)
   const counts = hourly.value.map((h) => h.count)
+  const peak = peakHour.value
+  const empty = !counts.some((c) => c > 0)
   chart.setOption(
     {
-      grid: { left: 42, right: 20, top: 24, bottom: 28 },
+      // 只留轴线，不上满屏网格
+      grid: { left: 46, right: 26, top: 34, bottom: 28 },
       tooltip: {
+        ...TOOLTIP,
         trigger: 'axis',
-        backgroundColor: 'rgba(8,16,36,.92)',
-        borderColor: '#22d3ee66',
-        textStyle: { color: '#d7e6ff', fontSize: 12 }
+        axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(42,140,255,0.10)' } },
+        formatter: (params) => `${params[0].axisValue}<br/>回收 ${params[0].data.value} 份`
       },
       xAxis: {
         type: 'category',
         data: hours,
-        boundaryGap: false,
-        axisLine: { lineStyle: { color: '#1e3a5f' } },
-        axisLabel: { color: '#6f8db4', fontSize: 11, interval: 3 },
+        axisLine: { lineStyle: { color: 'rgba(42,140,255,0.35)' } },
+        axisLabel: { color: C.ink3, fontSize: 12, interval: 1 },
         axisTick: { show: false }
       },
       yAxis: {
         type: 'value',
+        minInterval: 1,
+        // 分桶计数用「刻度上限至少 2」，否则全是 1 的时候柱子顶到天花板
+        max: (v) => Math.max(2, Math.ceil((v.max || 1) * 1.35)),
         name: '份',
-        nameTextStyle: { color: '#6f8db4', fontSize: 11 },
-        axisLabel: { color: '#6f8db4', fontSize: 11 },
-        splitLine: { lineStyle: { color: '#12294a', type: 'dashed' } }
+        nameGap: 16,
+        nameTextStyle: { color: C.ink3, fontSize: 12, padding: [0, 0, 0, -26] },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { color: C.ink3, fontSize: 12 },
+        splitLine: { lineStyle: { color: C.split, type: 'dashed' } }
       },
       series: [
         {
-          type: 'line',
-          smooth: true,
-          showSymbol: false,
-          data: counts,
-          lineStyle: {
-            width: 2.5,
-            color: '#22d3ee',
-            shadowColor: '#22d3ee',
-            shadowBlur: 14
-          },
-          areaStyle: { color: areaGradient('#22d3ee') },
+          type: 'bar',
+          barMaxWidth: 14,
+          // 空小时也留一条浅底纹，24 小时的骨架一眼能读出来
+          showBackground: true,
+          backgroundStyle: { color: 'rgba(42,140,255,0.06)', borderRadius: [3, 3, 0, 0] },
+          data: counts.map((c) => ({
+            value: c,
+            itemStyle: {
+              borderRadius: [3, 3, 0, 0],
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: C.brandHi },
+                { offset: 1, color: 'rgba(42,140,255,0.35)' }
+              ])
+            }
+          })),
           emphasis: {
-            itemStyle: { color: '#67e8f9', borderColor: '#22d3ee', borderWidth: 2 }
-          }
+            itemStyle: { color: C.brandHi }
+          },
+          // 峰值是真正有信息量的点，用琥珀标出来（唯一使用点缀色的地方）
+          markPoint: empty
+            ? undefined
+            : {
+                symbol: 'circle',
+                symbolSize: 8,
+                data: [{ name: '峰值', coord: [peak.hour, peak.count] }],
+                itemStyle: { color: C.accent, borderColor: '#061428', borderWidth: 2 },
+                label: {
+                  show: true,
+                  position: 'top',
+                  distance: 9,
+                  color: C.accent,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  formatter: `峰值 ${peak.count} 份`
+                }
+              }
         }
-      ]
+      ],
+      graphic: empty
+        ? [
+            {
+              type: 'text',
+              left: 'center',
+              top: 'middle',
+              style: { text: '近 24 小时暂无回收数据', fill: C.ink3, fontSize: 14 }
+            }
+          ]
+        : []
     },
     true
   )
@@ -377,45 +469,74 @@ function renderPie() {
   chart.setOption(
     {
       tooltip: {
+        ...TOOLTIP,
         trigger: 'item',
-        backgroundColor: 'rgba(8,16,36,.92)',
-        borderColor: '#2dd4bf66',
-        textStyle: { color: '#d7e6ff', fontSize: 12 }
+        formatter: '{b}<br/>{c} 次 · 占 {d}%'
       },
       legend: {
         type: 'scroll',
         orient: 'vertical',
-        right: 8,
+        right: 12,
         top: 'center',
-        textStyle: { color: '#9fb6d4', fontSize: 12 },
-        itemWidth: 10,
-        itemHeight: 10,
-        pageTextStyle: { color: '#6f8db4' },
-        formatter: (name) => (name.length > 12 ? name.slice(0, 12) + '…' : name)
+        icon: 'circle',
+        itemWidth: 8,
+        itemHeight: 8,
+        itemGap: 12,
+        textStyle: { color: C.ink2, fontSize: 13 },
+        pageIconColor: C.brand,
+        pageIconInactiveColor: C.ink3,
+        pageTextStyle: { color: C.ink3, fontSize: 12 },
+        formatter: (name) => (name.length > 14 ? name.slice(0, 14) + '…' : name)
       },
-      color: NEON,
+      color: SERIES,
+      // 圆心放总量，比空着更有信息量
+      title: {
+        text: formatNum(q?.total || 0),
+        subtext: '次作答',
+        left: '31%',
+        top: '40%',
+        textAlign: 'center',
+        textStyle: { color: C.ink, fontSize: 30, fontWeight: 700 },
+        subtextStyle: { color: C.ink3, fontSize: 12 }
+      },
       series: [
         {
           type: 'pie',
-          radius: ['42%', '68%'],
+          // 内径 62%，标签外置（大屏规范）
+          radius: ['56%', '78%'],
           center: ['34%', '52%'],
           avoidLabelOverlap: true,
+          padAngle: 1.5,
           itemStyle: {
-            borderColor: '#08122a',
-            borderWidth: 2
+            borderColor: '#061428',
+            borderWidth: 2,
+            borderRadius: 3
           },
           label: {
-            color: '#cfe3ff',
+            color: C.ink2,
             fontSize: 12,
             formatter: '{d}%'
           },
-          labelLine: { lineStyle: { color: '#2b4a72' } },
-          data: data.map((a) => ({
-            name: cleanTitle(a.text),
-            value: a.count
-          }))
+          labelLine: { length: 8, length2: 8, lineStyle: { color: 'rgba(42,140,255,0.35)' } },
+          emphasis: {
+            scale: true,
+            scaleSize: 6,
+            label: { color: C.ink, fontSize: 13, fontWeight: 600 },
+            itemStyle: { shadowBlur: 18, shadowColor: 'rgba(42,140,255,0.5)' }
+          },
+          data: data.map((a) => ({ name: cleanTitle(a.text), value: a.count }))
         }
-      ]
+      ],
+      graphic: data.length
+        ? []
+        : [
+            {
+              type: 'text',
+              left: 'center',
+              top: 'middle',
+              style: { text: '该题暂无作答数据', fill: C.ink3, fontSize: 14 }
+            }
+          ]
     },
     true
   )
@@ -428,49 +549,63 @@ function renderChannel() {
   }
   const list = channels.value.slice(0, 6)
   const names = list.map((c) =>
-    c.channelId === '__none__' ? '默认渠道' : String(c.channelId).slice(0, 10)
+    c.channelId === '__none__' ? '默认渠道' : String(c.channelId).slice(0, 12)
   )
+  const max = list[0]?.count || 1
   chart.setOption(
     {
-      grid: { left: 8, right: 34, top: 12, bottom: 8, containLabel: true },
+      grid: { left: 4, right: 48, top: 10, bottom: 6, containLabel: true },
       tooltip: {
+        ...TOOLTIP,
         trigger: 'axis',
-        axisPointer: { type: 'shadow' },
-        backgroundColor: 'rgba(8,16,36,.92)',
-        borderColor: '#a78bfa66',
-        textStyle: { color: '#d7e6ff', fontSize: 12 }
+        axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(42,140,255,0.10)' } },
+        formatter: (params) => `${params[0].name}<br/>${params[0].data.value} 份`
       },
-      xAxis: { type: 'value', show: false },
+      xAxis: { type: 'value', show: false, max: max * 1.06 },
       yAxis: {
         type: 'category',
         data: names,
         inverse: true,
         axisLine: { show: false },
         axisTick: { show: false },
-        axisLabel: { color: '#9fb6d4', fontSize: 11 }
+        axisLabel: { color: C.ink2, fontSize: 12 }
       },
       series: [
         {
           type: 'bar',
+          barWidth: 12,
+          barMaxWidth: 16,
+          // 名次越靠前越亮，同色相深浅表达大小，不用彩虹
           data: list.map((c, i) => ({
             value: c.count,
             itemStyle: {
-              borderRadius: [0, 6, 6, 0],
+              borderRadius: [0, 5, 5, 0],
               color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-                { offset: 0, color: NEON[i % NEON.length] + '55' },
-                { offset: 1, color: NEON[i % NEON.length] }
+                { offset: 0, color: SERIES[i % 2] + '55' },
+                { offset: 1, color: SERIES[i % 2] }
               ])
             }
           })),
-          barWidth: 12,
           label: {
             show: true,
             position: 'right',
-            color: '#cfe3ff',
-            fontSize: 11
+            color: C.ink,
+            fontSize: 12,
+            fontWeight: 600,
+            formatter: '{c}'
           }
         }
-      ]
+      ],
+      graphic: list.length
+        ? []
+        : [
+            {
+              type: 'text',
+              left: 'center',
+              top: 'middle',
+              style: { text: '暂无渠道数据', fill: C.ink3, fontSize: 13 }
+            }
+          ]
     },
     true
   )
@@ -504,9 +639,7 @@ async function load() {
     rollTo('avgDuration', overview.value.avgDuration || 0)
     rollTo('peak', peakHour.value.count)
     lastUpdate.value = hhmm(new Date())
-    generatedAtText.value = d.generatedAt
-      ? '数据快照 ' + hhmm(d.generatedAt)
-      : ''
+    generatedAtText.value = d.generatedAt ? hhmm(d.generatedAt) : ''
     renderTrend()
     renderPie()
     renderChannel()
@@ -530,11 +663,38 @@ function exit() {
 
 let refreshTimer = null
 let clockTimer = null
+
+const BASE_W = 1920
+const BASE_H = 1080
+/**
+ * 大屏部署的常规做法：以 1920×1080 为基准画布，屏幕更大时整体等比放大。
+ * 这样 4K / 拼接屏上元素比例和 1080p 完全一致，不会出现"字太小、留白太多"。
+ * 比 1920 小的屏幕不做缩小（缩了字会看不清），交给 CSS 的自适应规则。
+ */
+function applyScale() {
+  const el = pageRef.value
+  if (!el) {
+    return
+  }
+  const scale = Math.min(window.innerWidth / BASE_W, window.innerHeight / BASE_H)
+  if (scale > 1.02) {
+    el.style.width = `${BASE_W}px`
+    el.style.height = `${BASE_H}px`
+    el.style.transform = `scale(${scale})`
+  } else {
+    el.style.width = ''
+    el.style.height = ''
+    el.style.transform = ''
+  }
+}
+
 function onResize() {
+  applyScale()
   Object.values(charts.value).forEach((c) => c?.resize?.())
 }
 
 onMounted(async () => {
+  applyScale()
   await loadTitle()
   initCharts()
   await load()
@@ -553,17 +713,38 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-$ink: #d7e6ff;
-$dim: #7f9ac0;
-$line: #16305a;
+// =============================================================================
+// 数据大屏 · 深蓝科技风（政务/企业数据驾驶舱）
+//   配色只用 4 类：深蓝底 / 亮蓝主 / 青蓝辅 / 琥珀点缀。不出现紫、粉、青绿。
+//   装饰克制：无彩色光斑、无扫描线、无四角括号、标题不做渐变文字。
+//   字号按「远距离观看」定：正文 ≥13px，KPI 数字 40px，主标题 36px。
+// =============================================================================
+$bg-0: #040d1a;
+$bg-1: #061a2f;
+$panel: rgba(20, 52, 92, 0.34);
+$panel-2: rgba(10, 28, 52, 0.5);
+$line: rgba(42, 140, 255, 0.2);
+$line-soft: rgba(42, 140, 255, 0.12);
+$brand: #2a8cff;
+$brand-hi: #4fd2ff;
+$accent: #ffb020;
+$ink: #e8f2ff;
+$ink-2: #9ab4d4;
+$ink-3: #6b88ab;
 
 .screen-page {
   position: fixed;
-  inset: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  background: #04081a;
+  background: $bg-0;
   color: $ink;
   font-family: var(--el-font-family);
+  font-variant-numeric: tabular-nums;
+  /* 大屏时由 JS 改成 1920x1080 画布 + scale()，原点留在左上角 */
+  transform-origin: 0 0;
 }
 
 /* ---------- 背景 ---------- */
@@ -573,62 +754,35 @@ $line: #16305a;
   overflow: hidden;
   pointer-events: none;
 
-  &__glow {
+  /* 顶部一束冷光，把视觉重心交给标题和主图 */
+  &__aurora {
     position: absolute;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.5;
-
-    &--1 {
-      width: 620px;
-      height: 620px;
-      left: -160px;
-      top: -200px;
-      background: radial-gradient(circle, #0ea5e9, transparent 70%);
-    }
-
-    &--2 {
-      width: 560px;
-      height: 560px;
-      right: -140px;
-      top: 8%;
-      background: radial-gradient(circle, #6366f1, transparent 70%);
-    }
-
-    &--3 {
-      width: 700px;
-      height: 700px;
-      left: 32%;
-      bottom: -320px;
-      background: radial-gradient(circle, #0d9488, transparent 70%);
-    }
+    inset: -30% 0 auto 0;
+    height: 90%;
+    background: radial-gradient(
+      58% 60% at 50% 0%,
+      rgba(42, 140, 255, 0.22),
+      rgba(42, 140, 255, 0.06) 45%,
+      transparent 72%
+    );
   }
 
+  /* 网格只作底纹，压到几乎看不见 */
   &__grid {
     position: absolute;
     inset: 0;
-    background-image: linear-gradient(#1e3a5f33 1px, transparent 1px),
-      linear-gradient(90deg, #1e3a5f33 1px, transparent 1px);
-    background-size: 46px 46px;
-    mask-image: radial-gradient(circle at 50% 45%, #000 20%, transparent 78%);
+    background-image: linear-gradient(rgba(42, 140, 255, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(42, 140, 255, 0.055) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(120% 80% at 50% 42%, #000 30%, transparent 88%);
   }
 
-  &__scan {
+  /* 边缘压暗，让中间的图表更跳 */
+  &__vignette {
     position: absolute;
-    left: 0;
-    right: 0;
-    height: 180px;
-    background: linear-gradient(180deg, transparent, #22d3ee14, transparent);
-    animation: scan 9s linear infinite;
-  }
-}
-
-@keyframes scan {
-  0% {
-    top: -180px;
-  }
-  100% {
-    top: 100%;
+    inset: 0;
+    background: radial-gradient(130% 100% at 50% 45%, transparent 52%, rgba(2, 8, 18, 0.72) 100%),
+      linear-gradient(180deg, $bg-1, $bg-0 42%);
   }
 }
 
@@ -637,104 +791,172 @@ $line: #16305a;
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 14px 20px 10px;
+  padding: 12px 20px 8px;
   box-sizing: border-box;
 }
 
 /* ---------- 顶栏 ---------- */
 .topbar {
   flex: none;
+  height: 76px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 12px;
-  border-bottom: 1px solid $line;
   position: relative;
 
+  /* 唯一的横贯装饰：一条极淡的分隔线 */
   &::after {
     content: '';
     position: absolute;
-    left: 50%;
-    bottom: -1px;
-    width: 220px;
-    height: 2px;
-    transform: translateX(-50%);
-    background: linear-gradient(90deg, transparent, #22d3ee, transparent);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(42, 140, 255, 0.35) 22%,
+      rgba(42, 140, 255, 0.35) 78%,
+      transparent
+    );
   }
 
-  &__side {
+  &__left,
+  &__right {
     flex: 1;
     display: flex;
     align-items: center;
     gap: 10px;
     font-size: 13px;
-    color: $dim;
+    color: $ink-2;
+    min-width: 0;
+  }
 
-    &--right {
-      justify-content: flex-end;
-    }
+  &__right {
+    justify-content: flex-end;
   }
 
   &__center {
     flex: none;
     text-align: center;
   }
+}
 
-  .title {
-    margin: 0;
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    background: linear-gradient(90deg, #7dd3fc, #5eead4, #a78bfa);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* 主标题左右对称细线：简洁、有仪式感，不靠渐变文字 */
+.title-rule {
+  width: 72px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(42, 140, 255, 0.85));
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -2px;
+    width: 5px;
+    height: 5px;
+    background: $brand;
+    transform: rotate(45deg);
   }
 
-  .subtitle {
-    margin: 4px 0 0;
-    font-size: 12px;
-    letter-spacing: 8px;
-    color: #4f6f9c;
-  }
-
-  .clock {
-    font-size: 14px;
-    color: #9fd8ea;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .exit-btn {
-    color: #6f8db4;
-    font-size: 13px;
-
-    &:hover {
-      color: #67e8f9;
-    }
+  &--flip {
+    transform: scaleX(-1);
   }
 }
 
-.live-dot {
-  width: 8px;
-  height: 8px;
+.title {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  line-height: 1.1;
+  color: $ink;
+  text-shadow: 0 2px 18px rgba(42, 140, 255, 0.35);
+}
+
+.subtitle {
+  margin: 5px 0 0;
+  font-size: 12px;
+  letter-spacing: 7px;
+  color: $ink-3;
+  text-indent: 7px;
+}
+
+.stat-dot {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 10px #22c55e;
-  animation: pulse 1.6s ease-in-out infinite;
+  background: #35d07f;
+  box-shadow: 0 0 0 3px rgba(53, 208, 127, 0.18);
+  animation: breathe 2.4s ease-in-out infinite;
 
   &.is-off {
-    background: #ef4444;
-    box-shadow: 0 0 10px #ef4444;
+    background: #ff6b6b;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.18);
+    animation: none;
   }
 }
 
-@keyframes pulse {
+@keyframes breathe {
   0%,
   100% {
     opacity: 1;
+    box-shadow: 0 0 0 3px rgba(53, 208, 127, 0.18);
   }
   50% {
-    opacity: 0.35;
+    opacity: 0.72;
+    box-shadow: 0 0 0 5px rgba(53, 208, 127, 0.08);
+  }
+}
+
+.stat-text {
+  font-size: 13px;
+  color: $ink-2;
+
+  &--dim {
+    color: $ink-3;
+  }
+}
+
+.stat-sep {
+  width: 1px;
+  height: 12px;
+  background: rgba(42, 140, 255, 0.28);
+}
+
+.clock {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+
+  &__time {
+    font-size: 22px;
+    font-weight: 700;
+    color: $brand-hi;
+    letter-spacing: 1px;
+    text-shadow: 0 0 14px rgba(79, 210, 255, 0.35);
+  }
+
+  &__date {
+    font-size: 13px;
+    color: $ink-3;
+  }
+}
+
+.exit-btn {
+  color: $ink-3;
+  font-size: 13px;
+
+  &:hover {
+    color: $brand-hi;
   }
 }
 
@@ -743,8 +965,8 @@ $line: #16305a;
   flex: auto;
   min-height: 0;
   display: grid;
-  grid-template-columns: 320px 1fr 340px;
-  /* 关键：显式给行高上限，否则三栏会被内容撑高、溢出视口 */
+  /* 1920 下 左右各 400，中间吃掉剩余（约 1080） */
+  grid-template-columns: 400px minmax(0, 1fr) 400px;
   grid-template-rows: minmax(0, 1fr);
   gap: 14px;
   padding-top: 14px;
@@ -755,44 +977,22 @@ $line: #16305a;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  /* 窄/矮屏时宁可让面板内部滚动，也不要溢出去压到页脚 */
+  overflow: hidden;
 }
 
+/* ---------- 面板 ---------- */
 .panel {
   position: relative;
-  background: linear-gradient(180deg, #0b1730ee, #07112999);
+  background: linear-gradient(180deg, $panel, $panel-2);
   border: 1px solid $line;
-  border-radius: 10px;
-  padding: 12px 14px 14px;
+  border-radius: 6px;
+  padding: 12px 16px 14px;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  box-shadow: inset 0 0 30px #0ea5e912;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    border: 2px solid #22d3ee;
-    opacity: 0.7;
-  }
-
-  &::before {
-    left: -1px;
-    top: -1px;
-    border-right: none;
-    border-bottom: none;
-    border-top-left-radius: 10px;
-  }
-
-  &::after {
-    right: -1px;
-    bottom: -1px;
-    border-left: none;
-    border-top: none;
-    border-bottom-right-radius: 10px;
-  }
+  /* 只在顶部一道高光 + 极弱外阴影，不做霓虹发光的四角括号 */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 14px rgba(0, 0, 0, 0.3);
 
   &--grow {
     flex: 1 1 auto;
@@ -805,104 +1005,128 @@ $line: #16305a;
     min-height: 0;
   }
 
-  /* 渠道分布数据少时不需要占满，给固定高度 */
-  &--fixed {
-    flex: 0 0 auto;
-    height: 230px;
+  /* 中栏主图给更大权重，趋势是主角 */
+  &--main {
+    flex: 1.25 1 0;
   }
 
-  &--kpi {
+  &--fixed {
     flex: 0 0 auto;
+    /* 渠道通常只有几条，不用占满一屏 */
+    height: 186px;
+  }
+
+  /* KPI 卡片保持自然高度：允许被压缩的话内容会溢出、被下一个面板盖住 */
+  &--kpi {
+    flex: none;
   }
 
   &__head {
     flex: none;
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 14px;
+    gap: 9px;
+    font-size: 15px;
     font-weight: 600;
-    color: #bfe1ff;
-    padding-bottom: 8px;
-    margin-bottom: 6px;
-    border-bottom: 1px dashed #17325c;
+    color: #cfe4ff;
+    padding-bottom: 9px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid $line-soft;
+    letter-spacing: 0.5px;
+  }
 
-    .bar {
-      width: 3px;
-      height: 14px;
-      background: linear-gradient(180deg, #67e8f9, #0891b2);
-      box-shadow: 0 0 8px #22d3ee;
-      border-radius: 2px;
-    }
+  /* 标题左侧短竖条：结构暗示，替代原来的四角括号 */
+  &__bar {
+    flex: none;
+    width: 3px;
+    height: 14px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, $brand-hi, $brand);
+    box-shadow: 0 0 8px rgba(42, 140, 255, 0.5);
   }
 
   &__extra {
     margin-left: auto;
     font-size: 12px;
     font-weight: 400;
-    color: $dim;
+    color: $ink-3;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    max-width: 46%;
+    max-width: 60%;
   }
 }
 
-/* ---------- KPI ---------- */
-.kpi-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* ---------- KPI（2×2 卡片，比竖排更像驾驶舱） ---------- */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .kpi {
+  position: relative;
+  padding: 12px 14px 11px;
+  border-radius: 5px;
+  background: rgba(42, 140, 255, 0.07);
+  border: 1px solid rgba(42, 140, 255, 0.16);
+
   &__label {
-    font-size: 12px;
-    color: $dim;
-    margin-bottom: 4px;
+    font-size: 13px;
+    color: $ink-2;
+    letter-spacing: 0.5px;
   }
 
   &__value {
     display: flex;
     align-items: baseline;
-    gap: 4px;
-  }
-
-  .num {
-    font-size: 30px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: #7ef0e0;
-    text-shadow: 0 0 18px #22d3ee77;
-    line-height: 1.1;
-  }
-
-  .unit {
-    font-size: 12px;
-    color: $dim;
-  }
-
-  &__bar {
+    gap: 5px;
     margin-top: 6px;
+  }
+
+  &__num {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    color: $ink;
+    text-shadow: 0 2px 14px rgba(42, 140, 255, 0.35);
+  }
+
+  &__unit {
+    font-size: 12px;
+    color: $ink-3;
+  }
+
+  &__meter {
+    margin-top: 9px;
     height: 3px;
-    background: #102445;
     border-radius: 2px;
+    background: rgba(42, 140, 255, 0.14);
     overflow: hidden;
 
-    span {
+    i {
       display: block;
       height: 100%;
       border-radius: 2px;
-      background: linear-gradient(90deg, #0891b2, #5eead4);
-      box-shadow: 0 0 8px #22d3ee88;
-      transition: width 0.7s ease;
+      background: linear-gradient(90deg, rgba(42, 140, 255, 0.5), $brand-hi);
+      transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
     }
+  }
+
+  &__hint {
+    margin-top: 7px;
+    font-size: 12px;
+    color: $ink-3;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 }
 
-/* ---------- 各题分布 ---------- */
-.question-list {
+/* ---------- 各题分布（排行榜式） ---------- */
+.rank-list {
   flex: auto;
+  min-height: 0;
   overflow-y: auto;
   padding-right: 4px;
 
@@ -911,53 +1135,78 @@ $line: #16305a;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #1e3a5f;
+    background: rgba(42, 140, 255, 0.28);
     border-radius: 2px;
   }
 }
 
-.question {
-  padding: 8px 10px;
-  border-radius: 8px;
+.rank {
+  padding: 9px 10px 10px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background 0.2s;
   border: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+  margin-bottom: 6px;
 
   &:hover {
-    background: #0f2444;
+    background: rgba(42, 140, 255, 0.07);
   }
 
   &.is-active {
-    background: #0e2a4d;
-    border-color: #22d3ee55;
+    background: rgba(42, 140, 255, 0.12);
+    border-color: rgba(42, 140, 255, 0.4);
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+  }
+
+  &__idx {
+    flex: none;
+    font-size: 12px;
+    font-weight: 700;
+    color: $brand;
+    opacity: 0.9;
+    letter-spacing: 0.5px;
   }
 
   &__title {
-    font-size: 12px;
-    color: #a8c6e8;
-    margin-bottom: 6px;
+    flex: auto;
+    min-width: 0;
+    font-size: 13px;
+    color: #b7cde9;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
+  &__total {
+    flex: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: $brand-hi;
+  }
+
   &__rows {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 5px;
   }
 }
 
-.qrow {
+.rrow {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: 8px;
+  font-size: 12px;
 
   &__name {
     flex: none;
-    width: 74px;
-    color: $dim;
+    width: 88px;
+    color: $ink-3;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -965,27 +1214,36 @@ $line: #16305a;
 
   &__track {
     flex: auto;
-    height: 6px;
-    background: #102445;
+    height: 5px;
     border-radius: 3px;
+    background: rgba(42, 140, 255, 0.12);
     overflow: hidden;
+
+    i {
+      display: block;
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, rgba(42, 140, 255, 0.55), $brand-hi);
+      transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
   }
 
-  &__fill {
-    display: block;
-    height: 100%;
-    border-radius: 3px;
-    background: linear-gradient(90deg, #0d9488, #5eead4);
-    transition: width 0.6s ease;
-  }
-
-  &__num {
+  &__val {
     flex: none;
-    width: 30px;
+    width: 34px;
     text-align: right;
-    color: #7ef0e0;
+    color: #cfe4ff;
     font-variant-numeric: tabular-nums;
   }
+}
+
+.empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: $ink-3;
 }
 
 /* ---------- 图表 ---------- */
@@ -993,40 +1251,29 @@ $line: #16305a;
   flex: auto;
   min-height: 0;
   width: 100%;
-
-  &--trend {
-    height: 100%;
-  }
-
-  &--pie {
-    height: 100%;
-  }
-
-  &--channel {
-    height: 100%;
-  }
+  height: 100%;
 }
 
 /* ---------- 最新答卷 ---------- */
 .feed {
   flex: auto;
+  min-height: 0;
   overflow: hidden;
-  position: relative;
 
   &__item {
     display: flex;
-    gap: 8px;
-    padding: 7px 8px;
-    border-radius: 6px;
-    background: #0c1c37;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    background: rgba(42, 140, 255, 0.06);
+    border-left: 2px solid rgba(42, 140, 255, 0.55);
     margin-bottom: 6px;
-    border-left: 2px solid #22d3ee88;
   }
 
   &__time {
     flex: none;
-    font-size: 11px;
-    color: #5eead4;
+    font-size: 12px;
+    color: $brand-hi;
     font-variant-numeric: tabular-nums;
     padding-top: 1px;
   }
@@ -1038,22 +1285,24 @@ $line: #16305a;
 
   &__line {
     display: flex;
-    gap: 6px;
-    font-size: 11px;
-    line-height: 16px;
+    gap: 8px;
+    font-size: 12px;
+    line-height: 18px;
   }
 
   &__q {
     flex: none;
-    max-width: 78px;
-    color: $dim;
+    max-width: 88px;
+    color: $ink-3;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   &__a {
-    color: #cfe3ff;
+    flex: auto;
+    min-width: 0;
+    color: #cfe4ff;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1061,49 +1310,158 @@ $line: #16305a;
 
   &__flag {
     flex: none;
-    align-self: center;
-    font-size: 10px;
-    color: #fbbf24;
-    border: 1px solid #fbbf2466;
+    align-self: flex-start;
+    padding: 1px 7px;
     border-radius: 3px;
-    padding: 0 4px;
+    font-size: 11px;
+    color: $accent;
+    background: rgba(255, 176, 32, 0.14);
+    border: 1px solid rgba(255, 176, 32, 0.35);
   }
 }
 
+/* 新答卷进来时淡入一下就够了，不做满屏动效 */
 .feed-enter-active {
-  transition: all 0.5s ease;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
 .feed-enter-from {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-6px);
 }
 
-.empty {
-  color: #3f5c85;
-  font-size: 12px;
-  text-align: center;
-  padding: 24px 0;
-}
-
-/* ---------- 状态栏 ---------- */
+/* ---------- 状态条 ---------- */
 .statusbar {
   flex: none;
+  height: 30px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-top: 8px;
-  font-size: 11px;
-  color: #40608c;
+  gap: 12px;
+  font-size: 12px;
+  color: $ink-3;
 
   &__sep {
     width: 1px;
     height: 10px;
-    background: #24446f;
+    background: rgba(42, 140, 255, 0.22);
   }
 
   &__spacer {
     flex: auto;
+  }
+
+  &__brand {
+    color: rgba(42, 140, 255, 0.75);
+    letter-spacing: 1px;
+  }
+}
+
+/* ---------- 适配 ---------- */
+/* 4K / 超宽：左右栏和字号一起放大 */
+@media (min-width: 2400px) {
+  .grid {
+    grid-template-columns: 460px minmax(0, 1fr) 460px;
+  }
+
+  .title {
+    font-size: 42px;
+  }
+
+  .kpi__num {
+    font-size: 38px;
+  }
+
+  .panel__head {
+    font-size: 16px;
+  }
+}
+
+/* 笔记本外接屏（1440~1600）：收窄两翼，保证中间主图宽度 */
+@media (max-width: 1680px) {
+  .grid {
+    grid-template-columns: 344px minmax(0, 1fr) 344px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .title-rule {
+    width: 54px;
+  }
+}
+
+@media (max-width: 1440px) {
+  .grid {
+    grid-template-columns: 310px minmax(0, 1fr) 310px;
+    gap: 12px;
+  }
+
+  .col {
+    gap: 12px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .kpi__num {
+    font-size: 28px;
+  }
+
+  .panel--fixed {
+    height: 160px;
+  }
+}
+
+/* 矮屏（投影/笔记本 768 高）：整体收紧，仍然保证正文 ≥12px */
+@media (max-height: 900px) {
+  .topbar {
+    height: 66px;
+  }
+
+  .title {
+    font-size: 30px;
+  }
+
+  .grid {
+    padding-top: 12px;
+    gap: 12px;
+  }
+
+  .col {
+    gap: 12px;
+  }
+
+  .panel {
+    padding: 10px 14px 11px;
+  }
+
+  .panel__head {
+    font-size: 14px;
+    padding-bottom: 7px;
+    margin-bottom: 6px;
+  }
+
+  .kpi {
+    padding: 9px 12px 9px;
+  }
+
+  .kpi__label {
+    font-size: 12px;
+  }
+
+  .kpi__num {
+    font-size: 26px;
+  }
+
+  .kpi__hint {
+    margin-top: 5px;
+    font-size: 11px;
+  }
+
+  .kpi__meter {
+    margin-top: 7px;
   }
 }
 </style>
