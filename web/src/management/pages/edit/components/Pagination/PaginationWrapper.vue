@@ -104,7 +104,7 @@ const addPageControls = () => {
     cursor: pointer;
 
     &:hover {
-      color: $primary-color;
+      color: var(--sk-teal-deep, #2fa596);
     }
   }
 }
@@ -122,7 +122,7 @@ const addPageControls = () => {
     margin-left: 12px;
 
     &:hover {
-      color: $primary-color;
+      color: var(--sk-teal-deep, #2fa596);
     }
   }
 }

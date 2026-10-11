@@ -13,7 +13,6 @@ import { SurveyController } from './controllers/survey.controller';
 import { SurveyHistoryController } from './controllers/surveyHistory.controller';
 import { SurveyMetaController } from './controllers/surveyMeta.controller';
 import { SurveyUIController } from './controllers/surveyUI.controller';
-import { CollaboratorController } from './controllers/collaborator.controller';
 import { DownloadTaskController } from './controllers/downloadTask.controller';
 import { SessionController } from './controllers/session.controller';
 import { SurveyGroupController } from './controllers/surveyGroup.controller';
@@ -71,7 +70,6 @@ import { Session } from 'src/models/session.entity';
     SurveyHistoryController,
     SurveyMetaController,
     SurveyUIController,
-    CollaboratorController,
     DownloadTaskController,
     SessionController,
     SurveyGroupController,

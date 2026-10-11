@@ -129,8 +129,8 @@ const onClose = () => {
     }
 
     .active {
-      border-color: $primary-color;
-      color: $primary-color;
+      border-color: var(--sk-teal-deep, #2fa596);
+      color: var(--sk-teal-deep, #2fa596);
     }
 
     .border-left-none {
@@ -147,8 +147,8 @@ const onClose = () => {
       border: 1px solid rgba(227, 228, 232, 1);
       cursor: pointer;
       &:hover {
-        border-color: $primary-color;
-        color: $primary-color;
+        border-color: var(--sk-teal-deep, #2fa596);
+        color: var(--sk-teal-deep, #2fa596);
       }
     }
   }
@@ -237,7 +237,7 @@ const onClose = () => {
     width: 100%;
     align-items: center;
     background: $primary-bg-color;
-    color: $primary-color;
+    color: var(--sk-teal-deep, #2fa596);
     font-size: 12px;
     padding: 2px 0;
     padding-left: 9px;

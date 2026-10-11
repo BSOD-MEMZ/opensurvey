@@ -7,7 +7,7 @@ export default [
   {
     title: '提交限制',
     key: 'limitConfig',
-    formList: ['limit_tLimit', 'limit_fillAnswer', 'limit_fillSubmitAnswer']
+    formList: ['limit_tLimit', 'limit_fillAnswer', 'limit_fillSubmitAnswer', 'limit_repeatAnswer']
   },
   {
     title: '考试设置',

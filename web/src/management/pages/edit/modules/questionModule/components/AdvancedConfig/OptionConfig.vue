@@ -231,7 +231,7 @@ export default {
 
 <style lang="scss" scoped>
 .primary-color {
-  color: $primary-color;
+  color: var(--sk-teal-deep, #2fa596);
 }
 
 .option-config-wrapper {
@@ -345,7 +345,7 @@ export default {
     }
 
     .add-btn-row {
-      color: $primary-color;
+      color: var(--sk-teal-deep, #2fa596);
       display: flex;
       align-items: center;
       .add-option {

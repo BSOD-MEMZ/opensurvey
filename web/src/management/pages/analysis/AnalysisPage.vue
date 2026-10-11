@@ -56,7 +56,8 @@ const route = useRoute()
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background-color: #f6f7f9;
+    /* 透明底 + 玻璃导航条，让 pjsk 渐变背景透上来 */
+    background-color: transparent;
 
     .analysis-tabs {
       flex: none;
@@ -70,8 +71,9 @@ const route = useRoute()
       justify-content: center;
       align-items: center;
       padding: 0 24px;
-      background-color: #fff;
-      border-bottom: 1px solid #e7e9eb;
+      background-color: rgba(255, 255, 255, 0.66);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(230, 233, 242, 0.9);
 
       &__item {
         cursor: pointer;

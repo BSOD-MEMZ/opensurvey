@@ -4,16 +4,12 @@ import { set as _set, isNumber as _isNumber } from 'lodash-es'
 import { QUESTION_TYPE } from '@/common/typeEnum'
 import { getQuestionByType } from '@/management/utils/index'
 
-import { SurveyPermissions } from '@/management/utils/workSpace'
-import { getCollaboratorPermissions } from '@/management/api/space'
 
 import useInitializeSchema from './composables/useInitializeSchema'
 import useBaseConfig from './composables/useBaseConfig'
 import useQuestionData from './composables/useQuestionData'
 import useCurrentEdit from './composables/useCurrentEdit'
 import usePageEdit from './composables/usePageEdit'
-
-import { CODE_MAP } from '../api/base'
 
 export const useEditStore = defineStore('edit', () => {
   const surveyId = ref('')
@@ -39,17 +35,6 @@ export const useEditStore = defineStore('edit', () => {
     }
     currentEditOne.value = null
     currentEditStatus.value = 'Success'
-  }
-
-  // 问卷协作权限
-  const cooperPermissions = ref(Object.values(SurveyPermissions))
-  const fetchCooperPermissions = async (id: string) => {
-    const res: any = await getCollaboratorPermissions(id)
-    if (res.code === CODE_MAP.SUCCESS) {
-      cooperPermissions.value = res.data.permissions
-    }
-
-    return res.data.permissions
   }
 
   // 问卷题目列表
@@ -183,8 +168,6 @@ export const useEditStore = defineStore('edit', () => {
     surveyId,
     sessionId,
     setSurveyId,
-    cooperPermissions,
-    fetchCooperPermissions,
 
     currentEditOne,
     moduleConfig,

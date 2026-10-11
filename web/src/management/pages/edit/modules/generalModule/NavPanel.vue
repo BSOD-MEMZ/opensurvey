@@ -57,30 +57,37 @@ const routes = [
 
   .navbar-btn {
     position: relative;
-    color: #92949d;
+    /* 之前是 #92949d，压在浅色渐变背景上几乎看不清，加深一档 */
+    color: var(--sk-ink-2, #5d5d80);
     padding: 0 20px;
     cursor: pointer;
+    transition: color 0.16s ease;
+
     a {
       color: inherit;
     }
+
+    &:hover {
+      color: var(--sk-teal-deep, #2fa596);
+    }
+
     &.router-link-exact-active {
-      color: $font-color-title;
+      color: var(--sk-ink, #444466);
+      font-weight: 700;
 
       &::before {
         content: '';
         position: absolute;
         width: 90px;
         height: 3px;
-        background-color: $primary-color;
+        border-radius: 999px;
+        background-color: var(--sk-teal, #77eedd);
         bottom: -16px;
         left: 20px;
         z-index: 99;
       }
     }
 
-    // &.router-link-exact-active {
-    //   color: #4a4c5b;
-    // }
     .iconfont {
       margin-right: 12px;
     }

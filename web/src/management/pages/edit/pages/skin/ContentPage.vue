@@ -27,7 +27,5 @@ import SetterPanel from '../../modules/skinModule/SetterPanel.vue'
 // })
 </script>
 <style lang="scss" scoped>
-.navbar {
-  border-bottom: 1px solid #e7e9eb;
-}
+/* 同编辑页：外壳样式统一在 CommonTemplate */
 </style>

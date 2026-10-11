@@ -55,14 +55,14 @@ const handleFormChange = ({ key, value }: any) => {
   width: 360px;
   height: 100%;
   overflow-y: auto;
-  background-color: #ffffff;
+  background-color: transparent;
 }
 
 .setter-title {
   height: 40px;
   line-height: 40px;
   font-size: 14px;
-  color: $primary-color;
+  color: var(--sk-teal-deep, #2fa596);
   padding-left: 20px;
   // background: #f9fafc;
   border-bottom: 1px solid #edeffc;

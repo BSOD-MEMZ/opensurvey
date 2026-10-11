@@ -16,14 +16,15 @@
     </div>
     <div class="separate-item-content">
       <div class="chart-wrapper">
-        <div ref="chartRef" class="chart"></div>
         <div v-if="chartTypeList.length > 1" class="chart-type-list">
-          <el-segmented v-model="chartType" :options="chartTypeList" size="small">
-            <template #default="{ item }">
-              <i class="iconfont" :class="`icon-${item}`"></i>
-            </template>
-          </el-segmented>
+          <el-radio-group v-model="chartType" size="small">
+            <el-radio-button v-for="item in chartTypeList" :key="item" :value="item">
+              {{ CHART_LABELS[item] || item }}
+            </el-radio-button>
+          </el-radio-group>
         </div>
+        <WordCloud v-if="chartType === 'wordCloud'" :data="chartData" />
+        <div v-show="chartType !== 'wordCloud'" ref="chartRef" class="chart"></div>
       </div>
       <div class="table-wrapper">
         <data-table :table-data :table-min-height />
@@ -45,7 +46,16 @@ import useStatisticsItemChart from '@/management/hooks/useStatisticsItemChart'
 import { cleanRichText } from '@/common/xss'
 import { menuItems } from '@/management/config/questionMenuConfig'
 import DataTable from './DataTable.vue'
+import WordCloud from './WordCloud.vue'
 import useResizeObserver from '@/management/hooks/useResizeObserver'
+
+// 图表类型的中文名（原来靠 iconfont 的 icon-pie / icon-bar，词云没有对应字形）
+const CHART_LABELS = {
+  pie: '饼图',
+  bar: '柱状图',
+  gauge: '仪表盘',
+  wordCloud: '词云'
+}
 
 const props = defineProps({
   StatisticsData: {
@@ -133,10 +143,15 @@ const { chartRef, chartTypeList, chartType, chartData } = useStatisticsItemChart
 })
 
 onMounted(() => {
-  // 需要获取图表dom，所以得在mounted中执行
+  // 需要获取图表dom，所以得在mounted中执行。
+  // 词云不是 echarts 图表，初始化时先挑一个 echarts 类型占位（真的用到时再 changeType）
+  const initType =
+    chartType.value === 'wordCloud'
+      ? chartTypeList.value.find((item) => item !== 'wordCloud') || 'bar'
+      : chartType.value
   const { changeType, resize: chartResize } = useCharts(
     chartRef.value,
-    chartType.value,
+    initType,
     chartData.value
   )
 
@@ -145,9 +160,11 @@ onMounted(() => {
     titleResize()
   })
 
-  // 图型切换
+  // 图型切换（词云不走 echarts，跳过）
   watch(chartType, () => {
+    if (chartType.value === 'wordCloud') return
     changeType(chartType.value, chartData.value)
+    chartResize()
   })
 
   // 销毁resizeObserver
@@ -157,18 +174,22 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .separate-item {
-  padding: 32px 12px;
-  border-bottom: 1px solid #efefef;
+  padding: 22px 26px 26px;
+  margin-bottom: 18px;
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(10px);
+  border-radius: var(--sk-r-lg, 18px);
+  box-shadow: 0 6px 22px rgba(68, 68, 102, 0.09);
 
   &:nth-last-of-type(1) {
-    border-bottom: none;
+    margin-bottom: 0;
   }
 
   &-title {
     font-size: 16px;
-    color: #333;
-    font-weight: 600;
-    margin-bottom: 24px;
+    color: var(--sk-ink, #444466);
+    font-weight: 700;
+    margin-bottom: 18px;
     display: flex;
     align-items: center;
 
@@ -182,17 +203,18 @@ onMounted(() => {
     .type {
       font-size: 12px;
       margin-left: 8px;
-      color: white;
-      background-color: var(--primary-color);
-      border-radius: 7px 3px;
-      padding: 2px 6px;
+      color: var(--sk-teal-ink, #1f8a7d);
+      background-color: #e4fcf8;
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-weight: 600;
     }
   }
 
   &-content {
     display: flex;
     justify-content: space-between;
-    gap: 50px;
+    gap: 24px;
 
     .chart-wrapper {
       position: relative;
@@ -201,17 +223,21 @@ onMounted(() => {
       min-width: 300px;
       height: 320px;
       max-width: 1000px;
-      box-shadow: 0 2px 8px -2px rgba(136, 136, 157, 0.2);
-      border-radius: 2px;
-      padding: 24px;
+      background: #fff;
+      border-radius: var(--sk-r, 12px);
+      box-shadow: 0 2px 8px rgba(68, 68, 102, 0.06);
+      padding: 42px 18px 18px;
 
       .chart-type-list {
         position: absolute;
-        left: 0;
-        top: 0;
+        left: 12px;
+        top: 11px;
+        z-index: 2;
 
-        .iconfont {
+        :deep(.el-radio-button__inner) {
+          padding: 5px 12px;
           font-size: 12px;
+          font-weight: 600;
         }
       }
 
@@ -231,7 +257,7 @@ onMounted(() => {
 
   @media screen and (min-width: 1660px) {
     &-content {
-      gap: 80px;
+      gap: 40px;
 
       .chart-wrapper {
         height: 400px;

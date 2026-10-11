@@ -170,7 +170,7 @@ const showPreview = ({ snapshot }, id) => {
 .box .qtopic-item {
   height: 2px;
   width: 100%;
-  background-color: var(--primary-color);
+  background-color: var(--sk-teal, #77eedd);
   * {
     display: none;
   }

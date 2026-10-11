@@ -43,7 +43,9 @@ import {
   clearSurveyData,
   setSurveyData,
   clearSurveySubmit,
-  setSurveySubmit
+  setSurveySubmit,
+  setSurveyAnswered,
+  getRespondentId
 } from '../utils/storage'
 
 interface Props {
@@ -93,6 +95,8 @@ const normalizationRequestBody = () => {
     data: JSON.stringify(formValues),
     diffTime: Date.now() - enterTime,
     clientTime: Date.now(),
+    // 服务端据此判断「同一人是否已经提交过」（作者没放开重复作答时生效）
+    respondentId: getRespondentId(),
     ...whiteData.value
   }
 
@@ -133,6 +137,8 @@ const submitSurvey = async () => {
     const params = normalizationRequestBody()
     const res: any = await submitForm(params)
     if (res.code === 200) {
+      // 记下「这份问卷这台设备已经交过了」，用于「是否允许重复作答」的判定
+      setSurveyAnswered(surveyPath.value)
       // 考试模式：服务端会带回 score / fullScore / accuracy，成功页展示
       if (res.data && typeof res.data.score === 'number') {
         surveyStore.setExamResult(res.data)
@@ -143,8 +149,14 @@ const submitSurvey = async () => {
         title: res.errmsg || '提交失败'
       })
       if (res.code === 9003 && res.data) {
+        // 选项配额满了：清掉该题重选
         surveyStore.changeData({ key: res.data.field, value: null })
         questionStore.initOptionCountInfo()
+      }
+      if (res.code === 9003 && !res.data) {
+        // 服务端判定「你已经提交过这份问卷」（本机可能清过缓存）：
+        // 补上本地标记，之后再打开就是已提交提示页
+        setSurveyAnswered(surveyPath.value)
       }
     }
   } catch (error) {

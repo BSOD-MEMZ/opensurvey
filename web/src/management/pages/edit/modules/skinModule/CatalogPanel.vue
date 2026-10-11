@@ -98,12 +98,12 @@ const changePreset = (banner: any) => {
   box-shadow: none;
   border: none;
   overflow-y: auto;
-  background-color: #fff;
+  background-color: transparent;
   .title {
     height: 40px;
     line-height: 40px;
     font-size: 14px;
-    color: $primary-color;
+    color: var(--sk-teal-deep, #2fa596);
     padding-left: 20px;
     // background: #f9fafc;
     border-bottom: 1px solid #edeffc;
@@ -120,7 +120,7 @@ const changePreset = (banner: any) => {
       cursor: pointer;
       flex: auto;
       &.current {
-        color: $primary-color;
+        color: var(--sk-teal-deep, #2fa596);
         background-color: $primary-bg-color;
       }
     }

@@ -75,17 +75,22 @@ const handleFormChange = ({ key, value }: any) => {
     .question-config-main {
       .config-item {
         position: relative;
-        margin-bottom: 20px;
-        padding: 19px 32px;
-        background-color: $background-color-light;
+        margin-bottom: 18px;
+        padding: 22px 28px;
+        /* 玻璃卡片：不再是一整块死白，背景能透上来 */
+        background: var(--sk-glass, rgba(255, 255, 255, 0.72));
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: var(--sk-r-lg, 18px);
+        box-shadow: 0 8px 26px rgba(68, 68, 102, 0.1);
 
         .config-title {
-          font-size: 18px;
-          color: $font-color-stress;
+          font-size: 17px;
+          color: var(--sk-ink, #444466);
           text-align: left;
-          padding-bottom: 19px;
+          padding-bottom: 16px;
           margin-bottom: 10px;
-          border-bottom: 1px solid $border-color;
+          border-bottom: 1px dashed var(--sk-line, #e6e9f2);
 
           span {
             position: relative;
@@ -93,10 +98,11 @@ const handleFormChange = ({ key, value }: any) => {
             &:after {
               position: absolute;
               left: 0;
-              top: 42px;
+              top: 34px;
               width: 100%;
               height: 3px;
-              background-color: $primary-color;
+              border-radius: 999px;
+              background-color: var(--sk-teal, #77eedd);
               content: '';
             }
           }

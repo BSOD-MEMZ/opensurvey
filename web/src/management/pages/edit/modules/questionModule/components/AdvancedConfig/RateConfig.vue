@@ -134,7 +134,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .primary-color {
-  color: $primary-color;
+  color: var(--sk-teal-deep, #2fa596);
 }
 
 .row {

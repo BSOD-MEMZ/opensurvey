@@ -39,7 +39,7 @@ const moduleConfig = toRef(schema, 'submitConf')
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: var(--primary-background);
+  background: var(--primary-background, transparent);
 }
 
 .result-page-wrap {

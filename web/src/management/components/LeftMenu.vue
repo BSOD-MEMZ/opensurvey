@@ -29,15 +29,13 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { useEditStore } from '@/management/stores/edit'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 const route = useRoute()
 import LogoIcon from './LogoIcon.vue'
-import { SurveyPermissions } from '@/management/utils/workSpace'
-const editStore = useEditStore()
 
-const tabArr = [
+// 协作功能已下线，不再按协作权限过滤菜单，三个目录恒定展示
+const tabs = ref([
   {
     text: '编辑问卷',
     icon: 'icon-bianji',
@@ -59,32 +57,19 @@ const tabArr = [
       name: 'analysisPage'
     }
   }
-]
-const tabs = ref([])
-watch(
-  () => editStore.cooperPermissions,
-  (newVal) => {
-    tabs.value = []
-    // 如果有问卷管理权限，则加入问卷编辑和投放菜单
-    if (newVal.includes(SurveyPermissions.SurveyManage)) {
-      tabs.value.push(tabArr[0])
-      tabs.value.push(tabArr[1])
-    }
-    // 如果有数据分析权限，则加入数据分析菜单
-    if (newVal.includes(SurveyPermissions.DataManage)) {
-      tabs.value.push(tabArr[2])
-    }
-  },
-  { immediate: true }
-)
+])
 </script>
 <style lang="scss" scoped>
 .nav {
   width: 80px;
   height: 100%;
-  background-color: #fff;
+  /* 左侧栏也走玻璃：别在渐变背景上压一整块死白 */
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 4px 0 18px rgba(68, 68, 102, 0.08);
   font-size: 12px;
-  box-shadow: 2px 0 10px 0 rgba(173, 200, 218, 0.26);
+  padding-top: 6px;
 }
 
 .tab-btn {
@@ -111,7 +96,8 @@ watch(
     align-items: center;
     justify-content: center;
     margin-bottom: 5px;
-    border-radius: 2px;
+    border-radius: 999px;
+    transition: background-color 0.16s ease, color 0.16s ease;
 
     .iconfont {
       font-size: 20px;
@@ -124,11 +110,13 @@ watch(
   }
 
   &.router-link-active {
-    background-color: $background-color-light;
-    color: #2b2c33;
+    background-color: transparent;
+    color: var(--sk-teal-ink, #1f8a7d);
 
     .icon {
-      background-color: $primary-color;
+      background-color: var(--sk-teal, #77eedd);
+      color: #2f3a5c;
+      box-shadow: 0 4px 12px rgba(119, 238, 221, 0.5);
     }
   }
 }

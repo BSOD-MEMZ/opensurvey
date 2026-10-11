@@ -116,6 +116,7 @@ export class SurveyResponseController {
       diffTime: Joi.number(),
       password: Joi.string().allow(null, ''),
       whitelist: Joi.string().allow(null, ''),
+      respondentId: Joi.string().allow(null, '').max(64),
     }).validate(reqBody, { allowUnknown: true });
 
     if (error) {
@@ -156,6 +157,7 @@ export class SurveyResponseController {
       password,
       whitelist: whitelistValue,
       data: formValues,
+      respondentId,
     } = params;
 
     // 查询schema
@@ -247,6 +249,21 @@ export class SurveyResponseController {
       }
     }
 
+    // 同一人只能提交一次（作者可在「问卷设置 → 提交限制」里放开）
+    if (!baseConf?.repeatAnswer && respondentId) {
+      const answered =
+        await this.surveyResponseService.getResponseCountByRespondent({
+          surveyPath,
+          respondentId,
+        });
+      if (answered > 0) {
+        throw new HttpException(
+          '该问卷不支持重复作答，你已经提交过了',
+          EXCEPTION_CODE.RESPONSE_OVER_LIMIT,
+        );
+      }
+    }
+
     // 生成一个optionTextAndId字段，因为选项文本可能会改，该字段记录当前提交的文本
     const dataList = responseSchema.code.dataConf.dataList;
     const optionTextAndId: Record<
@@ -302,6 +319,7 @@ export class SurveyResponseController {
       surveyId: responseSchema.pageId,
       optionTextAndId,
       channelId: params.channelId,
+      ...(respondentId ? { respondentId } : {}),
       ...(examResult
         ? { score: examResult.score, examDetail: examResult.detail }
         : {}),

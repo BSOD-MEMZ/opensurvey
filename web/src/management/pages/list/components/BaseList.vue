@@ -105,7 +105,6 @@
       :menu-type="menuType"
       @on-close-codify="onCloseModify"
     />
-    <CooperModify :modifyId="cooperId" :visible="cooperModify" @on-close-codify="onCooperClose" />
   </div>
 </template>
 
@@ -120,7 +119,6 @@ import 'element-plus/theme-chalk/src/message.scss'
 import 'element-plus/theme-chalk/src/message-box.scss'
 
 import EmptyIndex from '@/management/components/EmptyIndex.vue'
-import CooperModify from '@/management/components/CooperModify/ModifyDialog.vue'
 import { CODE_MAP } from '@/management/api/base'
 import { QOP_MAP } from '@/management/utils/constant.ts'
 import { deleteSurvey, pausingSurvey } from '@/management/api/survey'
@@ -133,7 +131,6 @@ import ToolBar from './ToolBar.vue'
 import TextSearch from './TextSearch.vue'
 import TextSelect from './TextSelect.vue'
 import TextButton from './TextButton.vue'
-import { SurveyPermissions } from '@/management/utils/workSpace'
 
 import {
   fieldConfig,
@@ -225,8 +222,8 @@ const onRefresh = async () => {
 }
 
 const getToolConfig = (row) => {
-  let funcList = []
-  const permissionsBtn = [
+  // 协作功能已下线：列表里每一行都是当前用户自己的问卷，直接给出全部操作
+  const funcList = [
     {
       key: QOP_MAP.EDIT,
       label: '修改'
@@ -252,59 +249,9 @@ const getToolConfig = (row) => {
     {
       key: subStatus.pausing.value,
       label: '暂停'
-    },
-    {
-      key: 'cooper',
-      label: '协作'
     }
   ]
-  if (!row.isCollaborated) {
-    // 创建人显示协作按钮
-    funcList = funcList.concat(permissionsBtn)
-  } else {
-    if (row.currentPermissions.includes(SurveyPermissions.DataManage)) {
-      // 协作人判断权限显示数据分析按钮
-      funcList.push({
-        key: 'analysis',
-        label: '数据'
-      })
-    }
-    if (row.currentPermissions.includes(SurveyPermissions.SurveyManage)) {
-      // 协作人判断权限显示投放按钮
-      funcList.push(
-        {
-          key: subStatus.pausing.value,
-          label: '暂停'
-        },
-        {
-          key: QOP_MAP.EDIT,
-          label: '修改'
-        },
-        {
-          key: 'delete',
-          label: '删除',
-          icon: 'icon-shanchu'
-        },
-        {
-          key: QOP_MAP.COPY,
-          label: '复制',
-          icon: 'icon-shanchu'
-        },
-        {
-          key: 'release',
-          label: '投放'
-        }
-      )
-    }
-    if (row.currentPermissions.includes(SurveyPermissions.CollaboratorManage)) {
-      // 协作人判断权限显示协作按钮
-      funcList.push({
-        key: 'cooper',
-        label: '协作'
-      })
-    }
-  }
-  const order = ['edit', 'analysis', 'release', 'pausing', 'delete', 'copy', 'cooper']
+  const order = ['edit', 'analysis', 'release', 'pausing', 'delete', 'copy']
   if (
     row.curStatus.status === curStatus.new.value ||
     row.subStatus.status === subStatus.pausing.value
@@ -343,9 +290,6 @@ const handleClick = (key, data) => {
       return
     case 'delete':
       onDelete(data)
-      return
-    case 'cooper':
-      onCooper(data)
       return
     case 'pausing':
       onPausing(data)
@@ -436,15 +380,6 @@ const onButtonChange = (effectKey, effectValue) => {
   onRefresh()
 }
 
-const cooperModify = ref(false)
-const cooperId = ref('')
-const onCooper = async (row) => {
-  cooperId.value = row._id
-  cooperModify.value = true
-}
-const onCooperClose = () => {
-  cooperModify.value = false
-}
 const resetCurrentPage = () => {
   currentPage.value = 1
   onRefresh()

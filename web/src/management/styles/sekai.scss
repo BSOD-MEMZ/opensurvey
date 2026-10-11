@@ -31,10 +31,15 @@ body.mgmt-theme {
   --sk-pink-line: #ff77ac;
 
   --sk-surface: #ffffff;
-  /* 半透明白：页面/面板基底，让底下的 pjsk 渐变背景能透上来。
+  /* 半透明白：面板基底，让底下的 pjsk 渐变背景能透上来。
      表格、表单这类信息密集区仍走 --sk-surface 实底，保证可读性。 */
   --sk-bg: rgba(255, 255, 255, 0.5);
   --sk-bg-soft: rgba(255, 255, 255, 0.7);
+  /* 页面级薄纱：只是压一点点背景，别把渐变三角盖住 */
+  --sk-veil: rgba(255, 255, 255, 0.28);
+  /* 玻璃面板：编辑器 / 统计页里的悬浮卡片 */
+  --sk-glass: rgba(255, 255, 255, 0.72);
+  --sk-glass-strong: rgba(255, 255, 255, 0.86);
   --sk-line: #e6e9f2;
 
   --sk-danger: #ff5b6e;
@@ -597,9 +602,13 @@ body.mgmt-theme {
     }
   }
 
-  .question-list-root,
+  .question-list-root {
+    background-color: var(--sk-veil);
+  }
+
+  /* 编辑器整页透明：让 pjsk 渐变三角形直接透出来（面板自己带玻璃底） */
   .edit-index {
-    background-color: var(--sk-bg);
+    background-color: transparent;
   }
 
   .list-content .top h2 {
@@ -609,7 +618,18 @@ body.mgmt-theme {
 
   /* 页面级白色面板统一圆角与柔影 */
   .content-wrap {
-    background-color: var(--sk-bg);
+    background-color: var(--sk-veil);
+  }
+
+  /* ============================================================
+     玻璃面板：编辑器 / 统计页里的悬浮卡片
+     ============================================================ */
+  .sk-glass {
+    background: var(--sk-glass);
+    backdrop-filter: blur(12px);
+    border-radius: var(--sk-r-lg);
+    box-shadow: var(--sk-shadow);
+    border: 1px solid rgba(255, 255, 255, 0.55);
   }
 }
 

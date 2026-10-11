@@ -18,7 +18,7 @@ export default (data) => {
         axisLabel: {
           show: false,
           distance: 0,
-          color: '#AAB1C0',
+          color: '#8a8aa8',
           fontSize: 12,
           fontFamily: 'DaQi-Font'
         },
@@ -31,7 +31,7 @@ export default (data) => {
         axisLine: {
           lineStyle: {
             width: 40,
-            color: [[1, '#e3efff']]
+            color: [[1, '#eafcf9']]
           }
         }
       },
@@ -47,7 +47,7 @@ export default (data) => {
         z: 3,
         axisLabel: {
           distance: -5,
-          color: '#666',
+          color: '#5d5d80',
           rotate: 'tangential',
           fontSize: 12,
           fontFamily: 'DaQi-Font'
@@ -61,7 +61,7 @@ export default (data) => {
         axisLine: {
           lineStyle: {
             width: 40,
-            color: [[1, '#e3efff']]
+            color: [[1, '#eafcf9']]
           }
         }
       },
@@ -76,16 +76,16 @@ export default (data) => {
         center: ['50%', '80%'],
         splitNumber: 4,
         itemStyle: {
-          color: '#58D9F9'
+          color: '#5fd8c6'
         },
         progress: {
           show: true,
           roundCap: true,
           width: 15,
           itemStyle: {
-            color: '#55A8FD',
+            color: '#2fa596',
             shadowBlur: 10,
-            shadowColor: '#55A8FD'
+            shadowColor: '#2fa596'
           }
         },
         pointer: {
@@ -94,13 +94,13 @@ export default (data) => {
           width: 8,
           offsetCenter: [0, '-80%'],
           itemStyle: {
-            color: '#55A8FD'
+            color: '#2fa596'
           }
         },
         axisLine: {
           lineStyle: {
             width: 15,
-            color: [[1, '#d3e5fe']]
+            color: [[1, '#d9f6f1']]
           }
         },
         axisTick: {
@@ -115,7 +115,7 @@ export default (data) => {
         title: {
           offsetCenter: [0, '-15%'],
           fontSize: 18,
-          color: '#666'
+          color: '#5d5d80'
         },
         detail: {
           fontSize: 46,
@@ -123,7 +123,7 @@ export default (data) => {
           height: 40,
           offsetCenter: [0, '-45%'],
           valueAnimation: true,
-          color: '#55A8FD',
+          color: '#2fa596',
           formatter: function (value) {
             if (value) {
               return value + '%'

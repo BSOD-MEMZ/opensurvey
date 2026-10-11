@@ -20,6 +20,7 @@ export class SurveyResponseService {
     channelId = undefined,
     score,
     examDetail,
+    respondentId = undefined,
   }: {
     data: any;
     clientTime: any;
@@ -32,6 +33,8 @@ export class SurveyResponseService {
     score?: number;
     /** 考试模式的逐题对错明细 */
     examDetail?: any;
+    /** 作答者标识（浏览器本地 uuid），用于「同一人只能填一次」 */
+    respondentId?: string;
   }) {
     const newSubmitData = this.surveyResponseRepository.create({
       surveyPath,
@@ -42,6 +45,7 @@ export class SurveyResponseService {
       pageId: surveyId,
       optionTextAndId,
       channelId,
+      ...(respondentId ? { respondentId } : {}),
       // 考试模式下才有值；未开启考试模式时不写入这两个字段
       ...(typeof score === 'number' ? { score } : {}),
       ...(examDetail ? { examDetail } : {}),
@@ -58,6 +62,25 @@ export class SurveyResponseService {
     const data = await this.surveyResponseRepository.find({
       where: {
         surveyPath,
+      },
+    });
+    return (data || []).length;
+  }
+
+  /** 同一份问卷下，这个作答者（浏览器 uuid）已经提交过几份 */
+  async getResponseCountByRespondent({
+    surveyPath,
+    respondentId,
+  }: {
+    surveyPath: string;
+    respondentId: string;
+  }) {
+    // 用 find 而不是 count：MongoRepository.count 在带 $ne 之类的操作符时
+    // 会静默返回 0（实测踩过），find 和上面 tLimit 的统计走同一条路，行为一致
+    const data = await this.surveyResponseRepository.find({
+      where: {
+        surveyPath,
+        respondentId,
       },
     });
     return (data || []).length;

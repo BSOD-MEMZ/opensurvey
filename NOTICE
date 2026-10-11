@@ -49,13 +49,15 @@ LICENSE 文本中保留的原始版权声明为许可证要求，不可移除。
 ------------------------------------------------------------------------
 
 web/public/imgs/icons 与 web/public/imgs/create 目录下的状态/类型图标，
+以及 web/public/imgs/skin/sekai-*.webp（问卷默认头图），
 取自《世界计划 多彩舞台！feat. 初音未来》（Project SEKAI COLORFUL STAGE!
-feat. HATSUNE MIKU）的角色头像素材（第三方资料站 pjsk.moe「贴纸制作」
-所用的无文字角色图），版权归 SEGA / Colorful Palette 所有，
-仅用于非商业性的同人学习交流，不随本项目授权。
+feat. HATSUNE MIKU）的角色表情贴纸素材，版权归 SEGA / Colorful Palette
+所有，仅用于非商业性的同人学习交流，不随本项目授权。
 
-  - 素材来源（第三方资料站 Moesekai 的贴纸素材）：
+  - 素材来源（第三方资料站 pjsk.moe「表情包制作器」的贴纸底图）：
     https://pjsk.moe/zh-cn/sticker-maker/
-  - 用途：问卷平台的空状态 / 状态提示图标（无文字，纯角色头像）
+    https://moe.exmeaning.com/sticker-maker/img/<角色>/<角色><序号>.webp
+  - 用途：问卷平台的空状态 / 状态提示图标（表情贴纸，本身不含文字），
+    以及由本项目脚本合成的默认头图（渐变 + 贴纸，非原站素材）
 
 如需商用，请自行替换为无版权风险的素材。

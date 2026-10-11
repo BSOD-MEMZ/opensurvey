@@ -9,6 +9,7 @@ import { isMobile as isInMobile } from '@/render/utils/index'
 import { getEncryptInfo as getEncryptInfoApi } from '@/render/api/survey'
 import { useQuestionStore } from '@/render/stores/question'
 import { useErrorInfo } from '@/render/stores/errorInfo'
+import { getSurveyAnswered } from '@/render/utils/storage'
 
 import adapter from '../adapter'
 import { RuleMatch } from '@/common/logicEngine/RulesMatch'
@@ -79,6 +80,21 @@ export const useSurveyStore = defineStore('survey', () => {
     const { msgContent } = submitConf
     const now = Date.now()
     let isSuccess = true
+
+    // 同一浏览器是否已经交过卷（作者未开启「允许重复作答」时才拦）
+    if (
+      !baseConf?.repeatAnswer &&
+      surveyPath.value &&
+      getSurveyAnswered(surveyPath.value)
+    ) {
+      setErrorInfo({
+        errorType: 'overTime',
+        errorMsg:
+          '<p>你已经提交过这份问卷了</p><p>该问卷不支持重复作答，感谢支持～</p>'
+      })
+      router.push({ name: 'errorPage' })
+      return false
+    }
 
     if (now < new Date(beginTime).getTime()) {
       isSuccess = false

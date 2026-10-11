@@ -23,8 +23,11 @@ export const separateItemListHead = [
 
 // 图表名称需要和./chartConfig.js中保持一致
 export const questionChartsConfig = {
-  [menuItems['checkbox']['type']]: ['bar'],
+  [menuItems['checkbox']['type']]: ['bar', 'pie'],
   [menuItems['radio-nps']['type']]: ['gauge', 'pie', 'bar'],
+  // 填空类走词云；柱状图仍保留，看具体答案分布
+  [menuItems['text']['type']]: ['wordCloud', 'bar'],
+  [menuItems['textarea']['type']]: ['wordCloud', 'bar'],
   default: ['pie', 'bar']
 }
 

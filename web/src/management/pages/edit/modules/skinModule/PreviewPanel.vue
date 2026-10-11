@@ -84,7 +84,8 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: var(--primary-background);
+  /* 跟随作者背景设置：没设时就是 pjsk 渐变本身 */
+  background: var(--primary-background, transparent);
 }
 
 .pagination-wrapper {
@@ -96,7 +97,7 @@ export default defineComponent({
 .toolbar {
   width: 100%;
   height: 38px;
-  background-color: #fff;
+  background-color: transparent;
   flex-grow: 0;
   flex-shrink: 0;
 }

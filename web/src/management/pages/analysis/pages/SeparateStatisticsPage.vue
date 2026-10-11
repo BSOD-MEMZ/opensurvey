@@ -42,8 +42,9 @@ onMounted(initData)
 <style lang="scss" scoped>
 .separate-statis-page {
   height: 100%;
-  background: #fff;
-  padding: 0 24px;
+  /* 透明：让 pjsk 渐变背景透上来，每道题自己是一张玻璃卡 */
+  background: transparent;
+  padding: 18px 24px 40px;
   overflow-y: auto;
 }
 </style>

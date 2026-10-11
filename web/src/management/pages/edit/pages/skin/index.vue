@@ -64,7 +64,7 @@ watch(
       height: 28px;
     }
     :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-      color: $primary-color;
+      color: var(--sk-teal-ink, #1f8a7d);
       background-color: #fff;
     }
   }

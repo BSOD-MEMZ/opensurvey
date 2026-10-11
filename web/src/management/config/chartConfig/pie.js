@@ -1,14 +1,15 @@
+// pjsk 柔和配色（与管理端主题一致）
 const color = [
-  '#55A8FD',
-  '#36CBCB',
-  '#FAD337',
-  '#A6D6FF',
-  '#A177DC',
-  '#F46C73',
-  '#FFBA62',
-  '#ACE474',
-  '#BEECD6',
-  '#AFD2FF'
+  '#2fa596',
+  '#4fd6c4',
+  '#ffd166',
+  '#9ad0f5',
+  '#a78bfa',
+  '#ff7a8a',
+  '#ffb868',
+  '#7ddc9a',
+  '#a8ead9',
+  '#bcd9ff'
 ]
 /*
  * @Description: 饼图配置
@@ -36,7 +37,8 @@ export default (data) => {
       {
         name: '提交人数',
         type: 'pie',
-        radius: ['50%', '80%'],
+        radius: ['52%', '82%'],
+        center: ['40%', '52%'],
         avoidLabelOverlap: false,
         itemStyle: {
           borderRadius: 10,
@@ -45,10 +47,17 @@ export default (data) => {
         },
         label: {
           show: true,
-          formatter({ data }) {
+          color: '#5d5d80',
+          formatter({ data, percent }) {
             const name = data?.name || ''
-            return name.length > 17 ? name.substr(0, 17) + '...' : name
+            const short = name.length > 12 ? name.substr(0, 12) + '...' : name
+            return `${short}  ${percent}%`
           }
+        },
+        labelLine: {
+          length: 10,
+          length2: 10,
+          lineStyle: { color: '#cfd6e6' }
         },
         data
       }

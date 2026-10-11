@@ -26,27 +26,35 @@
 
           <div class="lucky__stage">
             <span class="lucky__pointer" aria-hidden="true"></span>
-            <div
-              class="lucky__wheel"
-              :style="{
-                background: wheelGradient,
-                transform: `rotate(${rotation}deg)`,
-                transitionDuration: spinAnimating ? `${spinMs}ms` : '0ms',
-                '--lucky-step': `${step}deg`
-              }"
-            >
-              <span
-                v-for="(prize, index) in luckPrizes"
-                :key="index"
-                class="lucky__label"
-                :style="{ transform: `rotate(${midAngle(index)}deg)` }"
+            <!-- 盘面与中心按钮分开：按钮不参与旋转（否则抽奖时按钮上的字会跟着转） -->
+            <div class="lucky__wheel">
+              <div
+                class="lucky__disc"
+                :style="{
+                  background: wheelGradient,
+                  transform: `rotate(${rotation}deg)`,
+                  transitionDuration: spinAnimating ? `${spinMs}ms` : '0ms',
+                  '--lucky-step': `${step}deg`
+                }"
               >
-                <span class="lucky__label-inner">
-                  <img v-if="isImageIcon(prize.icon)" class="lucky__label-icon" :src="prize.icon" alt="" />
-                  <em v-else class="lucky__label-emoji">{{ prize.icon || '🎁' }}</em>
-                  <b class="lucky__label-name">{{ prize.name }}</b>
+                <span
+                  v-for="(prize, index) in luckPrizes"
+                  :key="index"
+                  class="lucky__label"
+                  :style="{ '--mid': `${midAngle(index)}deg` }"
+                >
+                  <span class="lucky__label-inner">
+                    <img
+                      v-if="isImageIcon(prize.icon)"
+                      class="lucky__label-icon"
+                      :src="prize.icon"
+                      alt=""
+                    />
+                    <em v-else class="lucky__label-emoji">{{ prize.icon || '🎁' }}</em>
+                    <b class="lucky__label-name">{{ prize.name }}</b>
+                  </span>
                 </span>
-              </span>
+              </div>
 
               <button
                 class="lucky__go"
@@ -149,15 +157,13 @@ const luckTitle = computed(() => luckConf.value?.title || '恭喜你完成问卷
 const probabilities = computed(() => prizeProbabilities(luckPrizes.value))
 const step = computed(() => 360 / Math.max(1, luckPrizes.value.length))
 
-// 三色柔和扇形，相邻不撞色（奇偶交替 + 奇数个时最后一块换色）
+// pjsk 味的柔和扇形配色，相邻不撞色（按调色板轮转）
 const wheelGradient = computed(() => {
-  const palette = ['#d6faf5', '#ffe4f1', '#fff3cc']
-  const total = luckPrizes.value.length
-  const stops = luckPrizes.value.map((_, index) => {
-    let colorIndex = index % 2
-    if (total % 2 === 1 && index === total - 1) colorIndex = 2
-    return `${palette[colorIndex]} ${index * step.value}deg ${(index + 1) * step.value}deg`
-  })
+  const palette = ['#d6faf5', '#ffe4f1', '#fff6cc', '#e2ecff', '#efe2ff', '#ddf7e6']
+  const stops = luckPrizes.value.map(
+    (_, index) =>
+      `${palette[index % palette.length]} ${index * step.value}deg ${(index + 1) * step.value}deg`
+  )
   return `conic-gradient(from 0deg, ${stops.join(', ')})`
 })
 
@@ -434,7 +440,7 @@ $ink: #444466;
     top: -0.06rem;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 3;
+    z-index: 5;
     width: 0;
     height: 0;
     border-left: 0.2rem solid transparent;
@@ -443,13 +449,26 @@ $ink: #444466;
     filter: drop-shadow(0 0.04rem 0.08rem rgba(68, 68, 102, 0.35));
   }
 
+  /* 外圈：白边 + 柔光，固定不转 */
   &__wheel {
     position: relative;
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    border: 0.14rem solid #fff;
-    box-shadow: 0 0 0.24rem rgba(68, 68, 102, 0.28);
+    border: 0.12rem solid #fff;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 0.26rem rgba(68, 68, 102, 0.26),
+      inset 0 0 0 0.04rem rgba(68, 68, 102, 0.05);
+  }
+
+  /* 会旋转的盘面本体 */
+  &__disc {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    overflow: hidden;
     transform: rotate(0deg);
     transition-property: transform;
     transition-timing-function: cubic-bezier(0.16, 0.72, 0.16, 1);
@@ -470,12 +489,17 @@ $ink: #444466;
     }
   }
 
+  /* 标签：外层负责把内容摆到对应扇区，内层反向旋转让文字保持水平可读 */
   &__label {
     position: absolute;
     inset: 0;
     display: flex;
     justify-content: center;
+    /* 必须 flex-start：stretch 会把内层撑到整盘高，
+       内层的旋转原点就变成转盘圆心，反向旋转会把所有标签一起转回正上方 */
+    align-items: flex-start;
     transform-origin: 50% 50%;
+    transform: rotate(var(--mid, 0deg));
     pointer-events: none;
   }
 
@@ -483,37 +507,41 @@ $ink: #444466;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.04rem;
-    padding-top: 0.3rem;
-    width: 1.5rem;
+    justify-content: flex-start;
+    gap: 0.02rem;
+    /* 贴着外圈放，给中心按钮留出空间 */
+    padding-top: 0.26rem;
+    width: 1.35rem;
+    transform: rotate(calc(-1 * var(--mid, 0deg)));
   }
 
   &__label-emoji {
-    font-size: 0.42rem;
+    font-size: 0.4rem;
     line-height: 1;
     font-style: normal;
   }
 
   &__label-icon {
-    width: 0.44rem;
-    height: 0.44rem;
+    width: 0.42rem;
+    height: 0.42rem;
     object-fit: contain;
   }
 
   &__label-name {
-    font-size: 0.22rem;
+    font-size: 0.21rem;
     font-weight: 700;
     color: $ink;
     line-height: 1.15;
     word-break: break-all;
+    text-align: center;
   }
 
   &__go {
     position: relative;
     z-index: 4;
-    width: 1.5rem;
-    height: 1.5rem;
-    border: 0.08rem solid #fff;
+    width: 1.4rem;
+    height: 1.4rem;
+    border: 0.07rem solid #fff;
     border-radius: 50%;
     background: var(--primary-color, #77eedd);
     color: $ink;

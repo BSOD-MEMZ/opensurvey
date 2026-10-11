@@ -60,7 +60,10 @@ const handleChange = (name: any) => {
   position: relative;
   top: 24px;
 
-  background-color: #fff;
+  background: var(--sk-glass, rgba(255, 255, 255, 0.72));
+  backdrop-filter: blur(12px);
+  border-radius: var(--sk-r-lg, 18px);
+  box-shadow: 0 8px 26px rgba(68, 68, 102, 0.1);
   :deep(.el-tabs__content) {
     height: calc(100% - 10px);
     padding-bottom: 10px;

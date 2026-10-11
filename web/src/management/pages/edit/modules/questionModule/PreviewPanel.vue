@@ -145,7 +145,8 @@ watch(
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #f6f7f9;
+  /* 预览区就是真实答题页的观感：透明，让 pjsk 背景透出来 */
+  background-color: transparent;
 }
 .pagination-wrapper {
   width: 90%;
@@ -158,7 +159,7 @@ watch(
 .toolbar {
   width: 100%;
   height: 38px;
-  background-color: #fff;
+  background-color: transparent;
   flex-grow: 0;
   flex-shrink: 0;
 }
@@ -179,7 +180,10 @@ watch(
   }
 
   .content {
-    background-color: #fff;
+    /* 题卡画布：白卡浮在背景上 */
+    background-color: rgba(255, 255, 255, 0.92);
+    border-radius: var(--sk-r-lg, 18px);
+    box-shadow: 0 10px 30px rgba(68, 68, 102, 0.12);
     padding-top: 40px;
   }
 }

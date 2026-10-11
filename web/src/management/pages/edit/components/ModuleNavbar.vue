@@ -8,14 +8,6 @@
       <NavPanel></NavPanel>
     </div>
     <div class="right-group">
-      <CooperationPanel>
-        <template #content="{ onCooper }">
-          <div class="btn" @click="onCooper">
-            <i-ep-connection class="view-icon" :size="20" />
-            <span class="btn-txt">协作</span>
-          </div>
-        </template>
-      </CooperationPanel>
       <PreviewPanel></PreviewPanel>
       <HistoryPanel></HistoryPanel>
       <SavePanel
@@ -45,7 +37,6 @@ import HistoryPanel from '../modules/contentModule/HistoryPanel.vue'
 import PreviewPanel from '../modules/contentModule/PreviewPanel.vue'
 import SavePanel from '../modules/contentModule/SavePanel.vue'
 import PublishPanel from '../modules/contentModule/PublishPanel.vue'
-import CooperationPanel from '../modules/contentModule/CooperationPanel.vue'
 import { seizeSession } from '@/management/api/survey'
 import { useRoute } from 'vue-router'
 
@@ -161,7 +152,8 @@ const seize = async (sessionId: string) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #fff;
+  /* 顶栏不压白底：让它融进渐变背景 */
+  background-color: transparent;
   > div {
     display: flex;
     flex-direction: row;

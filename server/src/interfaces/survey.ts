@@ -209,6 +209,8 @@ export interface BaseConf {
   examMode?: boolean;
   // 考试模式：及格分（用于成绩单提示，不影响判分）
   examPassScore?: number;
+  // 是否允许同一人重复作答（默认 false：同一浏览器只能提交一次）
+  repeatAnswer?: boolean;
 }
 
 export interface SkinConf {

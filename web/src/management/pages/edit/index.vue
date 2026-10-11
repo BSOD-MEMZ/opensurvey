@@ -2,7 +2,7 @@
   <div class="edit-index">
     <LeftMenu class="left"></LeftMenu>
     <div class="right">
-      <CommonTemplate style="background-color: #f6f7f9">
+      <CommonTemplate>
         <template #nav>
           <Navbar class="navbar"></Navbar>
         </template>
@@ -64,6 +64,8 @@ onMounted(async () => {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  /* 整页透明，让 pjsk 渐变三角背景直接透上来 */
+  background: transparent;
 
   .left {
     position: fixed;
@@ -77,10 +79,11 @@ onMounted(async () => {
     height: 100%;
     padding-left: 80px;
     overflow: hidden;
+    background: transparent;
   }
 
   .navbar {
-    border-bottom: 1px solid #e7e9eb;
+    border-bottom: none;
   }
 }
 </style>

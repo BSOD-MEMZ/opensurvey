@@ -36,6 +36,10 @@ export class SurveyResponse extends BaseEntity {
   @Column('jsonb', { nullable: true })
   examDetail?: any;
 
+  /** 作答者标识（浏览器本地生成的 uuid），用于「同一人只能填一次」的判定 */
+  @Column({ nullable: true })
+  respondentId?: string;
+
   @BeforeInsert()
   async onDataInsert() {
     return await pluginManager.triggerHook('encryptResponseData', this);

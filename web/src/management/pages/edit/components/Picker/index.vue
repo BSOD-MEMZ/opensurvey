@@ -146,7 +146,7 @@ export default defineComponent({
 
 .x-picker__header-right {
   font-size: 14px;
-  color:  $primary-color;
+  color: var(--sk-teal-deep, #2fa596);
   cursor: pointer;
 }
 

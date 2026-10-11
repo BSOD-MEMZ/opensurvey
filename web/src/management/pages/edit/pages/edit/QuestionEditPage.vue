@@ -18,7 +18,5 @@ import PreviewPanel from '../../modules/questionModule/PreviewPanel.vue'
 import SetterPanel from '../../modules/questionModule/SetterPanel.vue'
 </script>
 <style lang="scss" scoped>
-.navbar {
-  border-bottom: 1px solid #e7e9eb;
-}
+/* 编辑页外壳已交给 CommonTemplate 做玻璃化，这里不再画分割线 */
 </style>

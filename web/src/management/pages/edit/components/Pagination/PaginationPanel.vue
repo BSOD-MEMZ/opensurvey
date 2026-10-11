@@ -264,14 +264,14 @@ watch(
     justify-content: center;
 
     &:hover {
-      color: $primary-color;
+      color: var(--sk-teal-deep, #2fa596);
       .moreControls {
         display: block;
       }
     }
 
     &.active {
-      color: $primary-color;
+      color: var(--sk-teal-deep, #2fa596);
       .moreControls {
         display: block;
       }
@@ -285,7 +285,7 @@ watch(
       cursor: pointer;
 
       &:hover {
-        color: $primary-color;
+        color: var(--sk-teal-deep, #2fa596);
       }
     }
   }
@@ -300,7 +300,7 @@ watch(
 
   .current,
   .current:hover {
-    color: $primary-color;
+    color: var(--sk-teal-deep, #2fa596);
   }
 }
 </style>

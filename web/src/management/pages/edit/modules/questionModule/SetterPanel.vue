@@ -70,7 +70,8 @@ watch(
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  background-color: #fff;
+  /* 透出外层玻璃面板 */
+  background-color: transparent;
   .no-select-question {
     padding-top: 125px;
     display: flex;
@@ -93,7 +94,7 @@ watch(
     height: 40px;
     line-height: 40px;
     font-size: 14px;
-    color: $primary-color;
+    color: var(--sk-teal-deep, #2fa596);
     padding-left: 20px;
     border-bottom: 1px solid #edeffc;
   }

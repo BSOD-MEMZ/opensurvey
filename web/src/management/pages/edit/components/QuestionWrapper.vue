@@ -223,7 +223,7 @@ const setMoveState = (state: boolean) => {
       text-align: center;
       line-height: 28px;
       &:hover {
-        background-color: $primary-color;
+        background-color: var(--sk-teal-deep, #2fa596);
         color: #fff;
       }
     }

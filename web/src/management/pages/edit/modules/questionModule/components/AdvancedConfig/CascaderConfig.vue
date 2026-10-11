@@ -159,7 +159,7 @@ const cascaderConfigChange = () => {
       width: 200px;
       margin-left: 28px;
       font-size: 12px;
-      color: $primary-color;
+      color: var(--sk-teal-deep, #2fa596);
 
       &:first-child {
         margin-left: 0;

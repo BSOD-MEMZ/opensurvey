@@ -50,6 +50,13 @@ export default {
     placement: 'top',
     type: 'CustomedSwitch'
   },
+  limit_repeatAnswer: {
+    key: 'repeatAnswer',
+    label: '允许重复作答',
+    tip: '关闭时，同一设备（浏览器）每份问卷只能提交一次；开启后不限次数',
+    placement: 'top',
+    type: 'CustomedSwitch'
+  },
   interview_pwd_switch: {
     key: 'passwordSwitch',
     label: '访问密码',

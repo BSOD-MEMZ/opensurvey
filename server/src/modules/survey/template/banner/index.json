@@ -3,8 +3,31 @@
 		"key": "default",
 		"name": "全部",
 		"list": [{
-			"src": "/imgs/skin/17e06b7604a007e1d3e1453b9ddadc3c.webp",
+			"src": "/imgs/skin/sekai-1.webp",
 			"title": "1"
+		}, {
+			"src": "/imgs/skin/sekai-2.webp",
+			"title": "2"
+		}, {
+			"src": "/imgs/skin/sekai-3.webp",
+			"title": "3"
+		}, {
+			"src": "/imgs/skin/17e06b7604a007e1d3e1453b9ddadc3c.webp",
+			"title": "4"
+		}]
+	},
+	"sekai": {
+		"key": "sekai",
+		"name": "pjsk",
+		"list": [{
+			"src": "/imgs/skin/sekai-1.webp",
+			"title": "初音未来"
+		}, {
+			"src": "/imgs/skin/sekai-2.webp",
+			"title": "桃井爱莉"
+		}, {
+			"src": "/imgs/skin/sekai-3.webp",
+			"title": "宵崎奏"
 		}]
 	},
 	"scenery": {
