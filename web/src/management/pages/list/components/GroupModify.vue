@@ -49,7 +49,8 @@ const props = defineProps({
 const ruleForm = shallowRef<any>(null)
 
 const formTitle = computed(() => {
-  return props.type === QOP_MAP.ADD ? '创建分组' : '管理分组'
+  // 「管理」说不清是改名还是改设置，统一叫「重命名」
+  return props.type === QOP_MAP.ADD ? '创建分组' : '重命名分组'
 })
 const formModel = ref<Required<IGroup>>({
   _id: '',

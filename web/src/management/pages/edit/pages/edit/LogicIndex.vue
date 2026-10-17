@@ -61,6 +61,7 @@ const handleChange = (name: any) => {
   top: 24px;
 
   background: var(--sk-glass, rgba(255, 255, 255, 0.72));
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border-radius: var(--sk-r-lg, 18px);
   box-shadow: 0 8px 26px rgba(68, 68, 102, 0.1);

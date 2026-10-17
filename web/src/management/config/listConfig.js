@@ -96,25 +96,33 @@ export const noListDataConfig = {
   img: '/imgs/icons/list-empty.webp'
 }
 
-export const noGroupDataConfig = {
-  title: '您还没有创建问卷分组',
-  desc: '赶快点击右上角立即创建问卷分组吧！',
+// 回收站单独一份文案：之前复用「您还没有创建问卷」，进回收站看到这句会以为数据丢了
+export const recycleBinEmptyConfig = {
+  title: '回收站是空的',
+  desc: '被删除的问卷会先放到这里，随时可以恢复。',
   img: '/imgs/icons/list-empty.webp'
 }
+
+export const noGroupDataConfig = {
+  title: '您还没有创建问卷分组',
+  desc: '点击右上角「创建分组」把问卷归类吧！',
+  img: '/imgs/icons/list-empty.webp'
+}
+// 「没有搜索结果」和「还没有内容」是两件事，配图区分开，避免用户误以为数据丢了
 export const noGroupSearchDataConfig = {
   title: '没有满足该查询条件的问卷分组哦',
   desc: '可以更换条件查询试试',
-  img: '/imgs/icons/list-empty.webp'
+  img: '/imgs/nodata.webp'
 }
 export const noSearchDataConfig = {
   title: '没有满足该查询条件的问卷',
   desc: '可以更换条件查询试试',
-  img: '/imgs/icons/list-empty.webp'
+  img: '/imgs/nodata.webp'
 }
 export const noDownloadTaskConfig = {
   title: '没有下载任务',
   desc: '可以在数据分析进行下载',
-  img: '/imgs/icons/list-empty.webp'
+  img: '/imgs/nodata.webp'
 }
 
 export const curStatus = {

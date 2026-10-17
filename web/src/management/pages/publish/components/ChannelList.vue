@@ -40,7 +40,13 @@
   <div class="pagination-container">
     <el-pagination layout="prev, pager, next" :total="channelTotal" @current-change="handleCurrentChange"/>
   </div>
-  <ChannelModify :visible="channelModifyVisible" :channel="curChannel" @confirm="handleRenameConfirm" @close="handleRanameClose"/>
+  <ChannelModify
+    :visible="channelModifyVisible"
+    :channel="curChannel"
+    title="重命名投放渠道"
+    @confirm="handleRenameConfirm"
+    @close="handleRanameClose"
+  />
 </template>
 
 <script lang="ts" setup>

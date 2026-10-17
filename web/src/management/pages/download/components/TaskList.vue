@@ -108,11 +108,16 @@ const handleDownload = async (row: any) => {
 // 删除文件
 const openDeleteDialog = async (row: any) => {
   try {
-    await ElMessageBox.confirm('是否确认删除？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
+    // 说清删的是什么：是导出任务记录，不是问卷数据
+    await ElMessageBox.confirm(
+      `确定删除导出任务${row.name ? `「${row.name}」` : ''}吗？仅移除这条导出记录，问卷数据不受影响。`,
+      '删除导出记录',
+      {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
     currentDelRow = row
     confirmDelete()
   } catch (error) {

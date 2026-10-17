@@ -1,5 +1,10 @@
 <template>
-  <div class="btn" @click="handleSave" v-loading="isSaving">
+  <div
+    class="btn"
+    title="保存（手动保存会同时校验逻辑与作答限制；日常改动也会自动保存）"
+    @click="handleSave"
+    v-loading="isSaving"
+  >
     <i class="iconfont icon-baocun"></i>
     <span class="btn-txt">保存</span>
     <transition name="fade">
@@ -47,19 +52,32 @@ const saveText = computed(
 const editStore = useEditStore()
 const { schemaUpdateTime, schema, sessionId } = storeToRefs(editStore)
 
-const validate = () => {
+/**
+ * 校验。
+ * full = true 时做「全量」校验（逻辑 + 白名单都查）——
+ * 手动点「保存」时用，避免出现「保存成功、点发布却报逻辑/白名单错」的割裂。
+ * 自动保存仍只校验当前子页，否则在皮肤页打字会因为别处的逻辑没配好而反复弹错。
+ */
+const validate = (full = false) => {
   let checked = true
   let msg = ''
-  if (route.path.includes('edit/logic')) {
+  const inLogic = route.path.includes('edit/logic')
+  const inSetting = route.path.includes('edit/setting')
+
+  if (full || inLogic) {
     const { validated, message } = props.updateLogicConf()
-    checked = validated
-    msg = message
+    if (!validated) {
+      checked = false
+      msg = `「显示逻辑 / 跳转逻辑」：${message}`
+    }
   }
 
-  if (route.path.includes('edit/setting')) {
+  if (full || inSetting) {
     const { validated, message } = props.updateWhiteConf()
-    checked = validated
-    msg = message
+    if (!validated) {
+      checked = false
+      msg = msg || `「问卷设置 > 作答限制」：${message}`
+    }
   }
 
   return {
@@ -123,7 +141,8 @@ const triggerAutoSave = () => {
 }
 
 const handleSave = async () => {
-  const res: any = await doSave()
+  // 手动保存走全量校验
+  const res: any = await doSave(true)
   if (res !== undefined && res.code === 200) {
     isShowAutoSave.value = true
     autoSaveStatus.value = 'succeed'
@@ -135,9 +154,10 @@ const handleSave = async () => {
 
 /**
  * 保存问卷
+ * @param full 是否做全量校验（手动保存 / 发布前为 true，自动保存为 false）
  * @return 无返回时说明保存失败并由函数内部完成统一提示，有返回时，code为200为保存成功，不为200时，使用errmsg由外部实现错误信息展示
  */
-const doSave = async () => {
+const doSave = async (full = false) => {
   if (isSaving.value) {
     return
   }
@@ -145,7 +165,7 @@ const doSave = async () => {
   isShowAutoSave.value = false
 
   // 保存检测
-  const { checked, msg } = validate()
+  const { checked, msg } = validate(full)
   if (!checked) {
     ElMessage.error(msg)
     return
@@ -178,6 +198,12 @@ const doSave = async () => {
     isSaving.value = false
   }
 }
+
+// 供父级在「返回列表」前强制存一次，避免自动保存的 2s 防抖窗口里丢改动
+const flush = async () => {
+  await doSave()
+}
+defineExpose({ flush })
 
 watch(schemaUpdateTime, () => {
   triggerAutoSave()

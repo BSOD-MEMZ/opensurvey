@@ -76,8 +76,9 @@ const state = reactive({
   },
   canSubmit: true,
   form: {
-    title: '问卷调研',
-    remark: '问卷调研',
+    // 同上：默认留空，走 placeholder，别再默认成「问卷调研」
+    title: '',
+    remark: '',
     groupId:
       groupId.value === GroupState.All || groupId.value === GroupState.Not ? '' : groupId.value
   }

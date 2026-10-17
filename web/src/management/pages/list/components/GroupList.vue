@@ -116,18 +116,10 @@ const fieldList = computed(() => {
   })
 })
 const tools = ref([
-  {
-    key: 'open',
-    label: '进入'
-  },
-  {
-    key: 'modify',
-    label: '管理'
-  },
-  {
-    key: 'delete',
-    label: '删除'
-  }
+  { key: 'open', label: '查看问卷' },
+  // 与问卷列表统一用词：「修改/管理」混用会让人猜不出是改设置还是改名
+  { key: 'modify', label: '重命名' },
+  { key: 'delete', label: '删除' }
 ])
 
 const data = computed(() => {

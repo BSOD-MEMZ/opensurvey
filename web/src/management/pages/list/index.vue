@@ -200,6 +200,10 @@ const handleMenuSelect = async (id: string) => {
   switch (id) {
     case MenuType.PersonalGroup:
       workSpaceStore.changeMenuType(MenuType.PersonalGroup)
+      // 点「我的空间」回分组列表视图（groupId 置空）。
+      // 之前这里只切了 menuType，挂载时 groupId 已被设成 'all'，
+      // 于是「分组列表」这个视图永远进不去、「创建分组」按钮的条件也永远为假。
+      workSpaceStore.changeGroup('')
       await fetchGroupList()
       break
     case MenuType.RecycleBin:

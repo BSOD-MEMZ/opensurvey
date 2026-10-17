@@ -1,43 +1,45 @@
 <template>
-  <div class="publish-result-page">
-    <LeftMenu class="left" />
-    <div class="right">
-      <div class="topNav">
-        <Navbar title="投放管理" />  
+  <div class="channel-page">
+    <TopNav class="top" />
+    <SurveyNav class="survey" />
+
+    <div class="content">
+      <!-- 左侧：实时预览。已发布走真实链接，未发布走编辑器预览通道（都看得到真实效果） -->
+      <div class="preview-container" :style="{ backgroundImage: `url('${backgroundImage}')` }">
+        <iframe :src="previewSrc"></iframe>
       </div>
-      <div class="content">
+
+      <div class="container-content">
         <template v-if="curStatus !== 'new'">
-          <div class="container-content">
-            <div class="box-link">
-              <!-- <span class="launch-tip"
-                >说明：若您的问卷投放对象，涉及14周岁以下的用户，需征得其监护人的同意。</span
-              > -->
-              <h2>问卷链接</h2>
-              <div class="main-channel-wrap">
-                <ChannelRow
-                  :disable-delete="true"
-                  :data="mainChannel"
-                  :style-wrap="{ marginBottom: '8px' }"
-                />
-              </div>
+          <div class="box-link">
+            <h2>问卷链接</h2>
+            <div class="main-channel-wrap">
+              <ChannelRow
+                :disable-delete="true"
+                :data="mainChannel"
+                :style-wrap="{ marginBottom: '8px' }"
+              />
             </div>
-            
-            <br/>
-            <div class="box-channelList" v-if="channelTotal > 0">
-              <h2>投放列表</h2>
-              <div class="main-channel-wrap">
-                <ChannelList />
-              </div>
+          </div>
+
+          <br />
+          <div class="box-channelList" v-if="channelTotal > 0">
+            <h2>投放列表</h2>
+            <div class="main-channel-wrap">
+              <ChannelList />
             </div>
-            <div class="box-channelList">
-              <h2>投放方式</h2>
-              <div class="main-channel-wrap">
-                <ChannelCards/>
-              </div>
+          </div>
+          <div class="box-channelList">
+            <h2>投放方式</h2>
+            <div class="main-channel-wrap">
+              <ChannelCards />
             </div>
           </div>
         </template>
-        <EmptyIndex v-else :data="defaultConfig" />
+        <template v-else>
+          <!-- 未发布：右侧给状态说明，但左侧依然能预览，不必先发布再自己走一遍 -->
+          <EmptyIndex :data="defaultConfig" />
+        </template>
       </div>
     </div>
   </div>
@@ -54,21 +56,21 @@ import { ElMessage } from 'element-plus'
 import 'element-plus/theme-chalk/src/message.scss'
 
 import EmptyIndex from '@/management/components/EmptyIndex.vue'
-import LeftMenu from '@/management/components/LeftMenu.vue'
+import TopNav from '@/management/components/TopNav.vue'
+import SurveyNav from '@/management/components/SurveyNav.vue'
 import ChannelRow from './components/ChannelRow.vue'
 import ChannelList from './components/ChannelList.vue'
 import ChannelCards from './components/ChannelCards.vue'
-import Navbar from './components/Navbar.vue'
 
+const backgroundImage = '/imgs/phone-bg.webp'
 const defaultConfig = {
   title: '问卷未发布',
-  desc: '点击发布后，问卷就可以对外投放了哦！',
+  desc: '左侧可以直接预览效果；确认无误后，到「问卷编辑」右上角点击「发布」，就能对外投放了。',
   img: '/imgs/icons/unpublished.webp'
 }
 const channelStore = useChannelStore()
 const editStore = useEditStore()
 const { schema, init, setSurveyId } = editStore
-
 
 const { channelTotal } = storeToRefs(channelStore)
 const metaData = toRef(schema, 'metaData')
@@ -85,6 +87,16 @@ const mainChannel = computed(() => {
 
 const route = useRoute()
 const router = useRouter()
+const surveyId = computed(() => String(route.params.id || ''))
+
+// 未发布时 /render/{surveyPath} 还没有效内容，改走编辑器的预览通道，
+// 保证「投放页任何时候都能先看一眼效果」。
+const previewSrc = computed(() =>
+  curStatus.value === 'new'
+    ? `/management/preview/${surveyId.value}`
+    : `${mainChannel.value.fullUrl}`
+)
+
 onMounted(async () => {
   setSurveyId(route.params.id as string)
 
@@ -103,48 +115,53 @@ onMounted(async () => {
 })
 </script>
 <style lang="scss" scoped>
-.publish-result-page {
+.channel-page {
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 
-  .left {
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 100;
+  .top,
+  .survey {
+    flex: none;
   }
 
-  .right {
+  .content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: stretch;
+    padding: 20px;
+    gap: 24px;
+    background: #f6f7f9;
+    overflow: auto;
+  }
+}
+
+.preview-container {
+  width: 390px;
+  height: 700px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  padding: 107px 38px 57px 38px;
+  background-position: 0 0;
+  background-size: 100% 100%;
+
+  iframe {
     width: 100%;
     height: 100%;
-    overflow: hidden;
-    
-
-    background: #f6f7f9;
-    // padding: 30px 40px 50px 40px;
-    padding-left: 80px;
-    .topNav{
-      width: 100%;
-      height: 55px;
-      background: #fff;
-    }
-    .content {
-      display: flex;
-      height: calc(100% - 90px);
-      margin: 20px;
-      background-color: #fff;
-      overflow: auto;
-    }
+    border: none;
   }
 }
 
 .container-content {
-  width: 78%;
-  margin: 0 auto;
+  flex: 1;
+  min-width: 620px;
+  background-color: #fff;
+  border-radius: 4px;
   padding: 30px 30px 80px;
-  border-radius: 2px;
-  min-width: 1060px;
+
   .launch-tip {
     font-size: 12px;
     color: #fa881a;
@@ -160,4 +177,3 @@ onMounted(async () => {
   }
 }
 </style>
-  

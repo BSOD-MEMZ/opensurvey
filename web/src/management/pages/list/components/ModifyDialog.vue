@@ -3,9 +3,13 @@
     class="base-dialog-root"
     :model-value="visible"
     width="40%"
-    title="基础信息"
+    :title="type === QOP_MAP.EDIT ? '重命名问卷 / 编辑基础信息' : '复制问卷'"
     @close="onClose"
   >
+    <!-- 复制时把「会发生什么」说清楚，避免用户以为是改原问卷 -->
+    <p v-if="type !== QOP_MAP.EDIT" class="dialog-tip">
+      将按下面的标题创建一份<strong>新问卷</strong>（内容一并复制），原问卷不受影响。
+    </p>
     <el-form
       class="base-form-root"
       ref="ruleForm"
@@ -40,7 +44,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button type="primary" class="save-btn" @click="onSave">{{
-          type === QOP_MAP.EDIT ? '保存' : '确定'
+          type === QOP_MAP.EDIT ? '保存' : '创建副本'
         }}</el-button>
       </div>
     </template>
@@ -156,5 +160,20 @@ export default {
 <style lang="scss" scoped>
 .base-form-root {
   padding: 20px;
+}
+
+.dialog-tip {
+  margin: 0 20px 12px;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #8a6d3b;
+  background: #fdf6ec;
+  border: 1px solid #f5e2c4;
+  border-radius: 6px;
+
+  strong {
+    color: #b8860b;
+  }
 }
 </style>

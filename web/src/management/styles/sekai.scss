@@ -626,6 +626,7 @@ body.mgmt-theme {
      ============================================================ */
   .sk-glass {
     background: var(--sk-glass);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     border-radius: var(--sk-r-lg);
     box-shadow: var(--sk-shadow);

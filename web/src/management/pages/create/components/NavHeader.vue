@@ -26,7 +26,9 @@ const img = '/imgs/s-logo.webp'
 const router = useRouter()
 
 const onBack = () => {
-  router.go(-1)
+  // 与问卷内顶栏的返回保持一致：明确回问卷列表，不依赖浏览器历史
+  // （原来用 go(-1)，直接打开 /create 时会退出站点）
+  router.push({ name: 'survey' })
 }
 
 const toHomePage = () => {

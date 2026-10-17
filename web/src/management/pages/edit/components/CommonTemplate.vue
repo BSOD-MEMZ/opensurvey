@@ -43,9 +43,10 @@ const slots = useSlots()
     display: flex;
     flex-direction: row;
     overflow: hidden;
-    /* 三栏之间留出缝，让底下的 pjsk 渐变背景透出来，整体不那么"硬" */
+    /* 三栏之间留出缝，让底下的 pjsk 渐变背景透出来，整体不那么"硬"。
+       左侧原来顶到 0 是因为外面有 80px 的左侧竖排导航占位，导航已并入顶栏，这里补回来。 */
     gap: 16px;
-    padding: 0 16px 16px 0;
+    padding: 0 16px 16px;
 
     .left,
     .center,
@@ -61,6 +62,7 @@ const slots = useSlots()
       flex-shrink: 0;
       /* 玻璃面板：面板自己的白底都是透明的，靠这一层来出质感 */
       background: var(--sk-glass, rgba(255, 255, 255, 0.72));
+      -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.6);
       box-shadow: 0 8px 26px rgba(68, 68, 102, 0.1);

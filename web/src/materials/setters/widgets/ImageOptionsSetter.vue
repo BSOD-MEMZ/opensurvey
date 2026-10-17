@@ -11,7 +11,7 @@
           :show-file-list="false"
           :data="{ channel: 'upload' }"
           :headers="{ Authorization: `Bearer ${token}` }"
-          :on-success="(res, file) => onImageSuccess(res, index)"
+          :on-success="(res: any) => onImageSuccess(res, index)"
         >
           <span class="thumb-btn">上传</span>
         </el-upload>

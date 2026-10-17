@@ -222,50 +222,39 @@ const onRefresh = async () => {
 }
 
 const getToolConfig = (row) => {
-  // 协作功能已下线：列表里每一行都是当前用户自己的问卷，直接给出全部操作
-  const funcList = [
-    {
-      key: QOP_MAP.EDIT,
-      label: '修改'
-    },
-    {
-      key: 'delete',
-      label: '删除',
-      icon: 'icon-shanchu'
-    },
-    {
-      key: QOP_MAP.COPY,
-      label: '复制',
-      icon: 'icon-shanchu'
-    },
-    {
-      key: 'analysis',
-      label: '数据'
-    },
-    {
-      key: 'release',
-      label: '投放'
-    },
-    {
-      key: subStatus.pausing.value,
-      label: '暂停'
-    }
+  // 协作功能已下线：列表里每一行都是当前用户自己的问卷，直接给出全部操作。
+  // 这里改成"顺序固定、只做增删"，不再按状态重排 —— 原来不同状态的问卷
+  // 按钮位置会变，用户找不到「投放/暂停」。
+  const list = [
+    // 明确区分：「编辑」进内容编辑器，「重命名」才是改标题/备注/分组
+    { key: 'content', label: '编辑' },
+    { key: 'analysis', label: '数据' },
+    { key: 'release', label: '投放' },
+    { key: QOP_MAP.EDIT, label: '重命名' },
+    // 复制原来和删除共用垃圾桶图标，容易误认为会删问卷
+    { key: QOP_MAP.COPY, label: '复制', icon: 'icon-fuzhi' },
+    { key: 'delete', label: '删除', icon: 'icon-shanchu' }
   ]
-  const order = ['edit', 'analysis', 'release', 'pausing', 'delete', 'copy']
-  if (
-    row.curStatus.status === curStatus.new.value ||
-    row.subStatus.status === subStatus.pausing.value
-  ) {
-    // 去掉暂停按钮
-    order.splice(3, 1)
-    funcList = funcList.filter((item) => item.key !== subStatus.pausing.value)
-  }
-  const result = funcList.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key))
 
-  return result
+  const canPause =
+    row.curStatus.status !== curStatus.new.value &&
+    row.subStatus.status !== subStatus.pausing.value
+  if (canPause) {
+    list.splice(4, 0, { key: subStatus.pausing.value, label: '暂停' })
+  }
+
+  return list
 }
 const handleClick = (key, data) => {
   switch (key) {
+    case 'content':
+      router.push({
+        name: 'QuestionEditIndex',
+        params: {
+          id: data._id
+        }
+      })
+      return
     case QOP_MAP.EDIT:
       onModify(data, QOP_MAP.EDIT)
       return
@@ -282,7 +271,7 @@ const handleClick = (key, data) => {
       return
     case 'release':
       router.push({
-        name: 'publish',
+        name: 'channel',
         params: {
           id: data._id
         }
@@ -300,11 +289,15 @@ const handleClick = (key, data) => {
 }
 const onDelete = async (row) => {
   try {
-    await ElMessageBox.confirm('是否确认删除？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
+    await ElMessageBox.confirm(
+      `确定删除问卷「${row.title}」吗？删除后可在回收站找回。`,
+      '删除问卷',
+      {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
   } catch (error) {
     return
   }

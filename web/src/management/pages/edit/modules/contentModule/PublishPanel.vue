@@ -34,21 +34,23 @@ const router = useRouter()
 
 const validate = () => {
   let checked = true
-  let msg = ''
+  const messages: string[] = []
+
   const { validated, message } = props.updateLogicConf()
   if (!validated) {
-    checked = validated
-    msg = `检查页面"问卷编辑>显示逻辑"：${message}`
+    checked = false
+    messages.push(`「问卷编辑 > 逻辑设置」：${message}`)
   }
   const { validated: whiteValidated, message: whiteMsg } = props.updateWhiteConf()
   if (!whiteValidated) {
-    checked = whiteValidated
-    msg = `检查页面"问卷设置>作答限制"：${whiteMsg}`
+    checked = false
+    messages.push(`「问卷设置 > 作答限制」：${whiteMsg}`)
   }
 
   return {
     checked,
-    msg
+    // 两处都错时原来只显示后一条，用户改完又报下一个；这里合并展示
+    msg: messages.join('；')
   }
 }
 
@@ -94,15 +96,30 @@ const handlePublish = async () => {
     return
   }
 
-  isPublishing.value = true
-
-  // 发布检测
+  // 发布检测（放前面：校验不过就不该把按钮锁住）
   const { checked, msg } = validate()
   if (!checked) {
-    isPublishing.value = false
     ElMessage.error(msg)
     return
   }
+
+  // 发布是改变问卷生命周期的动作，原来点一下就执行、还会直接跳走，加一道确认
+  const title = (schema.value?.metaData as any)?.title || '当前问卷'
+  try {
+    await ElMessageBox.confirm(
+      `发布后「${title}」即可对外投放，并开始回收答卷。确定发布吗？`,
+      '发布问卷',
+      {
+        confirmButtonText: '确定发布',
+        cancelButtonText: '再检查一下',
+        type: 'warning'
+      }
+    )
+  } catch {
+    return
+  }
+
+  isPublishing.value = true
 
   try {
     const saveRes: any = await onSave()
@@ -113,7 +130,7 @@ const handlePublish = async () => {
     if (publishRes.code === 200) {
       ElMessage.success('发布成功')
       getSchemaFromRemote()
-      router.push({ name: 'channel' })
+      router.push({ name: 'channel', params: { id: saveData.value.surveyId } })
     } else {
       ElMessage.error(`发布失败 ${publishRes.errmsg}`)
     }

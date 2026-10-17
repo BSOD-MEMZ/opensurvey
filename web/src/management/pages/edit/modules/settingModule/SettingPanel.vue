@@ -1,6 +1,14 @@
 <template>
   <div class="question-config">
     <div class="question-config-wrapper">
+      <!-- 说清楚这些限制在哪儿生效：编辑器预览不会拦人，避免用户以为"配了没效果" -->
+      <div class="setting-tip">
+        <i-ep-WarningFilled class="tip-icon" />
+        <span>
+          下面的访问密码 / 白名单 / 答题时段等限制，只在<strong>发布后的真实链接</strong>上生效，
+          编辑器里的「预览」不会拦截。配置完可以点右上角「发布」，再用真实链接自查一遍。
+        </span>
+      </div>
       <div class="question-config-main">
         <div v-for="form of formConfigList" :key="form.key" class="config-item">
           <div class="config-title">
@@ -72,6 +80,29 @@ const handleFormChange = ({ key, value }: any) => {
     height: 100%;
     overflow-y: auto;
 
+    .setting-tip {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 18px;
+      padding: 12px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #8a6d3b;
+      background: #fdf6ec;
+      border: 1px solid #f5e2c4;
+      border-radius: var(--sk-r-lg, 18px);
+
+      .tip-icon {
+        margin-top: 2px;
+        flex: none;
+      }
+
+      strong {
+        color: #b8860b;
+      }
+    }
+
     .question-config-main {
       .config-item {
         position: relative;
@@ -79,6 +110,7 @@ const handleFormChange = ({ key, value }: any) => {
         padding: 22px 28px;
         /* 玻璃卡片：不再是一整块死白，背景能透上来 */
         background: var(--sk-glass, rgba(255, 255, 255, 0.72));
+        -webkit-backdrop-filter: blur(12px);
         backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.6);
         border-radius: var(--sk-r-lg, 18px);

@@ -1,14 +1,15 @@
 <template>
   <div class="top-nav">
     <div class="left">
-      <img class="logo-img" src="/imgs/Logo.webp" alt="logo" />
-      <el-menu router default-active-index="survey" class="el-menu-demo" mode="horizontal">
-        <el-menu-item index="survey">
-          <router-link :to="{ name: 'survey' }">问卷列表</router-link>
-        </el-menu-item>
-        <el-menu-item index="download">
-          <router-link :to="{ name: 'download' }">下载中心</router-link>
-        </el-menu-item>
+      <img class="logo-img" src="/imgs/Logo.webp" alt="logo" @click="toSurvey" />
+      <el-menu
+        :default-active="activeMenu"
+        class="el-menu-demo"
+        mode="horizontal"
+        @select="onSelect"
+      >
+        <el-menu-item index="survey">问卷列表</el-menu-item>
+        <el-menu-item index="download">下载中心</el-menu-item>
       </el-menu>
     </div>
     <div class="login-info">
@@ -22,15 +23,41 @@
 <script setup lang="ts">
 import { useUserStore } from '@/management/stores/user'
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { ElMessageBox } from 'element-plus'
 const router = useRouter()
+const route = useRoute()
 
 const userStore = useUserStore()
 const userInfo = computed(() => {
   return userStore.userInfo
 })
 
-const handleLogout = () => {
+// 之前写的是 default-active-index（Element Plus 里没有这个属性），等于没生效，
+// 结果是菜单永远不高亮当前页。这里改成受控的 default-active。
+const activeMenu = computed(() => {
+  const name = String(route.name || '')
+  if (name === 'download') return 'download'
+  return 'survey'
+})
+
+const onSelect = (index: string) => {
+  if (index === activeMenu.value) return
+  router.push({ name: index })
+}
+
+const toSurvey = () => router.push({ name: 'survey' })
+
+const handleLogout = async () => {
+  try {
+    await ElMessageBox.confirm('退出后需要重新登录才能继续使用，是否退出？', '退出登录', {
+      confirmButtonText: '退出',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+  } catch {
+    return
+  }
   userStore.logout()
   router.replace({ name: 'login' })
 }
@@ -38,14 +65,19 @@ const handleLogout = () => {
 
 <style lang="scss" scoped>
 .top-nav {
-  background: #fff;
+  /* 走玻璃：所有页面（含带 pjsk 渐变背景的编辑器/统计页）都能透出底色 */
+  background: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   color: #4a4c5b;
   padding: 0 20px;
   height: 56px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid rgba(230, 233, 242, 0.9);
+  position: relative;
+  z-index: 60;
   .left {
     display: flex;
     align-items: center;
@@ -54,15 +86,19 @@ const handleLogout = () => {
       width: 90px;
       height: fit-content;
       padding-right: 20px;
+      cursor: pointer;
     }
     .el-menu {
       width: 100%;
       height: 56px;
       border: none !important;
-      :deep(.el-menu-item, .is-active) {
+      background: transparent;
+      :deep(.el-menu-item) {
         border: none !important;
+        background: transparent;
       }
-      .router-link-active {
+      :deep(.el-menu-item.is-active) {
+        border-bottom: 2px solid $primary-color !important;
         color: $primary-color;
       }
     }

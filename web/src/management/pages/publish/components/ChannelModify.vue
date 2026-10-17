@@ -1,7 +1,7 @@
 <template>
    <el-dialog
     :modelValue="visible"
-    title="APP嵌入式问卷"
+    :title="dialogTitle"
     width="500"
     :before-close="handleClose"
   >
@@ -37,7 +37,7 @@
   </el-dialog>
 </template>  
 <script lang="ts" setup>
-import { shallowRef, reactive, watch } from 'vue'
+import { shallowRef, reactive, watch, computed } from 'vue'
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -49,7 +49,14 @@ const props = defineProps({
       return {}
     },
   },
+  // 同一个弹窗被「新增投放」和「重命名」两处复用，
+  // 原来标题写死成「APP嵌入式问卷」，重命名时用户会以为点错了功能
+  title: {
+    type: String,
+    default: '新增投放',
+  },
 })
+const dialogTitle = computed(() => props.title)
 const emit = defineEmits(['close', 'confirm'])
 const channelForm = reactive({
   name: '',

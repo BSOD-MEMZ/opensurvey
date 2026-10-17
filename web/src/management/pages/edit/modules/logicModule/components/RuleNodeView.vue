@@ -98,14 +98,14 @@ watch(
   () => JSON.stringify(props.ruleNode.conditions.map((c) => [c.field, c.operator, c.value])),
   () => {
     const group = showLogicEngine.value.rules.filter(
-      (rule) => rule.groupId === props.ruleNode.groupId
+      (rule: any) => rule.groupId === props.ruleNode.groupId
     )
     if (group.length < 2) {
       return
     }
     group
-      .filter((rule) => rule.id !== props.ruleNode.id)
-      .forEach((rule) => {
+      .filter((rule: any) => rule.id !== props.ruleNode.id)
+      .forEach((rule: any) => {
         rule.conditions = props.ruleNode.conditions.map(
           (c) => new ConditionNode(c.field, c.operator, c.value)
         )

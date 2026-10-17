@@ -19,7 +19,6 @@
         cell-class-name="tableview-cell"
         style="width: 100%"
         v-loading="loading"
-        @row-click="onRowClick"
       >
         <el-table-column column-key="space" width="20" />
 
@@ -30,7 +29,6 @@
           :column-key="field.key"
           :width="field.width"
           :min-width="field.width || field.minWidth"
-          class-name="link"
         >
           <template #default="scope">
             <template v-if="field.comp">
@@ -72,7 +70,7 @@
     </div>
 
     <div v-else>
-      <EmptyIndex :data="!searchVal ? noListDataConfig : noSearchDataConfig" />
+      <EmptyIndex :data="!searchVal ? recycleBinEmptyConfig : noSearchDataConfig" />
     </div>
 
     <ModifyDialog
@@ -113,7 +111,7 @@ import TextButton from './TextButton.vue'
 
 import {
   fieldConfig,
-  noListDataConfig,
+  recycleBinEmptyConfig,
   noSearchDataConfig,
   selectOptionsDict,
   buttonOptionsDict,
@@ -250,7 +248,7 @@ const handleClick = (key, data) => {
       return
     case 'release':
       router.push({
-        name: 'publish',
+        name: 'channel',
         params: {
           id: data._id
         }
@@ -268,11 +266,15 @@ const handleClick = (key, data) => {
 }
 const onDelete = async (row) => {
   try {
-    await ElMessageBox.confirm('是否确认删除？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
+    await ElMessageBox.confirm(
+      `确定删除问卷「${row.title}」吗？删除后可在回收站找回。`,
+      '删除问卷',
+      {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
   } catch (error) {
     return
   }
@@ -288,6 +290,20 @@ const onDelete = async (row) => {
 }
 
 const onRecover = async (row) => {
+  // 恢复也加一次确认：原来「恢复」直接执行、「彻底删除」却要确认，一轻一重不对等
+  try {
+    await ElMessageBox.confirm(
+      `确定把「${row.title}」恢复到问卷列表吗？`,
+      '恢复问卷',
+      {
+        confirmButtonText: '恢复',
+        cancelButtonText: '取消',
+        type: 'info'
+      }
+    )
+  } catch (error) {
+    return
+  }
   const res = await recoverSurvey(row._id)
   if (res.code === CODE_MAP.SUCCESS) {
     ElMessage.success('恢复成功')
@@ -301,11 +317,15 @@ const onRecover = async (row) => {
 
 const onCompleteDelete = async (row) => {
   try {
-    await ElMessageBox.confirm('将从回收站中永久删除该问卷，是否确认删除？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
+    await ElMessageBox.confirm(
+      `将从回收站中永久删除「${row.title}」，删除后无法恢复，是否继续？`,
+      '彻底删除',
+      {
+        confirmButtonText: '永久删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
   } catch (error) {
     return
   }
@@ -357,17 +377,8 @@ const onCloseModify = (type) => {
     workSpaceStore.getGroupList()
   }
 }
-const onRowClick = async (row) => {
-
-  try {
-    await ElMessageBox.alert('该问卷已被删除，无法继续访问。', '提示', {
-      confirmButtonText: '返回问卷列表',
-      type: 'warning'
-    })
-  } catch (error) {
-    return
-  }
-}
+// 原来每次点行都弹「该问卷已被删除，无法继续访问」，但按钮写了「返回问卷列表」又不跳转，
+// 纯打断操作。回收站里能做的就是「恢复」或「彻底删除」，行点击已去掉。
 const onSearchText = (e) => {
   searchVal.value = e
   currentPage.value = 1

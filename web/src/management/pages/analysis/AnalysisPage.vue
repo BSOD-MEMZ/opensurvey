@@ -1,6 +1,7 @@
 <template>
   <div class="analysis-page">
-    <leftMenu class="left"></leftMenu>
+    <TopNav class="top" />
+    <SurveyNav class="survey" />
     <div class="right">
       <div class="analysis-tabs">
         <router-link
@@ -12,10 +13,10 @@
           <i class="iconfont" :class="item.icon"></i>
           <span>{{ item.label }}</span>
         </router-link>
+        <!-- 去掉 target="_blank"：同页打开后按返回就能回到统计，不再丢上下文 -->
         <router-link
           class="analysis-tabs__screen"
           :to="{ name: 'screenPage', params: { id: route.params.id } }"
-          target="_blank"
         >
           <i-ep-monitor class="screen-icon" />
           <span>数据大屏</span>
@@ -29,29 +30,41 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import LeftMenu from '@/management/components/LeftMenu.vue'
+import TopNav from '@/management/components/TopNav.vue'
+import SurveyNav from '@/management/components/SurveyNav.vue'
 import { analysisType } from '@/management/config/analysisConfig'
+import { useEditStore } from '@/management/stores/edit'
 
 const route = useRoute()
+const editStore = useEditStore()
+
+// 只登记 id，不触发 init()（统计页只读，不该去抢编辑 session）
+onMounted(() => {
+  if (route.params.id) {
+    editStore.setSurveyId(String(route.params.id))
+  }
+})
 </script>
 
 <style lang="scss" scoped>
 .analysis-page {
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 
-  .left {
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 100;
+  .top,
+  .survey {
+    flex: none;
   }
 
   .right {
     width: 100%;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     min-width: 1300px;
     display: flex;
     flex-direction: column;
@@ -72,6 +85,7 @@ const route = useRoute()
       align-items: center;
       padding: 0 24px;
       background-color: rgba(255, 255, 255, 0.66);
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(230, 233, 242, 0.9);
 
@@ -130,8 +144,9 @@ const route = useRoute()
 
   .content-wrapper {
     flex: auto;
+    min-height: 0;
     overflow: hidden;
-    padding: 24px 24px 24px 104px;
+    padding: 24px;
   }
 }
 </style>

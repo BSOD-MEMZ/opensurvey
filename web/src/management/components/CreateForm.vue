@@ -77,8 +77,10 @@ const state = reactive({
     title: [{ required: true, message: '请输入问卷标题', trigger: 'blur' }]
   },
   form: {
-    title: '问卷调研',
-    remark: '问卷调研',
+    // 原来默认写死「问卷调研」，不填也会造出一堆同名问卷、事后无法区分。
+    // 改成留空走 placeholder，逼用户起个能认出来的名字。
+    title: '',
+    remark: '',
     surveyType: 'normal',
     groupId: props.groupId === GroupState.All || props.groupId === GroupState.Not ? '' : props.groupId
   }

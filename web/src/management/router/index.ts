@@ -148,12 +148,10 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../pages/screen/ScreenPage.vue')
   },
   {
+    // 原来「投放」有 publish / channel 两个页面两个入口，内容还不同。
+    // 现已合并到 channel 一个页面（含链接、投放列表、投放方式 + 实时预览）。
     path: '/survey/:id/publish',
-    name: 'publish',
-    meta: {
-      needLogin: true,
-    },
-    component: () => import('../pages/publish/PublishPage.vue')
+    redirect: (to) => ({ name: 'channel', params: { id: to.params.id } })
   },
   {
     path: '/survey/:id/channel',
